@@ -6,7 +6,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * モブに永続ポーションエフェクトを自己付与するトレイト（PROTECTION, REGEN, INVISIBLE など）。
+ * モブに永続ポーションエフェクトを自己付与する特性（PROTECTION, REGEN, INVISIBLE など）。
  * L2Hostility の {@code SelfEffectTrait} に対応する。
  */
 public class SelfEffectTrait extends Trait {

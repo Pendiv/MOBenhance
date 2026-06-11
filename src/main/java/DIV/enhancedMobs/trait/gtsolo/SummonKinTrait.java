@@ -9,7 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
-/** クリーパー専用。一定間隔で自身の半レベルのクリーパーを召喚する。上限6体。 */
+/** クリーパー専用。一定間隔で自身の半レベルのクリーパーを召喚する。上限20体。 */
 public final class SummonKinTrait extends Trait {
 
     public SummonKinTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -21,7 +21,7 @@ public final class SummonKinTrait extends Trait {
         return mob instanceof Creeper;
     }
 
-    private static final int MAX_NEARBY = 6;
+    private static final int MAX_NEARBY = 20;
 
     @Override
     public void tick(LivingEntity mob, int rank) {

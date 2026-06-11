@@ -16,13 +16,15 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * 私がよく使っている易化コマンド
  * {@code /cg [target] [gamemode]} — ゲームモード変更コマンド。
  * <ul>
- *   <li>引数なし：自分のサバイバル↔クリエイティブをトグル。</li>
+ *   <li>引数なし：自分のサバイバル↔クリエイティブをサイクル。</li>
  *   <li>{@code /cg <gamemode>}：自分のモードを指定。</li>
  *   <li>{@code /cg <target> <gamemode>}：対象プレイヤーのモードを指定。</li>
  * </ul>
- * ゲームモードは 0-3 の数字または名前で指定可能。権限: {@code enhancedmobs.cg}（OP）。
+ * ゲームモードは 0-3 の数字または名前で指定可能。権限: {@code enhancedmobs.cg}（OP）
+ * ターゲットが指定されているなら、その後の省略は認められません
  */
 public final class CgCommand implements CommandExecutor, TabCompleter {
 

@@ -11,7 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * レベルに応じたステータス強化を適用。個体差（振れ）を生むランダム配分を行う。
+ * レベルに応じたステータス強化を適用。個体差を生むランダム配分を行う。
  *
  * <p>HP・防御・攻撃・速度の4ステータスに {@code count * perStep} を加算。
  * count の決め方:
@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *   <li>粗粒部 {@code high = N / 10}: ランダムなステータスに +high を {@code coarseDraws}（≈10）回。</li>
  * </ul>
  * 合計 {@code 10*high + ones = N} になるが、抽選は ≈19 回のみ。
- * 意図的に粗い配分で、一部ステータスに極端に偏ったモブが生まれる。
+ * あえて抽選を荒くし、個体差を調整。
  */
 public final class LevelScaler {
 

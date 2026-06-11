@@ -13,6 +13,7 @@ import java.util.Map;
 /**
  * location.yml から読み込む位置ベースの難易度倍率（バイオーム・深度）。
  * ディメンションスケーリングの後に乗算される。
+ * 現世ではより深いほど強い、乗算であるため、理論上は2倍くらいになる...はずである
  */
 public final class LocationConfig {
 

@@ -9,8 +9,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * プレイヤー×トレイトごとの段階的クールダウン。オーラ・位置交換・連続ノックバック等の
- * 「回避不可」トレイトによるチェインロック防止用。一度被弾するとクールダウンが発生し、
+ * プレイヤー×特性ごとの段階的クールダウン。オーラ・位置交換・連続ノックバック等の
+ * 「回避不可」特性によるチェインロック防止用。一度被弾するとクールダウンが発生し、
  * リセット前に再び被弾すると次回がさらに延長される（上限あり）。
  * 十分な間隔を置くと段階がリセットされる。
  *
@@ -31,7 +31,7 @@ public final class TraitCooldown {
     }
 
     /**
-     * @return トレイトが今この対象に作用できれば true。
+     * @return 特性が今この対象に作用できれば true。
      *         プレイヤーで true の場合、被弾を記録して段階的クールダウンをセット（または延長）する。
      */
     public static boolean ready(LivingEntity target, String traitId, int baseTicks, int stepTicks,

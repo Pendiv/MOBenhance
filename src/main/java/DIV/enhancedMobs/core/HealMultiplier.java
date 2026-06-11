@@ -8,11 +8,12 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * プラグイン独自の回復量倍率（AttributesLib の同名属性に倣い、基底値 1.0、0 = 回復なし）。
+ * プラグイン独自の回復量倍率（基底値 1.0、0 = 回復なし。MOD環境のattributeを模倣）。
  * Bukkit はカスタム属性をランタイム登録できないため PDC に保持し、
  * {@code HealListener} が EntityRegainHealthEvent で適用する。
  *
  * <p>恒久的な基底倍率と、CURSED が使う時限「呪い」上書きをサポート。
+ * 将来的にはプレイヤーのスキルの回復倍率をサポート
  */
 public final class HealMultiplier {
 

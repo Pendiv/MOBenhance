@@ -9,7 +9,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * モブトレイト基底クラス。シングルトン（1インスタンスを多数のモブに rank 付きで適用）。
+ * モブ特性基底クラス。シングルトン（1インスタンスを多数のモブに rank 付きで適用）。
  * L2Hostility の {@code MobTrait} に対応する。メタデータフィールドが {@link TraitGenerator}
  * の重み付き抽選を制御し、フックが実際の挙動を実装する。
  */

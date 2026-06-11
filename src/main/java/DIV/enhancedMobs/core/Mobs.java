@@ -13,16 +13,16 @@ import org.bukkit.util.Vector;
 
 import java.util.Set;
 
-/** トレイト実装が共用するユーティリティ。 */
+/** 特性実装が共用するユーティリティ。 */
 public final class Mobs {
 
     private Mobs() {
     }
 
-    /** トレイトによる自己複製（クローン・自身の召喚）を禁止するボス・ミニボス種別。 */
+    /** 特性による自己複製（クローン・自身の召喚）を禁止するボス・ミニボス種別。 */
     private static final Set<EntityType> BOSSES = Set.of(
             EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.WARDEN, EntityType.ELDER_GUARDIAN);
-
+//witherは一番ダメ。償還後無敵の最中に新しい無敵witherが出現し、戦闘とか関係なく周囲が爆発し続ける
     public static boolean isBoss(EntityType type) {
         return BOSSES.contains(type);
     }

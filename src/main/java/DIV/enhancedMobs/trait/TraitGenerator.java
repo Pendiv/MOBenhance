@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 重み付きバジェット抽選によるトレイト生成。L2Hostility の {@code TraitGenerator} の簡略移植。
- * レベルがバジェット。各トレイトのコストは {@code cost * rank}。
+ * 重み付きバジェット抽選による特性生成。L2Hostility の {@code TraitGenerator} の簡略移植。
+ * レベルがバジェット。各特性のコストは {@code cost * rank}。
  * バジェット切れ・プール枯渇・最大トレイト数到達のいずれかで終了する。
  */
 public final class TraitGenerator {

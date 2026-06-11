@@ -17,10 +17,13 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * 難易度設定用コマンド兼難易度確認コマンド
  * {@code /difficultyset <get|set|add|reset> ...}
  *
  * <p>権限: {@code get} は全員（{@code enhancedmobs.difficulty.get}）、
+ * ->発動したプレイヤーの現行の最終難易度を出力。それだけ
  * {@code set/add/reset} はOP用（{@code enhancedmobs.difficulty.manage}）。
+ * ->難易度を変化/リセットさせる。こっちはOP用
  */
 public final class DifficultyCommand implements CommandExecutor, TabCompleter {
 

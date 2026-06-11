@@ -12,8 +12,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Base64;
 
 /**
- * RAGNAROK トレイト用のアイテム封印。元アイテムのバイト列を金のリンゴ（キャリア）の PDC に格納する。
- * プレイヤーがキャリアを食べると元のアイテムが復元される。
+ * RAGNAROK用のアイテム封印。元アイテムのバイト列を金のリンゴ（キャリア）の PDC に格納する。
+ * プレイヤーがキャリアを食べると元のアイテムが復元される。できればレベルによって食べる時間を遅らせられるならばよかったが不可能
  */
 public final class SealUtil {
 

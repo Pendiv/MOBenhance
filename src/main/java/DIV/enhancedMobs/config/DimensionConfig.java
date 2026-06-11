@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * ディメンション別の有効/無効切り替え・難易度スケーリング、およびトレイト無効化リスト。
+ * ディメンション別の有効/無効切り替え・難易度スケーリング、および特性の無効化リスト。
  * dimensions.yml から読み込む。
  *
  * <p>スケーリング式は {@code level * multiply + add}。{@code default} ルールは

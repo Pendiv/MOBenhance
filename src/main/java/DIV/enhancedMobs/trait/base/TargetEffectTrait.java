@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * モブが攻撃した相手にポーションエフェクトを付与するトレイト（POISON, WITHER, SLOWNESS など）。
+ * モブが攻撃した相手にポーションエフェクトを付与する特性（POISON, WITHER, SLOWNESS など）。
  * L2Hostility の {@code TargetEffectTrait} に対応する。
  */
 public class TargetEffectTrait extends Trait {

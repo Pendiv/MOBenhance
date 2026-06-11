@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** スポーン・戦闘・死亡イベントをレベリング・トレイト・ヘッド表示に繋ぐ。 */
+/** スポーン・戦闘・死亡イベントをレベリング・特性・ヘッド表示に繋ぐ。 */
 public final class MobListener implements Listener {
 
     private final EnhancedMobs plugin;

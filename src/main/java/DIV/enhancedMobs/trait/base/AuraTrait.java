@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 /**
- * 定期範囲効果トレイトの基底クラス。毎 tick、対象種別に一致する近隣の生きているエンティティ全てに
+ * 定期範囲効果特性の基底クラス。毎 tick、対象種別に一致する近隣の生きているエンティティ全てに
  * {@link #affect} を適用する。ダメージオーラ、デバフオーラ、味方バフなどに対応する。
  */
 public abstract class AuraTrait extends Trait {

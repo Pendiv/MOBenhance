@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * entities.yml から読み込むエンティティ種別ごとのトレイト制御。
- * L2Hostility の EntityConfig ホワイトリスト/ブラックリストに相当。
+ * entities.yml から読み込むエンティティ種別ごとの特性制御。
+ * これによって専用特性を構築
  */
 public final class EntityConfig {
 

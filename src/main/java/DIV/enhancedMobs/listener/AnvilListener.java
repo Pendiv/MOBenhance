@@ -33,6 +33,7 @@ import java.util.UUID;
  * 武器/防具を持って金床の上面を右クリックすると設置（視覚用 ItemDisplay + ヒットボックス用 Interaction を生成）。
  * 設置済みアイテムを右クリックすると：同種アイテム=精錬、修理素材=耐久回復、メイス=鍛造、空手=回収。
  * エンティティは永続化されるためアンロード・再起動でも消えない。
+ * 強化済の武器でも精錬できてしまう問題はどうしたものかと思案中
  */
 public final class AnvilListener implements Listener {
 

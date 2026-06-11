@@ -7,7 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-/** {@link HealMultiplier} 疑似属性を回復量に適用する（AttributesLib の回復ハンドラに対応）。 */
+/** {@link HealMultiplier} 疑似属性を回復量に適用 */
 public final class HealListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

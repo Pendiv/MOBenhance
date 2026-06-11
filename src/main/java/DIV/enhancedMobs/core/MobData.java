@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 /**
  * モブの PersistentDataContainer に対する読み書きラッパー。
  *
- * <p>L2Hostility の {@code MobTraitCap} に相当。レベル・トレイト等の
+ * <p>L2Hostility の {@code MobTraitCap} に相当。レベル・特性等の
  * モブ固有の永続状態はすべてここで管理し、core/ 外から PDC を直接触らない。
  */
 public final class MobData {

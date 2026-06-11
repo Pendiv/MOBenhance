@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * ヘルプコマンド
  * {@code /traithelp [sort [min N] [max N] | <id|"日本語名">]} — 特性一覧・検索コマンド。
  *
  * <p>権限: {@code enhancedmobs.traithelp}（全員に開放）。

@@ -34,7 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** 全登録トレイトを保持し、PDC 用の "id:rank;..." 形式のシリアライズ/デシリアライズを担う。 */
+/** 全登録特性を保持し、PDC 用の "id:rank;..." 形式のシリアライズ/デシリアライズを担う。どうしようもないのでハードコード */
 public final class TraitRegistry {
 
     private final Map<String, Trait> byId = new LinkedHashMap<>();
@@ -48,12 +48,12 @@ public final class TraitRegistry {
         register(new AttributeTrait("speedy", "SPEEDY", 20, 100, 5, 50, List.of(
                 new AttributeTrait.Entry(Attribute.MOVEMENT_SPEED, 0.1, AttributeModifier.Operation.MULTIPLY_SCALAR_1))));
 
-        // --- 自己エフェクトトレイト ---
+        // --- 自己エフェクト ---
         register(new SelfEffectTrait("protection", "PROT", 40, 100, 4, 50, PotionEffectType.RESISTANCE, true));
         register(new SelfEffectTrait("invisible", "INVIS", 30, 100, 1, 50, PotionEffectType.INVISIBILITY, false));
         register(new SelfEffectTrait("regen", "REGEN", 30, 100, 5, 50, PotionEffectType.REGENERATION, true));
 
-        // --- 対象エフェクトトレイト（モブが攻撃した相手に付与） ---
+        // --- 対象エフェクト（モブが攻撃した相手に付与） ---
         register(new TargetEffectTrait("poison", "POISON", 20, 75, 3, 20, PotionEffectType.POISON, 100, true, false));
         register(new TargetEffectTrait("wither", "WITHER", 20, 50, 3, 20, PotionEffectType.WITHER, 80, true, false));
         register(new TargetEffectTrait("slowness", "SLOW", 20, 50, 5, 20, PotionEffectType.SLOWNESS, 60, false, true));
@@ -62,7 +62,7 @@ public final class TraitRegistry {
         register(new TargetEffectTrait("confusion", "CONF", 30, 25, 3, 40, PotionEffectType.NAUSEA, 100, true, false));
         register(new TargetEffectTrait("levitation", "LEVI", 50, 50, 3, 50, PotionEffectType.LEVITATION, 40, true, false));
 
-        // --- イベントトレイト ---
+        // --- イベント特性 ---
         register(new FieryTrait(20, 100, 1, 20, 4));
 
         // --- Tier 1（要実装） ---
@@ -79,15 +79,15 @@ public final class TraitRegistry {
         register(new PullPushTrait("pulling", "PULL", 80, 50, 1, 100, 8.0, 0.4, 1.0));
         register(new PullPushTrait("repelling", "REPEL", 80, 50, 1, 100, 8.0, 0.4, -1.0));
 
-        // --- Tier 3（再解釈移植。MASTER は却下） ---
+        // --- Tier 3（再解釈移植） ---
         register(new DispellTrait(100, 50, 3, 150, 0.5));
         register(new ReprintTrait(100, 100, 1, 100, 0.5));
         register(new RagnarokTrait(300, 100, 3, 600, 0.2));
 
-        // --- GTsolo カスタムトレイト ---
+        // --- GTsolo カスタム ---
         GTsoloTraits.register(this);
 
-        // --- Tier 2（妥協移植。GRAVITY/MOONWALK/ARENA は却下） ---
+        // --- Tier 2（妥協移植。完全再現は難しいため疑似的な再現） ---
         register(new CursedTrait(20, 100, 3, 20, 0.4, 100));
         register(new SoulBurnerTrait(50, 50, 3, 70, 3, 60));
         register(new AdaptiveTrait(80, 50, 5, 100, 0.1, 0.8));

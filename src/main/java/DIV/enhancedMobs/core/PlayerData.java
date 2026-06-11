@@ -9,6 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 /**
  * プレイヤー固有の永続状態（PDC）。L2Hostility の {@code PlayerDifficulty} に相当。
  * 現状はネザー・エンド訪問フラグと難易度オフセットを保持。
+ * フラグによるプレイヤーの個人に対する加算を、計算式から算出する。
  */
 public final class PlayerData {
 

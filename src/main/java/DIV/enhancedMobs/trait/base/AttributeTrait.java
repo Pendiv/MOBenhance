@@ -11,7 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.List;
 
 /**
- * ランクに比例して1つ以上の属性モディファイアを付与するトレイト（TANK, SPEEDY など）。
+ * ランクに比例して1つ以上の属性モディファイアを付与する特性（TANK, SPEEDY など）。
  * L2Hostility の {@code AttributeTrait} に対応する。
  */
 public class AttributeTrait extends Trait {

@@ -6,11 +6,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** 時空族: 周囲8m以内のMobに継続的に弱体化を与える。 */
+/** 時空族: 周囲18m以内のMobに継続的に弱体化を与える。 */
 public final class SpacetimeConfusionTrait extends AuraTrait {
 
     public SpacetimeConfusionTrait(int cost, int weight, int maxRank, int minLevel) {
-        super("spacetime_confusion", "STCONFU", cost, weight, maxRank, minLevel, 8.0, TargetKind.MOBS);
+        super("spacetime_confusion", "STCONFU", cost, weight, maxRank, minLevel, 18.0, TargetKind.MOBS);
     }
 
     @Override

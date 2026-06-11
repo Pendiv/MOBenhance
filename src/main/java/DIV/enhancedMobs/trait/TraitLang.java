@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * トレイトの日本語表示名と説明文を管理する。バンドルされた（管理者が編集可能な）
+ * 特性日本語表示名と説明文を管理する。バンドルされた（管理者が編集可能な）
  * trait_names.yml / trait_desc.yml から読み込む。
  * 名前が未登録なら {@code shortName()} にフォールバック、説明が未登録なら固定の未登録マーカーを返す。
  */

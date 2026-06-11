@@ -7,7 +7,7 @@ import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * トレイト用の汎用エンティティ状態管理。時限フラグ（クールダウン・ウィンドウ）と
+ * 特性用の汎用エンティティ状態管理。時限フラグ（クールダウン・ウィンドウ）と
  * 累積数値（スタック・倍率）を PDC に保存。エンティティ・プレイヤー両方で動作する。
  */
 public final class EntityState {

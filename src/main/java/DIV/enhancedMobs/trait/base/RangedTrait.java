@@ -8,7 +8,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
 /**
- * クールダウン付きで射撃するトレイトの基底クラス（スケルトン系の特殊矢、GRENADE など）。
+ * クールダウン付きで射撃する特性の基底クラス（スケルトン系の特殊矢、GRENADE など）。
  * サブクラスは {@link #launch} で飛翔体の生成・照準を実装し、
  * 必要なら {@link #onProjectileHit} で着弾時の挙動を定義する。
  */

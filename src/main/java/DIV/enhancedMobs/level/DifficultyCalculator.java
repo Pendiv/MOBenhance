@@ -52,7 +52,7 @@ public final class DifficultyCalculator {
         this.locations = locations;
     }
 
-    /** スポーン時のレベルを算出（ランダム揺らぎあり）。[0, maxMobLevel] にクランプ。 */
+    /** スポーン時のレベルを算出（揺らぎあり）。[0, maxMobLevel] にクランプ。 */
     public int compute(Location loc) {
         Player reference = nearestPlayer(loc);
         int level = (int) Math.round(rawDanger(loc, reference, true));
@@ -68,7 +68,7 @@ public final class DifficultyCalculator {
         return level;
     }
 
-    /** プレイヤーの難易度表示値を算出（揺らぎなし、0 以上）。 */
+    /** プレイヤーの難易度表示値を算出（揺らぎなし）。 */
     public int playerDifficulty(Player player) {
         int value = (int) Math.round(rawDanger(player.getLocation(), player, false));
         value = dimensions.scaleLevel(player.getWorld(), value);

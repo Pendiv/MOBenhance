@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Map;
 
-/** トレイト生成・適用・イベントディスパッチの中心窓口。 */
+/** 特性生成・適用・イベントディスパッチの中心窓口。 */
 public final class TraitService {
 
     private final TraitRegistry registry;
@@ -37,7 +37,7 @@ public final class TraitService {
         return lang;
     }
 
-    /** レベルが決まったモブのトレイトを抽選し、PDC に保存して初期化を呼ぶ。 */
+    /** レベルが決まったモブの特性を抽選し、PDC に保存して初期化を呼ぶ。 */
     public Map<Trait, Integer> generateAndApply(LivingEntity mob, int level) {
         Map<Trait, Integer> traits = generator.generate(mob, level);
         MobData.of(mob).setTraitsRaw(registry.serialize(traits));
@@ -56,8 +56,8 @@ public final class TraitService {
     }
 
     /**
-     * 指定トレイトをモブの保存セットから除去する。
-     * クローン/召喚トレイトが生成したコピーに同じトレイトを引き継がせないために使う（無限増殖防止）。
+     * 指定特性をモブの保存セットから除去する。
+     * クローン/召喚特性が生成したコピーに同じ特性を引き継がせないため
      */
     public void stripTrait(LivingEntity mob, String id) {
         Map<Trait, Integer> traits = read(mob);
