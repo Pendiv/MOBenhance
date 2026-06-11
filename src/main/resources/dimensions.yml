@@ -1,0 +1,35 @@
+# Per-dimension control of the leveling / trait system.
+#
+#   enabled: false  -> mobs in this dimension get NO levels and NO traits at all.
+#   Difficulty scaling is:  level * multiply + add
+#     multiply: 1.5  -> 50% harder
+#     add: 20        -> +20 levels
+#     (use either, or both together)
+#
+# The "default" block applies to ANY dimension not listed below, including unknown /
+# modded dimensions -- so you can scale those too.
+
+default:
+  enabled: true
+  multiply: 1.0
+  add: 0
+
+dimensions:
+  "minecraft:overworld":
+    enabled: true
+    multiply: 1.0
+    add: 0
+  "minecraft:the_nether":
+    enabled: true
+    multiply: 1.0
+    add: 20
+  "minecraft:the_end":
+    enabled: true
+    multiply: 1.5
+    add: 0
+
+# Traits listed here never roll anywhere -- a kill-switch for problem traits.
+# Use the trait ids (see trait_names.yml for the full list).
+disabled-traits: []
+#  - turning_heavens
+#  - spacetime_transcendent

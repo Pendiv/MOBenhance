@@ -1,0 +1,66 @@
+# EnhancedMobs — configuration
+# All values are read once on server start / reload.
+
+leveling:
+  # Hard cap on mob level.
+  max-mob-level: 500
+  # Danger added per block of distance from the world's spawn point.
+  distance-factor: 0.02
+  # Final coefficient applied to the fully-computed level (after dimension/location scaling).
+  # Tunes the overall ceiling; <1 lowers every mob's level uniformly.
+  final-multiplier: 0.72
+
+enhancement:
+  # Level N is spread over ~10 coarse draws of (N/10) + (N%10) fine draws of 1,
+  # each landing on a random stat. Total applications = N; few draws = high variety.
+  coarse-draws: 10
+  per-step:
+    health: 1.0           # +0.5 heart per application (attribute units)
+    armor: 0.5
+    attack-damage: 0.25   # melee mobs only (no effect on arrows / creepers)
+    movement-speed: 0.005
+  # Cap on the total speed bonus; high speed breaks mob AI/pathfinding.
+  max-speed-bonus: 0.3
+
+traits:
+  # Max number of distinct traits one mob can roll.
+  max-count: 4
+  # Chance to stop rolling after each trait granted (varies how many a mob gets).
+  suppression: 0.1
+  # How often (ticks) aura/periodic traits fire (SHULKER, KILLER_AURA, PULLING, REPELLING).
+  tick-interval: 20
+  # L2H trait_cost: scales effective trait cost AND the trait count (max-count / cost-factor).
+  # 1.0 = default; lower = cheaper + more traits; 0 = free (all eligible traits at max rank).
+  cost-factor: 1.0
+  # Absolute trait rank ceiling. Traits roll up to their own max-rank, capped here.
+  global-max-rank: 5
+
+logging:
+  # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Useful while testing.
+  traited-spawns: true
+
+default-difficulty:
+  # Base danger added to every mob before the other components.
+  base: 1
+  # Standard deviation of the random level wobble. Set 0 for deterministic levels.
+  variation: 2.0
+
+danger:
+  # Nether/End exposure: value * (online players who have visited / online total).
+  nether-value: 16.0
+  end-value: 25.0
+  # Personal "gravity": D_personal = cbrt(sum of kills/chunkDist^1.6) * importance.
+  # Importance index I = K0 / (K0 + this), K0 = nearest player's kills.
+  # I=0.5 at this many kills; newbies (~0) cancel a nearby veteran's pull.
+  importance-half-kills: 100.0
+
+display:
+  glow:
+    # Outline-glow mobs at or above strong-level (coarse "danger" cue).
+    enabled: true
+    strong-level: 100
+  head:
+    # Floating "Lv.X" text above the mob's head (separate from its name).
+    enabled: true
+    # Render distance in blocks.
+    view-distance: 32

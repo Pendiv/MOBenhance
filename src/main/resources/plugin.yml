@@ -1,0 +1,31 @@
+name: EnhancedMobs
+version: '$version'
+
+main: DIV.enhancedMobs.EnhancedMobs
+api-version: '26.1.2'
+load: POSTWORLD
+
+commands:
+  difficultyset:
+    description: View or manage EnhancedMobs difficulty.
+    usage: /difficultyset <get|set|add|reset> [target] [count]
+  emdebug:
+    description: Toggle the EnhancedMobs debug readout (shown on hit).
+    usage: /emdebug
+  cg:
+    description: Change game mode (self toggle, or target + mode).
+    usage: /cg [target] [gamemode]
+
+permissions:
+  enhancedmobs.difficulty.get:
+    description: View your own difficulty.
+    default: true
+  enhancedmobs.difficulty.manage:
+    description: Set, add to, or reset the difficulty offset of players.
+    default: op
+  enhancedmobs.debug:
+    description: Toggle the debug readout.
+    default: op
+  enhancedmobs.cg:
+    description: Change game modes.
+    default: op

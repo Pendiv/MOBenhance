@@ -1,0 +1,45 @@
+package DIV.enhancedMobs.core;
+
+import DIV.enhancedMobs.EnhancedMobs;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataHolder;
+import org.bukkit.persistence.PersistentDataType;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+/**
+ * String tags on an entity (comma-joined in PDC). Used for trait "families" such as the GTsolo
+ * "spacetime" set, where traits interact with same-kind mobs.
+ */
+public final class MobTags {
+
+    private static final NamespacedKey KEY = new NamespacedKey(EnhancedMobs.get(), "tags");
+
+    private MobTags() {
+    }
+
+    public static void add(PersistentDataHolder holder, String tag) {
+        Set<String> tags = get(holder);
+        if (tags.add(tag)) {
+            holder.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, String.join(",", tags));
+        }
+    }
+
+    public static boolean has(PersistentDataHolder holder, String tag) {
+        return get(holder).contains(tag);
+    }
+
+    private static Set<String> get(PersistentDataHolder holder) {
+        String raw = holder.getPersistentDataContainer().getOrDefault(KEY, PersistentDataType.STRING, "");
+        Set<String> set = new LinkedHashSet<>();
+        if (!raw.isEmpty()) {
+            for (String tag : raw.split(",")) {
+                if (!tag.isEmpty()) {
+                    set.add(tag);
+                }
+            }
+        }
+        return set;
+    }
+}

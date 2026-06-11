@@ -1,0 +1,24 @@
+# Per-entity-type trait control.
+#
+#   whitelist: if non-empty, ONLY these trait ids may roll on this entity type.
+#   blacklist: these trait ids never roll on this entity type.
+#
+# Trait ids: tank, speedy, protection, invisible, regen, poison, wither, slowness,
+# weakness, blind, confusion, levitation, fiery, reflect, strike, ender, undying,
+# split, corrosion, erosion, freezing, shulker, killer_aura, pulling, repelling,
+# dispell, reprint, ragnarok, cursed, soul_burner, adaptive, dementor, grenade,
+# drain, growth.
+#
+# Note: some traits also self-restrict (e.g. growth = slimes only, split = splittable
+# mobs only) regardless of what is written here.
+
+entities:
+  # Example: ranged mobs shouldn't get melee-oriented auras.
+  "minecraft:skeleton":
+    blacklist: [pulling, strike]
+  "minecraft:stray":
+    blacklist: [pulling, strike]
+
+  # Example: a whitelist locks an entity to only the listed traits.
+  # "minecraft:creeper":
+  #   whitelist: [fiery, speedy, tank]

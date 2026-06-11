@@ -1,0 +1,60 @@
+package DIV.enhancedMobs.listener;
+
+import DIV.enhancedMobs.core.MobData;
+import DIV.enhancedMobs.item.ItemEnhancer;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+
+/** Grants weapon/armor XP: big on a kill (scaled by mob level), small per hit dealt / taken. */
+public final class ItemXpListener implements Listener {
+
+    @EventHandler
+    public void onKill(EntityDeathEvent event) {
+        LivingEntity dead = event.getEntity();
+        Player killer = dead.getKiller();
+        if (killer == null) {
+            return;
+        }
+        int xp = Math.max(1, MobData.of(dead).getLevel());
+        grantWeapon(killer, xp);
+        grantArmor(killer, xp);
+    }
+
+    @EventHandler
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player attacker) {
+            grantWeapon(attacker, 1);
+        }
+        if (event.getEntity() instanceof Player victim) {
+            grantArmor(victim, 1);
+        }
+    }
+
+    private void grantWeapon(Player player, int xp) {
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        if (ItemEnhancer.isEnhanceable(weapon)) {
+            ItemEnhancer.grantXp(weapon, xp);
+            player.getInventory().setItemInMainHand(weapon);
+        }
+    }
+
+    private void grantArmor(Player player, int xp) {
+        PlayerInventory inv = player.getInventory();
+        ItemStack[] armor = {inv.getHelmet(), inv.getChestplate(), inv.getLeggings(), inv.getBoots()};
+        for (ItemStack piece : armor) {
+            if (ItemEnhancer.isEnhanceable(piece)) {
+                ItemEnhancer.grantXp(piece, xp);
+            }
+        }
+        inv.setHelmet(armor[0]);
+        inv.setChestplate(armor[1]);
+        inv.setLeggings(armor[2]);
+        inv.setBoots(armor[3]);
+    }
+}

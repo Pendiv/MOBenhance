@@ -1,0 +1,18 @@
+# Location-based difficulty multipliers, applied on top of the dimension scaling.
+# Final level = (dimension-scaled level) * biome multiplier * depth multiplier.
+
+# Biome -> multiplier. Mobs spawning in these biomes get their level multiplied.
+biomes:
+  "minecraft:deep_dark": 1.5          # ancient city
+  "minecraft:end_highlands": 2.0      # End outer rim
+  "minecraft:end_midlands": 2.0
+  "minecraft:end_barrens": 2.0
+  "minecraft:small_end_islands": 2.0
+
+# Depth scaling per dimension: below 'below-y', multiply by 'multiplier' for every 'step' blocks
+# down. Compounds -- e.g. below 0, x1.05 every 5 blocks: Y=-5 -> x1.05, Y=-10 -> x1.05^2, ...
+depth:
+  "minecraft:overworld":
+    below-y: 0
+    step: 5
+    multiplier: 1.05
