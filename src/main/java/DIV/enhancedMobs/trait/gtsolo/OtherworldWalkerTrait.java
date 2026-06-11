@@ -9,7 +9,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 
-/** Stronger outside the Overworld (Nether/End/custom dimensions). */
+/** オーバーワールド以外（ネザー/エンド/カスタム次元）でのみ攻撃・防御・索敵を強化する。 */
 public final class OtherworldWalkerTrait extends Trait {
 
     public OtherworldWalkerTrait(int cost, int weight, int maxRank, int minLevel) {

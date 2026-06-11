@@ -9,7 +9,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-/** Skeleton fires arrows that call down lightning on impact. */
+/** スケルトンが着弾時に落雷を起こす矢を射る。 */
 public final class LightningUserTrait extends RangedTrait {
 
     public LightningUserTrait(int cost, int weight, int maxRank, int minLevel) {

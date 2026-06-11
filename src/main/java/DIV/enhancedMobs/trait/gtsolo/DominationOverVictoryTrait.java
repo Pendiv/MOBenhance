@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** The more health it has lost, the more bonus (armor-piercing) damage it deals. */
+/** HP損失が多いほど追加ダメージが増加する（防具無視のフラットダメージ加算）。 */
 public final class DominationOverVictoryTrait extends Trait {
 
     public DominationOverVictoryTrait(int cost, int weight, int maxRank, int minLevel) {

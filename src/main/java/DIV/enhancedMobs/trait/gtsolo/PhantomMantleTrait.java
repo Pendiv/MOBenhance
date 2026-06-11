@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: a protective mantle (strong resistance). */
+/** 近似実装: 強力な耐性効果で全ダメージを軽減する防護マント。 */
 public final class PhantomMantleTrait extends Trait {
 
     public PhantomMantleTrait(int cost, int weight, int maxRank, int minLevel) {

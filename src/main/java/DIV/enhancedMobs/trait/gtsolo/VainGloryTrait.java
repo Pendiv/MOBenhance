@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: glowing and empowered (vain show of force). */
+/** 近似実装: 発光＋永続筋力バフで力を誇示する。 */
 public final class VainGloryTrait extends Trait {
 
     public VainGloryTrait(int cost, int weight, int maxRank, int minLevel) {

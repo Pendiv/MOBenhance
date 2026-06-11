@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Wires spawning, combat, and death into leveling, traits, and the head display. */
+/** スポーン・戦闘・死亡イベントをレベリング・トレイト・ヘッド表示に繋ぐ。 */
 public final class MobListener implements Listener {
 
     private final EnhancedMobs plugin;
@@ -36,8 +36,13 @@ public final class MobListener implements Listener {
 
     @EventHandler
     public void onSpawn(CreatureSpawnEvent event) {
+        if (!plugin.mainConfig().levelingEnabled) {
+            return;
+        }
         LivingEntity entity = event.getEntity();
-        if (!(entity instanceof Monster)) {
+        // Monster は既定で処理対象。非 Monster のボス（エンダードラゴンなど）は
+        // per-mob ボーナスが設定されている場合にのみ対象となる。
+        if (!(entity instanceof Monster) && !plugin.mobBonus().has(entity.getType())) {
             return;
         }
         if (MobData.of(entity).isProcessed()) {
@@ -47,6 +52,7 @@ public final class MobListener implements Listener {
             return;
         }
         int level = plugin.difficulty().compute(entity.getLocation());
+        level = plugin.mobBonus().apply(entity.getType(), level);
         plugin.initializeMob(entity, level);
     }
 
@@ -77,7 +83,7 @@ public final class MobListener implements Listener {
         return null;
     }
 
-    /** FULL_TANK creepers: their explosion ignites nearby entities and scatters fire. */
+    /** FULL_TANK クリーパー：爆発時に近隣エンティティに着火し、地面に火を撒き散らす。 */
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
         if (!(event.getEntity() instanceof Creeper creeper) || !MobData.of(creeper).isProcessed()) {

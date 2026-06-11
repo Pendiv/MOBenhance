@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Steals the attacker's edge: weakens them and empowers itself. */
+/** 攻撃者に弱体化を与え、自身は力強化を得る（優位を奪い取る）。 */
 public final class MysticShadowTrait extends Trait {
 
     public MysticShadowTrait(int cost, int weight, int maxRank, int minLevel) {

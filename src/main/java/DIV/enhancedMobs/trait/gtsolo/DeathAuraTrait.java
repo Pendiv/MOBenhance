@@ -4,7 +4,7 @@ import DIV.enhancedMobs.core.TraitCooldown;
 import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 
-/** Periodically deals damage and ignites nearby players (per-player escalating cooldown). */
+/** 周囲のプレイヤーに定期的にダメージと着火を与える（プレイヤー個別のクールダウンあり）。 */
 public final class DeathAuraTrait extends AuraTrait {
 
     public DeathAuraTrait(int cost, int weight, int maxRank, int minLevel) {

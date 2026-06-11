@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Once, below 20% health, swaps health ratio with the nearest player. */
+/** HP20%未満に追い込まれた瞬間に一度だけ、最近傍プレイヤーとHP割合を入れ替える。 */
 public final class LastStandTrait extends Trait {
 
     public LastStandTrait(int cost, int weight, int maxRank, int minLevel) {

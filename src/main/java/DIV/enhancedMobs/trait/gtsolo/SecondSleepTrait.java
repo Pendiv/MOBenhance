@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Survives a lethal hit once, reviving with brief invulnerability. */
+/** 致死ダメージを一度だけ無効化し、満HP復活 + 短時間無敵（耐性Lv4, 3秒）を付与する。 */
 public final class SecondSleepTrait extends Trait {
 
     public SecondSleepTrait(int cost, int weight, int maxRank, int minLevel) {

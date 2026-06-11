@@ -2,6 +2,9 @@
 # All values are read once on server start / reload.
 
 leveling:
+  # Master switch for the mob leveling system.
+  # false = monsters spawn vanilla (no level, no stat scaling, no traits).
+  enabled: true
   # Hard cap on mob level.
   max-mob-level: 500
   # Danger added per block of distance from the world's spawn point.
@@ -11,6 +14,12 @@ leveling:
   final-multiplier: 0.72
 
 enhancement:
+  # Master switch for the player weapon/armor enhancement system
+  # (kill/hit XP leveling + anvil refine/forge/repair). false disables all of it.
+  enabled: true
+  # Multiplier on the XP required to level a weapon/armor piece.
+  # 1.0 = default; 2.0 = twice as much XP needed (slower); 0.5 = half (faster).
+  xp-multiplier: 1.0
   # Level N is spread over ~10 coarse draws of (N/10) + (N%10) fine draws of 1,
   # each landing on a random stat. Total applications = N; few draws = high variety.
   coarse-draws: 10
@@ -23,6 +32,9 @@ enhancement:
   max-speed-bonus: 0.3
 
 traits:
+  # Roll traits on leveled mobs. false = mobs still get levels/stats but no traits.
+  # (Independent of leveling.enabled; if leveling is off, no traits roll regardless.)
+  enabled: true
   # Max number of distinct traits one mob can roll.
   max-count: 4
   # Chance to stop rolling after each trait granted (varies how many a mob gets).
@@ -36,8 +48,8 @@ traits:
   global-max-rank: 5
 
 logging:
-  # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Useful while testing.
-  traited-spawns: true
+  # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Spammy; testing only.
+  traited-spawns: false
 
 default-difficulty:
   # Base danger added to every mob before the other components.
@@ -53,6 +65,24 @@ danger:
   # Importance index I = K0 / (K0 + this), K0 = nearest player's kills.
   # I=0.5 at this many kills; newbies (~0) cancel a nearby veteran's pull.
   importance-half-kills: 100.0
+
+mob-bonus:
+  # Per-mob-type level bonus, applied to the computed level BEFORE traits are rolled
+  # (so a boosted boss also rolls more and stronger traits).
+  #   add:      flat levels added
+  #   multiply: fractional bonus (0.15 = +15%)
+  # Final level = round(level * (1 + multiply)) + add
+  # Keys are the entity's short type name. Non-monster bosses listed here (e.g. the ender
+  # dragon, which is not a "Monster") are opted into the leveling system by their presence.
+  ender_dragon:
+    add: 100
+    multiply: 0.0
+  wither:
+    add: 100
+    multiply: 0.15
+  warden:
+    add: 150
+    multiply: 0.25
 
 display:
   glow:

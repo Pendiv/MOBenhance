@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: converts momentum into strength (lasting buff). */
+/** 近似実装: 永続の筋力バフで勢いを攻撃力に変換する。 */
 public final class TrujilloHardinTrait extends Trait {
 
     public TrujilloHardinTrait(int cost, int weight, int maxRank, int minLevel) {

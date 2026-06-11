@@ -12,8 +12,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Base64;
 
 /**
- * Item sealing for RAGNAROK: stores an item's full bytes inside an always-edible carrier
- * (golden apple). Eating it restores the original.
+ * RAGNAROK トレイト用のアイテム封印。元アイテムのバイト列を金のリンゴ（キャリア）の PDC に格納する。
+ * プレイヤーがキャリアを食べると元のアイテムが復元される。
  */
 public final class SealUtil {
 

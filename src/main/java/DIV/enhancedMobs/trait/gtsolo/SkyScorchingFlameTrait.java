@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Its attacks set targets ablaze for a long time. */
+/** 攻撃命中時、ランク×80ティック炎上させる。 */
 public final class SkyScorchingFlameTrait extends Trait {
 
     public SkyScorchingFlameTrait(int cost, int weight, int maxRank, int minLevel) {

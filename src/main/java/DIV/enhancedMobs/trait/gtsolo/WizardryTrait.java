@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Occasionally swaps places with the nearest player. */
+/** 一定確率で最近傍プレイヤーと位置を入れ替える。クールダウン管理はTraitCooldownに委譲。 */
 public final class WizardryTrait extends Trait {
 
     public WizardryTrait(int cost, int weight, int maxRank, int minLevel) {

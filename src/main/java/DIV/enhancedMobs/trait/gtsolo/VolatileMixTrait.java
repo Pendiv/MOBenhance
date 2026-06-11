@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Creeper that leaves a lingering poison cloud on death. */
+/** クリーパー専用。死亡時に毒のエリアエフェクトクラウドを残す。 */
 public final class VolatileMixTrait extends Trait {
 
     public VolatileMixTrait(int cost, int weight, int maxRank, int minLevel) {

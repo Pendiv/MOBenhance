@@ -4,7 +4,7 @@ import DIV.enhancedMobs.core.TraitCooldown;
 import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 
-/** Periodically deals magic-ish damage to nearby players (per-player escalating cooldown). */
+/** 近くのプレイヤーに定期的にダメージを与えるオーラ（プレイヤーごとにクールダウン管理）。 */
 public final class DamageAuraTrait extends AuraTrait {
 
     public DamageAuraTrait(int cost, int weight, int maxRank, int minLevel) {

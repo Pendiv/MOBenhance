@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Per-entity-type trait control loaded from entities.yml — the plugin analogue of L2Hostility's
- * EntityConfig whitelist/blacklist.
+ * entities.yml から読み込むエンティティ種別ごとのトレイト制御。
+ * L2Hostility の EntityConfig ホワイトリスト/ブラックリストに相当。
  */
 public final class EntityConfig {
 
@@ -43,7 +43,7 @@ public final class EntityConfig {
         }
     }
 
-    /** Whether the given trait id may roll on the given entity type (entity-side restriction). */
+    /** このエンティティ種別に対してトレイトIDが付与可能かを返す（エンティティ側の制限）。 */
     public boolean allows(EntityType type, String traitId) {
         Rule rule = rules.get(type.getKey().toString());
         if (rule == null) {

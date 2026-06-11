@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Periodically teleports near the nearest player. */
+/** 時空族: クールダウンが明けると48m以内の最寄りプレイヤー周辺（±3ブロック）へテレポートする。 */
 public final class SpacetimeLeapTrait extends Trait {
 
     public SpacetimeLeapTrait(int cost, int weight, int maxRank, int minLevel) {

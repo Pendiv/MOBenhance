@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-/** Creeper that drags nearby players toward itself. */
+/** 近くのプレイヤーを自身の方向へ引き寄せるクリーパー。 */
 public final class CentripetalForceTrait extends Trait {
 
     public CentripetalForceTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Weighted, budget-based trait draw — a simplified port of L2Hostility's {@code TraitGenerator}.
- * The level is a budget; each trait costs {@code cost * rank}; traits are picked by weight until
- * the budget runs out, the pool empties, or the max count is reached.
+ * 重み付きバジェット抽選によるトレイト生成。L2Hostility の {@code TraitGenerator} の簡略移植。
+ * レベルがバジェット。各トレイトのコストは {@code cost * rank}。
+ * バジェット切れ・プール枯渇・最大トレイト数到達のいずれかで終了する。
  */
 public final class TraitGenerator {
 
@@ -31,7 +31,7 @@ public final class TraitGenerator {
         this.dimensions = dimensions;
     }
 
-    /** Weighted, budget-based trait draw. Trait ranks rise freely up to each trait's own max. */
+    /** 重み付きバジェット抽選。ランクは各トレイトの上限まで自由に上昇する。 */
     public Map<Trait, Integer> generate(LivingEntity mob, int level) {
         double costFactor = config.traitCostFactor;
         boolean free = costFactor < 0.01;

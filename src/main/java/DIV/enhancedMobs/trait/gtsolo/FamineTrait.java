@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Applies hunger to nearby players. */
+/** 周囲のプレイヤーに空腹効果を継続付与するオーラ。 */
 public final class FamineTrait extends AuraTrait {
 
     public FamineTrait(int cost, int weight, int maxRank, int minLevel) {

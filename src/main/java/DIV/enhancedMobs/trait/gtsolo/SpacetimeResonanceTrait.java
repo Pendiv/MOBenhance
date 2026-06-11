@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Strengthens nearby spacetime mobs. */
+/** 近傍のspacetimeタグ持ちMobに筋力バフを付与するオーラ。 */
 public final class SpacetimeResonanceTrait extends AuraTrait {
 
     public SpacetimeResonanceTrait(int cost, int weight, int maxRank, int minLevel) {

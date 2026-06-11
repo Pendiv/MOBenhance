@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Freezes the target on hit (real powder-snow freeze visual + damage). */
+/** ヒット時に対象のフリーズティックを加算する（粉雪のフリーズ演出＋ダメージを流用）。 */
 public final class FreezingTrait extends Trait {
 
     private final int ticksPerRank;

@@ -5,7 +5,7 @@ import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 
-/** A field of doom: damages nearby players and stops their healing. */
+/** 近傍プレイヤーにダメージを与えつつ回復を封じるオーラ。 */
 public final class TurningHeavensTrait extends AuraTrait {
 
     public TurningHeavensTrait(int cost, int weight, int maxRank, int minLevel) {

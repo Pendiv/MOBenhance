@@ -15,6 +15,9 @@ commands:
   cg:
     description: Change game mode (self toggle, or target + mode).
     usage: /cg [target] [gamemode]
+  traithelp:
+    description: Look up trait descriptions and appearance levels.
+    usage: /traithelp [sort [min N] [max N] | <id|"name">]
 
 permissions:
   enhancedmobs.difficulty.get:
@@ -29,3 +32,6 @@ permissions:
   enhancedmobs.cg:
     description: Change game modes.
     default: op
+  enhancedmobs.traithelp:
+    description: Look up trait descriptions.
+    default: true

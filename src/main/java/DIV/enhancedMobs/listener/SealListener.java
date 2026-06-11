@@ -9,7 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-/** Restores a RAGNAROK-sealed item when the player finishes "eating" the carrier. */
+/** RAGNAROK で封印されたアイテムを、プレイヤーがキャリアを「食べた」際に復元する。 */
 public final class SealListener implements Listener {
 
     @EventHandler
@@ -17,7 +17,7 @@ public final class SealListener implements Listener {
         if (!SealUtil.isSealed(event.getItem())) {
             return;
         }
-        event.setCancelled(true); // don't apply golden-apple effects or consume normally
+        event.setCancelled(true); // 金のリンゴ効果・通常消費を抑止する
 
         Player player = event.getPlayer();
         EquipmentSlot hand = event.getHand() != null ? event.getHand() : EquipmentSlot.HAND;

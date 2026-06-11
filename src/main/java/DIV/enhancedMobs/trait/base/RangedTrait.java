@@ -8,9 +8,9 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
 /**
- * Base for traits that fire a projectile at the mob's target on a cooldown (the many Skeleton
- * "special arrow" traits, GRENADE, etc.). Subclasses implement {@link #launch} to spawn/aim the
- * projectile and override {@link #onProjectileHit} for impact behaviour.
+ * クールダウン付きで射撃するトレイトの基底クラス（スケルトン系の特殊矢、GRENADE など）。
+ * サブクラスは {@link #launch} で飛翔体の生成・照準を実装し、
+ * 必要なら {@link #onProjectileHit} で着弾時の挙動を定義する。
  */
 public abstract class RangedTrait extends Trait {
 
@@ -42,6 +42,6 @@ public abstract class RangedTrait extends Trait {
         EntityState.setFlag(mob, cooldown, cooldownTicks);
     }
 
-    /** Spawn and aim the projectile. Return it (it will be tagged), or null to fire nothing. */
+    /** 飛翔体を生成・照準して返す（タグ付けされる）。発射しない場合は null を返す。 */
     protected abstract Projectile launch(Mob mob, LivingEntity target, int rank);
 }

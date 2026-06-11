@@ -10,7 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Bulky but weak itself; buffs the attack of nearby mobs. */
+/** 自身のHPを1.5倍・攻撃を大幅減にした代わりに、周囲のモブに力を付与するサポーター。 */
 public final class HarmoniousMarchTrait extends AuraTrait {
 
     public HarmoniousMarchTrait(int cost, int weight, int maxRank, int minLevel) {

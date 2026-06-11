@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Chance to fully parry a player attack. */
+/** プレイヤーの攻撃を確率でパリィし無効化する。確率はランクに比例。 */
 public final class JustParryTrait extends Trait {
 
     public JustParryTrait(int cost, int weight, int maxRank, int minLevel) {

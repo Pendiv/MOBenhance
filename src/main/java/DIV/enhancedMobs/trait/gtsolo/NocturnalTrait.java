@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Empowered during the night. */
+/** 夜間（ワールド時刻12000以降）に速度・力・再生を付与する。 */
 public final class NocturnalTrait extends Trait {
 
     public NocturnalTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,7 +15,7 @@ public final class NocturnalTrait extends Trait {
     @Override
     public void tick(LivingEntity mob, int rank) {
         if (mob.getWorld().getTime() % 24000 < 12000) {
-            return; // day
+            return; // 昼間は何もしない
         }
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 0, true, false, false));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 40, rank - 1, true, false, false));

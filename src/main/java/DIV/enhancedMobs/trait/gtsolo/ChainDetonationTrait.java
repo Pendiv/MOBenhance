@@ -5,7 +5,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Creeper that ignites when it takes fire or explosion damage (chain reactions). */
+/** 火・溶岩・爆発ダメージを受けると即座に着火するクリーパー（連鎖爆発を誘発）。 */
 public final class ChainDetonationTrait extends Trait {
 
     public ChainDetonationTrait(int cost, int weight, int maxRank, int minLevel) {

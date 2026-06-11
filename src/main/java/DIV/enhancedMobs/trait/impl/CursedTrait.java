@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Curses the target's healing for a while (heal pseudo-attribute; high rank = no healing). */
+/** ヒット後一定時間、対象の回復量を削減する（高ランクでほぼ回復不能）。 */
 public final class CursedTrait extends Trait {
 
     private final double reductionPerRank;

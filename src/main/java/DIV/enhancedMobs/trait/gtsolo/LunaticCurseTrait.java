@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Once, slashes the attacking player's health down to 20. */
+/** 初回被攻撃時に限り、攻撃プレイヤーのHPを20に切り下げる（1回限り発動）。 */
 public final class LunaticCurseTrait extends Trait {
 
     public LunaticCurseTrait(int cost, int weight, int maxRank, int minLevel) {

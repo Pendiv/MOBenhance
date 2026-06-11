@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Escapes the void by teleporting to the world spawn. */
+/** 虚空ダメージをキャンセルしてワールドスポーンへテレポートする。 */
 public final class WalkingAbyssTrait extends Trait {
 
     public WalkingAbyssTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -7,7 +7,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Revives once on lethal damage. */
+/** 時空族: 致死ダメージを一度だけ無効化し、満HP復活する。 */
 public final class SpacetimeEternalReturnTrait extends Trait {
 
     public SpacetimeEternalReturnTrait(int cost, int weight, int maxRank, int minLevel) {

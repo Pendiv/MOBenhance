@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Takes less damage from hungrier attackers (scaled by attacker food level). */
+/** 攻撃者の食料レベルに比例してダメージを軽減する（満腹=等倍、空腹=0）。 */
 public final class WellFedDefenseTrait extends Trait {
 
     public WellFedDefenseTrait(int cost, int weight, int maxRank, int minLevel) {

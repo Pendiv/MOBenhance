@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: sturdier in a group (flat resistance). */
+/** 近似実装: 耐性付与で集団行動時の硬さを表現。 */
 public final class CooperativenessTrait extends Trait {
 
     public CooperativenessTrait(int cost, int weight, int maxRank, int minLevel) {

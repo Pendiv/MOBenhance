@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Negates the very first player attack the mob takes. */
+/** プレイヤーからの最初の攻撃を1回だけ無効化する。 */
 public final class FirstMeetingTrait extends Trait {
 
     public FirstMeetingTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Reflects a fraction of incoming damage back at the attacker. */
+/** 受けたダメージの一部を攻撃者に跳ね返す。 */
 public final class ReflectTrait extends Trait {
 
     private final double factorPerRank;

@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Weapon/armor enhancement engine.
+ * 武器・防具強化エンジン。
  * <ul>
- *   <li>Level: flat stat per level. Gates: 30 (needs refine&gt;=2), 50 (needs mace forge), 70 cap.</li>
- *   <li>Refine: each refine level adds 20% of the item's ORIGINAL stat (refine 5 = +100% = doubled).
- *       Netherite can refine up to 10; at refine 10 the Lv70 gate opens and the cap becomes 100.</li>
- *   <li>Forge: a mace marks the item forged (passes the Lv50 gate).</li>
+ *   <li>レベル: 1レベルにつき固定ステータス加算。ゲート: 30（精錬&gt;=2 必要）、50（鍛造済み必要）、上限 70。</li>
+ *   <li>精錬: 1精錬につきアイテム元ステータスの 20% を加算（精錬 5 = +100% = 2倍）。
+ *       ネザライトは最大 10 まで可能; 精錬 10 で Lv70 ゲートが解除され上限が 100 になる。</li>
+ *   <li>鍛造: メイスでアイテムを鍛造済みマーク（Lv50 ゲートを通過可能にする）。</li>
  * </ul>
- * Base stats are preserved by rebuilding the item's modifier set from its intrinsic defaults.
+ * ベースステータスはアイテム本来のデフォルトからモディファイアを再構築することで保持する。
  */
 public final class ItemEnhancer {
 
@@ -84,6 +84,10 @@ public final class ItemEnhancer {
     }
 
     static int requiredXp(ItemStack item) {
+        return Math.max(1, (int) Math.round(baseRequiredXp(item) * xpMultiplier()));
+    }
+
+    private static int baseRequiredXp(ItemStack item) {
         String n = item.getType().name();
         if (n.startsWith("WOODEN") || n.startsWith("LEATHER")) return 10;
         if (n.startsWith("STONE") || n.startsWith("CHAINMAIL")) return 15;
@@ -92,6 +96,12 @@ public final class ItemEnhancer {
         if (n.startsWith("DIAMOND")) return 50;
         if (n.startsWith("NETHERITE")) return 80;
         return 30;
+    }
+
+    /** レベルアップに必要な XP のコンフィグ倍率（1.0 = デフォルト）。 */
+    private static double xpMultiplier() {
+        EnhancedMobs plugin = EnhancedMobs.get();
+        return plugin == null ? 1.0 : plugin.mainConfig().itemXpMultiplier;
     }
 
     public static void grantXp(ItemStack item, int amount) {
@@ -123,7 +133,7 @@ public final class ItemEnhancer {
             }
         }
         if (!canPass(item, level, refine, forged) && xp > req) {
-            xp = req; // park the bar at full while gated
+            xp = req; // ゲートでブロック中はバーを満タンで停止
         }
 
         pdc.set(LEVEL, PersistentDataType.INTEGER, level);
@@ -135,16 +145,16 @@ public final class ItemEnhancer {
         item.setItemMeta(meta);
     }
 
-    /** Whether the item can level past its current level given its refine/forge progress. */
+    /** 現在のレベルから次へ進めるかを、精錬・鍛造の進捗に基づいて判定。 */
     public static boolean canPass(ItemStack item, int level, int refine, int forged) {
         if (level >= cap(item)) return false;
         if (level == GATE_REFINE && refine < 2) return false;
         if (level == GATE_FORGE && forged < GATE_FORGE) return false;
-        if (level == 70 && refine < 10) return false; // netherite-only gate (others cap at 70)
+        if (level == 70 && refine < 10) return false; // ネザライト専用ゲート（他素材は Lv70 が上限）
         return true;
     }
 
-    /** System 2: refine +1 (cap 5, or 10 for netherite). */
+    /** 精錬 +1（上限: 通常 5、ネザライト 10）。 */
     public static boolean refine(ItemStack item) {
         if (!isEnhanceable(item)) return false;
         ItemMeta meta = item.getItemMeta();
@@ -158,7 +168,7 @@ public final class ItemEnhancer {
         return true;
     }
 
-    /** System 3: mark forged (passes the Lv50 gate). */
+    /** 鍛造済みマークを付与（Lv50 ゲートを通過可能にする）。 */
     public static boolean forge(ItemStack item) {
         if (!isEnhanceable(item)) return false;
         ItemMeta meta = item.getItemMeta();
@@ -171,7 +181,7 @@ public final class ItemEnhancer {
         return true;
     }
 
-    /** Basic anvil-top function: restore some durability. */
+    /** 耐久値を一部回復する（金床の基本機能）。 */
     public static boolean repair(ItemStack item) {
         if (!isEnhanceable(item)) return false;
         ItemMeta meta = item.getItemMeta();
@@ -193,8 +203,8 @@ public final class ItemEnhancer {
     }
 
     /**
-     * Rebuild the item's modifiers from its intrinsic defaults (preserving base stats), then add the
-     * level bonus (flat) and the refine bonus (20% of the original stat per refine level).
+     * アイテム本来のデフォルトからモディファイアを再構築してベースステータスを保持したうえで、
+     * レベルボーナス（固定値）と精錬ボーナス（元ステータスの 20% × 精錬数）を加算する。
      */
     public static void applyStats(ItemStack item, ItemMeta meta, int level, int refine) {
         Category cat = category(item);

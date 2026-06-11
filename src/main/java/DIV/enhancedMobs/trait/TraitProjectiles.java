@@ -5,7 +5,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Projectile;
 import org.bukkit.persistence.PersistentDataType;
 
-/** Tags a projectile with the trait that fired it, so ProjectileListener can dispatch its impact. */
+/** 飛翔体に発射元のトレイト情報をタグ付けし、ProjectileListener が着弾をディスパッチできるようにする。 */
 public final class TraitProjectiles {
 
     public static final NamespacedKey TRAIT = new NamespacedKey(EnhancedMobs.get(), "proj_trait");

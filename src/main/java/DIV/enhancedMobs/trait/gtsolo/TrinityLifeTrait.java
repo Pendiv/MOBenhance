@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: blocks magic, resists, and revives once. */
+/** 近似実装: 魔法ダメージ無効＋耐性、致死ダメージを1度だけ全回復で踏みとどまる。 */
 public final class TrinityLifeTrait extends Trait {
 
     public TrinityLifeTrait(int cost, int weight, int maxRank, int minLevel) {

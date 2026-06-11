@@ -11,17 +11,16 @@ import org.bukkit.entity.LivingEntity;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Applies level-based stat enhancement, distributed for variety ("振れ").
+ * レベルに応じたステータス強化を適用。個体差（振れ）を生むランダム配分を行う。
  *
- * <p>Four stats — health, armor, attack, speed — each gain {@code count * perStep}. The counts
- * come from the level N:
+ * <p>HP・防御・攻撃・速度の4ステータスに {@code count * perStep} を加算。
+ * count の決め方:
  * <ul>
- *   <li>fine part {@code ones = N % 10}: that many +1 draws, each to a random stat;</li>
- *   <li>coarse part {@code high = N / 10}: exactly {@code coarseDraws} (≈10) draws of {@code +high},
- *       each to a random stat.</li>
+ *   <li>細粒部 {@code ones = N % 10}: ランダムなステータスに +1 を ones 回。</li>
+ *   <li>粗粒部 {@code high = N / 10}: ランダムなステータスに +high を {@code coarseDraws}（≈10）回。</li>
  * </ul>
- * Total applications = {@code 10*high + ones = N}, but only ~19 draws regardless of level, so the
- * per-stat spread is intentionally coarse — some mobs end up specced hard into one stat.
+ * 合計 {@code 10*high + ones = N} になるが、抽選は ≈19 回のみ。
+ * 意図的に粗い配分で、一部ステータスに極端に偏ったモブが生まれる。
  */
 public final class LevelScaler {
 
@@ -80,7 +79,7 @@ public final class LevelScaler {
     private void applyFlat(LivingEntity mob, Attribute attribute, NamespacedKey key, double amount) {
         AttributeInstance inst = mob.getAttribute(attribute);
         if (inst == null) {
-            return; // e.g. ATTACK_DAMAGE is absent on creepers / ranged-only mobs
+            return; // クリーパーや遠距離専用モブは ATTACK_DAMAGE 属性を持たないため
         }
         inst.getModifiers().stream()
                 .filter(m -> key.equals(m.getKey()))

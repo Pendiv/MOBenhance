@@ -7,8 +7,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Reinterpreted REPRINT: the mob reduces incoming damage in proportion to the attacker's weapon
- * enchantment levels (negating their enchant advantage).
+ * 再解釈 REPRINT: 攻撃者の武器エンチャントレベル合計に比例して被ダメを軽減する
+ * （エンチャント強化による優位を打ち消す）。
  */
 public final class ReprintTrait extends Trait {
 

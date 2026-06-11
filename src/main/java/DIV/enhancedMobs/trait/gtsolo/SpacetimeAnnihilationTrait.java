@@ -6,7 +6,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Spacetime certain-kill: a killing blow denies the victim's totem revive. */
+/** 時空族: 致死ダメージを与えた対象のトーテム復活を封じる。 */
 public final class SpacetimeAnnihilationTrait extends Trait {
 
     public SpacetimeAnnihilationTrait(int cost, int weight, int maxRank, int minLevel) {

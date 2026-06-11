@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: spawns hardened (resistance + strength). */
+/** 近似実装: 耐性+筋力で硬化させる。 */
 public final class BrokenWindowTrait extends Trait {
 
     public BrokenWindowTrait(int cost, int weight, int maxRank, int minLevel) {

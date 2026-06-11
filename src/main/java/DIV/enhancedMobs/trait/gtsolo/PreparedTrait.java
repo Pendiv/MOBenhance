@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Grants lasting absorption hearts on spawn. */
+/** スポーン時に永続的な吸収ハートを付与する。 */
 public final class PreparedTrait extends Trait {
 
     public PreparedTrait(int cost, int weight, int maxRank, int minLevel) {

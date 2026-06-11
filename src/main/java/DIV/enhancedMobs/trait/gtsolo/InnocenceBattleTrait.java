@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Ignores damage from non-player sources. */
+/** プレイヤー以外からのダメージを無効化する。 */
 public final class InnocenceBattleTrait extends Trait {
 
     public InnocenceBattleTrait(int cost, int weight, int maxRank, int minLevel) {

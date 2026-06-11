@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Survives a lethal hit by briefly fading out and recovering. */
+/** 致死ダメージを一度だけ無効化し、全回復して短時間透明になる（1回限り）。 */
 public final class DreamMeltTrait extends Trait {
 
     public DreamMeltTrait(int cost, int weight, int maxRank, int minLevel) {

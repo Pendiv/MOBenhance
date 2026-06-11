@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Compromise DEMENTOR: resists physical damage, and deals bonus damage (approximated pierce). */
+/** 近似実装 DEMENTOR: 物理攻撃への耐性と追加ダメージを持つ（ピアスの近似）。 */
 public final class DementorTrait extends Trait {
 
     private final double resistPerRank;

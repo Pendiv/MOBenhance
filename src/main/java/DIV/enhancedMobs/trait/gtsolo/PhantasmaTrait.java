@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Negates every third hit it takes. */
+/** 被弾3回ごとに1回だけダメージを無効化する。 */
 public final class PhantasmaTrait extends Trait {
 
     public PhantasmaTrait(int cost, int weight, int maxRank, int minLevel) {

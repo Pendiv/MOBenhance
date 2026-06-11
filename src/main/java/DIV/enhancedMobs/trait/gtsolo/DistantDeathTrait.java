@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Heals from player damage; counters hard every fifth hit. */
+/** プレイヤーから受けたダメージ量に応じて回復し、5ヒットごとに強力な反撃を行う。 */
 public final class DistantDeathTrait extends Trait {
 
     public DistantDeathTrait(int cost, int weight, int maxRank, int minLevel) {

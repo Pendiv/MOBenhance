@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Damage scales up as the mob loses health. */
+/** HPが減るほど攻撃ダメージが増加する。 */
 public final class AngerTrait extends Trait {
 
     public AngerTrait(int cost, int weight, int maxRank, int minLevel) {

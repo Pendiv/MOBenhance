@@ -8,7 +8,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ShulkerBullet;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-/** Compromise GRENADE: fires a homing shulker bullet that explodes on impact (no block damage). */
+/** 近似実装 GRENADE: ホーミングするシュルカー弾を発射し、着弾時に爆発する（ブロック破壊なし）。 */
 public final class GrenadeTrait extends RangedTrait {
 
     private final float basePower;

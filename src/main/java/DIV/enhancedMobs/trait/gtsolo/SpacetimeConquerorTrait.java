@@ -9,7 +9,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 
-/** Overwhelming spacetime power: large health and attack buffs. */
+/** 時空族: 最大HP（ランク×50%増）と攻撃力（ランク×40%増）を恒久的に強化する。 */
 public final class SpacetimeConquerorTrait extends Trait {
 
     public SpacetimeConquerorTrait(int cost, int weight, int maxRank, int minLevel) {

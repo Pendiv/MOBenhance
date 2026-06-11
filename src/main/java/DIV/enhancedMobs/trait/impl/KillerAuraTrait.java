@@ -6,7 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-/** Periodically deals magic-ish damage to nearby players. */
+/** 定期的に周囲のプレイヤーに魔法系ダメージを与えるオーラ。 */
 public final class KillerAuraTrait extends Trait {
 
     private final double range;

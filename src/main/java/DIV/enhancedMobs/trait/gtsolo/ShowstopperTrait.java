@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Always glowing and burning, but fire-resistant. */
+/** 常時発光・炎上状態だが、火炎耐性により火ダメージは受けない。 */
 public final class ShowstopperTrait extends Trait {
 
     public ShowstopperTrait(int cost, int weight, int maxRank, int minLevel) {

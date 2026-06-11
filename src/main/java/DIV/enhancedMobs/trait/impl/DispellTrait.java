@@ -8,8 +8,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Reinterpreted DISPELL: the more protection enchantments the target wears, the more bonus
- * damage the mob deals (as if cutting through their protection). Feather Falling is ignored.
+ * 再解釈 DISPELL: 対象が装備するプロテクション系エンチャントのレベル合計が多いほど、
+ * モブの与ダメが増加する（防具を貫通するイメージ）。フェザーフォーリングは対象外。
  */
 public final class DispellTrait extends Trait {
 
@@ -43,7 +43,7 @@ public final class DispellTrait extends Trait {
             sum += ench.getOrDefault(Enchantment.FIRE_PROTECTION, 0);
             sum += ench.getOrDefault(Enchantment.BLAST_PROTECTION, 0);
             sum += ench.getOrDefault(Enchantment.PROJECTILE_PROTECTION, 0);
-            // Feather Falling and Mending are intentionally not counted.
+            // フェザーフォーリングとメンディングは意図的に除外。
         }
         return sum;
     }

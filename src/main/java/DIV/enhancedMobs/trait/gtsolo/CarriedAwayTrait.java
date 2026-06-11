@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Very fast until a player hits it, then loses the speed. */
+/** 初期は高速移動するが、プレイヤーに攻撃されると速度効果が解除される。 */
 public final class CarriedAwayTrait extends Trait {
 
     public CarriedAwayTrait(int cost, int weight, int maxRank, int minLevel) {

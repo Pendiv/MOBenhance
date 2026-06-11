@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Deals more damage to healthy targets (scaled by target health ratio). */
+/** 対象のHP比率に応じてダメージを増幅する（満HP=等倍、低HP=低倍率）。 */
 public final class WellFedStrikeTrait extends Trait {
 
     public WellFedStrikeTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Reduces incoming damage by the attacker's base weapon attack. */
+/** 攻撃プレイヤーの武器攻撃力（基本値）だけ受けるダメージを差し引く。 */
 public final class ParadiseLostTrait extends Trait {
 
     public ParadiseLostTrait(int cost, int weight, int maxRank, int minLevel) {

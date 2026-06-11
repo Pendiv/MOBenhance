@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-/** Continuously damages nearby players and non-spacetime mobs. */
+/** 近傍のプレイヤーおよびspacetimeタグを持たないMobに継続ダメージを与えるオーラ。 */
 public final class SpacetimeRejectionTrait extends AuraTrait {
 
     public SpacetimeRejectionTrait(int cost, int weight, int maxRank, int minLevel) {

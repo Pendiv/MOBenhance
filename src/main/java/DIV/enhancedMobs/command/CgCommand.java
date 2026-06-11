@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * {@code /cg [target] [gamemode]} — change game mode.
+ * {@code /cg [target] [gamemode]} — ゲームモード変更コマンド。
  * <ul>
- *   <li>{@code /cg} alone: toggle your own survival/creative.</li>
- *   <li>{@code /cg <gamemode>}: set your own game mode.</li>
- *   <li>{@code /cg <target> <gamemode>}: set the targets' game mode.</li>
+ *   <li>引数なし：自分のサバイバル↔クリエイティブをトグル。</li>
+ *   <li>{@code /cg <gamemode>}：自分のモードを指定。</li>
+ *   <li>{@code /cg <target> <gamemode>}：対象プレイヤーのモードを指定。</li>
  * </ul>
- * Game mode accepts a number 0-3 or a name. Requires {@code enhancedmobs.cg} (OP).
+ * ゲームモードは 0-3 の数字または名前で指定可能。権限: {@code enhancedmobs.cg}（OP）。
  */
 public final class CgCommand implements CommandExecutor, TabCompleter {
 

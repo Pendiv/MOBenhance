@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-/** Continuously shrugs off harmful potion effects. */
+/** tickごとに有害ポーション効果を除去し続ける。 */
 public final class PureHeartTrait extends Trait {
 
     private static final PotionEffectType[] HARMFUL = {

@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-/** Grounds nearby players by stripping levitation and slow-falling. */
+/** 近くのプレイヤーから浮遊・低速落下を除去して地面に縛り付ける。 */
 public final class GroundBattleTrait extends AuraTrait {
 
     public GroundBattleTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 
-/** Creeper with a much larger explosion radius. */
+/** 爆発半径を大幅に拡大したクリーパー。 */
 public final class FullTankTrait extends Trait {
 
     public FullTankTrait(int cost, int weight, int maxRank, int minLevel) {

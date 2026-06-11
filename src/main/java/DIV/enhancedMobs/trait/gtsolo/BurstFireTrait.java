@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
-/** Skeleton fires rapid bursts of arrows. */
+/** 短いクールダウンで矢を連射するスケルトン。 */
 public final class BurstFireTrait extends RangedTrait {
 
     public BurstFireTrait(int cost, int weight, int maxRank, int minLevel) {

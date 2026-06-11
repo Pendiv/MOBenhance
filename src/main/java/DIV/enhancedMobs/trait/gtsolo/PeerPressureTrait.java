@@ -5,7 +5,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-/** Creeper that ignites nearby creepers when it is itself ignited. */
+/** 自身が着火されると、周囲のクリーパーも連鎖着火させる。 */
 public final class PeerPressureTrait extends Trait {
 
     public PeerPressureTrait(int cost, int weight, int maxRank, int minLevel) {

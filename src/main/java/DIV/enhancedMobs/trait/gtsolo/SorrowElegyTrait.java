@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Keeps nearby mobs from dying (heals them); revives itself once at rank 2+. */
+/** 周囲12m以内のMobを毎ティック最大HP×5%回復させる。ランク2以上なら自身も致死ダメージを一度だけ無効化し満HP復活する。 */
 public final class SorrowElegyTrait extends Trait {
 
     public SorrowElegyTrait(int cost, int weight, int maxRank, int minLevel) {

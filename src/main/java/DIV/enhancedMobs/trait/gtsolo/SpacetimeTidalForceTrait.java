@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-/** Cleanses debuffs from nearby spacetime mobs. */
+/** 近傍のspacetimeタグ持ちMobからデバフを定期的に除去するオーラ。 */
 public final class SpacetimeTidalForceTrait extends AuraTrait {
 
     private static final PotionEffectType[] DEBUFFS = {

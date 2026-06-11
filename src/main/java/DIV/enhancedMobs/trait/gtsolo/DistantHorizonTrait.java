@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Incoming player damage is scaled by the attacker's own health ratio. */
+/** プレイヤーからの被ダメージを攻撃者の現在HP割合で倍率補正する。 */
 public final class DistantHorizonTrait extends Trait {
 
     public DistantHorizonTrait(int cost, int weight, int maxRank, int minLevel) {

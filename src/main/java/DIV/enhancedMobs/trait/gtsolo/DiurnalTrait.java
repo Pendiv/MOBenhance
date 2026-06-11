@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Empowered during the day. */
+/** 昼間のみ速度・力・再生を付与し続ける。 */
 public final class DiurnalTrait extends Trait {
 
     public DiurnalTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,7 +15,7 @@ public final class DiurnalTrait extends Trait {
     @Override
     public void tick(LivingEntity mob, int rank) {
         if (mob.getWorld().getTime() % 24000 >= 12000) {
-            return; // night
+            return; // 夜間は何もしない
         }
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 0, true, false, false));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 40, rank - 1, true, false, false));

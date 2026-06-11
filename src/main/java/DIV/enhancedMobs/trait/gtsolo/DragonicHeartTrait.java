@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: heavy resistance and regeneration (stand-in for the crystal shield). */
+/** 近似実装: クリスタルシールドの代替として高レベルの耐性+再生を付与する。 */
 public final class DragonicHeartTrait extends Trait {
 
     public DragonicHeartTrait(int cost, int weight, int maxRank, int minLevel) {

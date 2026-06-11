@@ -9,7 +9,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-/** Skeleton fires fast arrows that knock the target back hard. */
+/** 命中時に強烈なノックバックを与える矢を射るスケルトン。 */
 public final class CrossbowmanTrait extends RangedTrait {
 
     public CrossbowmanTrait(int cost, int weight, int maxRank, int minLevel) {

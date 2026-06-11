@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Conceals the battlefield: weakens nearby players. */
+/** 近傍プレイヤーに弱体効果を付与するオーラ。 */
 public final class SpacetimeShadowRaidTrait extends AuraTrait {
 
     public SpacetimeShadowRaidTrait(int cost, int weight, int maxRank, int minLevel) {

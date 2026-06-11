@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Weakens nearby mobs. */
+/** 周囲のモブに弱体化を付与する。 */
 public final class LazinessTrait extends AuraTrait {
 
     public LazinessTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -20,12 +20,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Floating "Lv.X  TRAITS" text above a mob's head, via a {@link TextDisplay} passenger (kept
- * separate from the mob's name so kill logs stay clean).
+ * モブ頭上に浮かぶ「Lv.X  特性名」テキスト。{@link TextDisplay} をパッセンジャーとして使用し、
+ * キルログをモブ名と分離する。
  *
- * <p>Lifecycle: each display is tracked by mob UUID -> display UUID and tagged with a PDC marker.
- * Cleanup runs on death AND on any entity removal (despawn, /kill, void) so no tag is left floating;
- * displays are re-attached when chunks load again.
+ * <p>ライフサイクル: モブ UUID → Display UUID で追跡し PDC マーカーで識別。
+ * 死亡・除去（デスポーン・/kill・奈落）いずれでもクリーンアップされるため残留しない。
+ * チャンクリロード時に再アタッチされる。
  */
 public final class TraitDisplay {
 
@@ -72,7 +72,7 @@ public final class TraitDisplay {
         return text;
     }
 
-    /** True if this mob currently has one of our displays attached. */
+    /** このモブに当プラグインの Display がアタッチされているか。 */
     public boolean hasDisplay(LivingEntity mob) {
         for (Entity passenger : mob.getPassengers()) {
             if (passenger instanceof TextDisplay td && isOurs(td)) {
@@ -82,7 +82,7 @@ public final class TraitDisplay {
         return false;
     }
 
-    /** Remove this mob's display (tracked by UUID, plus a passenger-scan fallback). */
+    /** このモブの Display を除去（UUID 追跡 + パッセンジャースキャンの二重確認）。 */
     public void cleanup(LivingEntity mob) {
         UUID displayId = active.remove(mob.getUniqueId());
         if (displayId != null) {
@@ -98,7 +98,7 @@ public final class TraitDisplay {
         }
     }
 
-    /** Remove every display we created across all worlds (disable / orphan sweep). */
+    /** 全ワールドの当プラグイン製 Display をすべて除去（無効化・孤立スイープ用）。 */
     public void removeAll() {
         active.clear();
         for (World w : plugin.getServer().getWorlds()) {

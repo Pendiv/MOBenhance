@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Negates fall damage. */
+/** 落下ダメージを無効化する。 */
 public final class IronLegsTrait extends Trait {
 
     public IronLegsTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -9,8 +9,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * String tags on an entity (comma-joined in PDC). Used for trait "families" such as the GTsolo
- * "spacetime" set, where traits interact with same-kind mobs.
+ * エンティティに付けるタグ（PDC にカンマ区切りで保存）。
+ * GTsolo の「時空」セットのように、同種モブ同士がトレイトで連携する「ファミリー」判定に使用。
  */
 public final class MobTags {
 

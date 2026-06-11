@@ -5,7 +5,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Creeper that ignores fire-based ignition damage. */
+/** 火・溶岩・高温床によるダメージを無効化するクリーパー。 */
 public final class ContrarianTrait extends Trait {
 
     public ContrarianTrait(int cost, int weight, int maxRank, int minLevel) {

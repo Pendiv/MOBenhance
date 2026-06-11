@@ -3,7 +3,7 @@ package DIV.enhancedMobs.trait.gtsolo;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 
-/** Always glowing. */
+/** 常時発光する。 */
 public final class AttentionSeekerTrait extends Trait {
 
     public AttentionSeekerTrait(int cost, int weight, int maxRank, int minLevel) {

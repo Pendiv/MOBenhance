@@ -5,7 +5,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Creeper whose explosion grows each time it survives explosion damage. */
+/** 爆発ダメージを受けるたびに爆発半径が増加するクリーパー。 */
 public final class AccumulationTrait extends Trait {
 
     public AccumulationTrait(int cost, int weight, int maxRank, int minLevel) {

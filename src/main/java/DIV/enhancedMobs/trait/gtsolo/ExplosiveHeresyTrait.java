@@ -5,7 +5,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Creeper that takes extra damage from explosions. */
+/** クリーパー専用: 爆発ダメージを2.5倍で受ける。 */
 public final class ExplosiveHeresyTrait extends Trait {
 
     public ExplosiveHeresyTrait(int cost, int weight, int maxRank, int minLevel) {

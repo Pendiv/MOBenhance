@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Zombie with flat damage reduction (approx of the variant-shift trait). */
+/** 受けるダメージを一律35%軽減するゾンビ（変異シフト特性の近似実装）。 */
 public final class AliceSyndromeTrait extends Trait {
 
     public AliceSyndromeTrait(int cost, int weight, int maxRank, int minLevel) {

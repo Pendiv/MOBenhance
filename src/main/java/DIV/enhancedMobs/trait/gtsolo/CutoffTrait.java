@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Negates tiny hits (below 1% of max health). */
+/** 最大HP1%未満の微小ダメージを無効化する。 */
 public final class CutoffTrait extends Trait {
 
     public CutoffTrait(int cost, int weight, int maxRank, int minLevel) {

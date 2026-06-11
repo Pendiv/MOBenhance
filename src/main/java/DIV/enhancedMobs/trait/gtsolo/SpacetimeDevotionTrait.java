@@ -5,7 +5,7 @@ import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 
-/** Heals nearby spacetime mobs. */
+/** 時空族: 周囲12m以内の時空族Mobを毎ティックランク分だけ回復させる。 */
 public final class SpacetimeDevotionTrait extends AuraTrait {
 
     public SpacetimeDevotionTrait(int cost, int weight, int maxRank, int minLevel) {

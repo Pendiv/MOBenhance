@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Hits harder when no other mobs are nearby. */
+/** 周囲16ブロック以内にモブがいない場合、攻撃倍率が上昇する。 */
 public final class LoneWolfTrait extends Trait {
 
     public LoneWolfTrait(int cost, int weight, int maxRank, int minLevel) {

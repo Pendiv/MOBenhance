@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Blocks magic damage and heals from half of it. */
+/** 魔法ダメージを無効化し、その半量を回復する。 */
 public final class MagicalCreaturesTrait extends Trait {
 
     public MagicalCreaturesTrait(int cost, int weight, int maxRank, int minLevel) {

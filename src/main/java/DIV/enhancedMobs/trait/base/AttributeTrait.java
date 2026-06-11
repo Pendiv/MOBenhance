@@ -11,8 +11,8 @@ import org.bukkit.entity.LivingEntity;
 import java.util.List;
 
 /**
- * Trait that applies one or more attribute modifiers scaling with rank (TANK, SPEEDY).
- * Mirrors L2Hostility's {@code AttributeTrait}.
+ * ランクに比例して1つ以上の属性モディファイアを付与するトレイト（TANK, SPEEDY など）。
+ * L2Hostility の {@code AttributeTrait} に対応する。
  */
 public class AttributeTrait extends Trait {
 

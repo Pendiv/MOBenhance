@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: lasting strength (memorised power). */
+/** 近似実装: 永続的な力効果（筋肉記憶による攻撃力強化）。 */
 public final class MuscleMemoryTrait extends Trait {
 
     public MuscleMemoryTrait(int cost, int weight, int maxRank, int minLevel) {

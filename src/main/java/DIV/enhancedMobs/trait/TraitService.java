@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Map;
 
-/** Central entry point for trait generation, application, and event dispatch. */
+/** トレイト生成・適用・イベントディスパッチの中心窓口。 */
 public final class TraitService {
 
     private final TraitRegistry registry;
@@ -33,13 +33,17 @@ public final class TraitService {
         return registry;
     }
 
-    /** Roll traits for a freshly-levelled mob, store them, and apply their initial effects. */
+    public TraitLang lang() {
+        return lang;
+    }
+
+    /** レベルが決まったモブのトレイトを抽選し、PDC に保存して初期化を呼ぶ。 */
     public Map<Trait, Integer> generateAndApply(LivingEntity mob, int level) {
         Map<Trait, Integer> traits = generator.generate(mob, level);
         MobData.of(mob).setTraitsRaw(registry.serialize(traits));
         traits.forEach((trait, rank) -> trait.initialize(mob, rank));
 
-        // Traits like TANK raise max health; top the mob back up.
+        // TANK などは最大HP を増やすため、初期化後に全回復する。
         AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealth != null) {
             mob.setHealth(maxHealth.getValue());
@@ -49,6 +53,18 @@ public final class TraitService {
 
     public Map<Trait, Integer> read(LivingEntity mob) {
         return registry.parse(MobData.of(mob).getTraitsRaw());
+    }
+
+    /**
+     * 指定トレイトをモブの保存セットから除去する。
+     * クローン/召喚トレイトが生成したコピーに同じトレイトを引き継がせないために使う（無限増殖防止）。
+     */
+    public void stripTrait(LivingEntity mob, String id) {
+        Map<Trait, Integer> traits = read(mob);
+        Trait trait = registry.byId(id);
+        if (trait != null && traits.remove(trait) != null) {
+            MobData.of(mob).setTraitsRaw(registry.serialize(traits));
+        }
     }
 
     public void onHurtTarget(LivingEntity mob, LivingEntity target, EntityDamageByEntityEvent event) {
@@ -71,7 +87,7 @@ public final class TraitService {
         read(mob).forEach((trait, rank) -> trait.onDeath(mob, rank, event));
     }
 
-    /** Japanese label like "頑強2 猛毒 灼熱" for the head display. */
+    /** 頭上表示用の日本語ラベル（例: "頑強2 猛毒 灼熱"）。 */
     public String displayText(Map<Trait, Integer> traits) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<Trait, Integer> entry : traits.entrySet()) {

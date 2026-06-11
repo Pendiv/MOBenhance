@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Compromise SOUL_BURNER: sets the target on fire and applies wither on hit. */
+/** 近似実装 SOUL_BURNER: ヒット時に対象を着火しウィザー効果を付与する。 */
 public final class SoulBurnerTrait extends Trait {
 
     private final int fireSeconds;

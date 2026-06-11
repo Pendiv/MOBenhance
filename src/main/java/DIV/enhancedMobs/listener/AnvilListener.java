@@ -29,10 +29,10 @@ import org.joml.Vector3f;
 import java.util.UUID;
 
 /**
- * Anvil-top item handling. Right-click an anvil's TOP face with a weapon/armor to set it on the
- * anvil (a paired ItemDisplay for visuals + an Interaction for the hitbox). Then right-click the
- * placed item with: the same item = refine, a repair material = restore durability, a mace = forge,
- * an empty hand = take it back. Entities are persistent so nothing is lost on unload/restart.
+ * 金床上面へのアイテム設置と操作を管理する。
+ * 武器/防具を持って金床の上面を右クリックすると設置（視覚用 ItemDisplay + ヒットボックス用 Interaction を生成）。
+ * 設置済みアイテムを右クリックすると：同種アイテム=精錬、修理素材=耐久回復、メイス=鍛造、空手=回収。
+ * エンティティは永続化されるためアンロード・再起動でも消えない。
  */
 public final class AnvilListener implements Listener {
 
@@ -56,7 +56,7 @@ public final class AnvilListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         if (!ItemEnhancer.isEnhanceable(held)) {
-            return; // let the normal anvil GUI open
+            return; // 対象外なら通常の金床GUIを開かせる
         }
         Location loc = block.getLocation().add(0.5, 1.0, 0.5);
         event.setCancelled(true);
@@ -121,7 +121,7 @@ public final class AnvilListener implements Listener {
         ItemDisplay display = loc.getWorld().spawn(loc, ItemDisplay.class, d -> {
             d.setItemStack(item);
             d.setPersistent(true);
-            // Lay the item flat (parallel to the anvil top) and float it just above the surface.
+            // アイテムを金床の天面に平行に寝かせ、表面のすぐ上に浮かせる。
             d.setTransformation(new Transformation(
                     new Vector3f(0f, 0.08f, 0f),
                     new Quaternionf().rotateX((float) Math.toRadians(-90)),
@@ -135,7 +135,7 @@ public final class AnvilListener implements Listener {
             i.setResponsive(true);
             i.setPersistent(true);
             i.getPersistentDataContainer().set(TAG_INTER, PersistentDataType.BYTE, (byte) 1);
-            i.getPersistentDataContainer().set(DISPLAY_UUID, PersistentDataType.STRING, display.getUniqueId().toString());
+            i.getPersistentDataContainer().set(DISPLAY_UUID, PersistentDataType.STRING, display.getUniqueId().toString()); // Interaction から Display を逆引きするために UUID を保持
         });
     }
 

@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Attack scales with the number of nearby mobs. */
+/** 周囲8ブロック以内のモブ数に応じて攻撃倍率が上昇する。 */
 public final class GroupPsychologyTrait extends Trait {
 
     public GroupPsychologyTrait(int cost, int weight, int maxRank, int minLevel) {

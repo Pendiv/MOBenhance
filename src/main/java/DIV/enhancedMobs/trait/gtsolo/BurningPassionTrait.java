@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Permanently burns and is empowered while on fire; immune to fire. */
+/** 炎耐性を持ち、炎上中は筋力が付与される。火・溶岩ダメージを受けると炎上が延長される。 */
 public final class BurningPassionTrait extends Trait {
 
     public BurningPassionTrait(int cost, int weight, int maxRank, int minLevel) {

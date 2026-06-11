@@ -8,7 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/** {@code /emdebug} — toggle the per-player debug readout. Development scaffolding. */
+/** {@code /emdebug} — プレイヤーごとのデバッグ表示をトグル。開発用足場。 */
 public final class DebugCommand implements CommandExecutor {
 
     private final DebugViewers viewers;

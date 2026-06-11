@@ -4,7 +4,7 @@ import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.trait.base.AuraTrait;
 import org.bukkit.entity.LivingEntity;
 
-/** Spreads the spacetime tag to nearby mobs. */
+/** 時空族: 周囲10m以内のMobに「spacetime」タグを伝播させる。 */
 public final class SpacetimeDiffusionTrait extends AuraTrait {
 
     public SpacetimeDiffusionTrait(int cost, int weight, int maxRank, int minLevel) {

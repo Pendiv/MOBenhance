@@ -7,8 +7,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Per-player persistent state (PDC). Plugin equivalent of L2Hostility's {@code PlayerDifficulty}.
- * For now it only tracks which special dimensions a player has ever entered.
+ * プレイヤー固有の永続状態（PDC）。L2Hostility の {@code PlayerDifficulty} に相当。
+ * 現状はネザー・エンド訪問フラグと難易度オフセットを保持。
  */
 public final class PlayerData {
 
@@ -46,7 +46,7 @@ public final class PlayerData {
         pdc.set(VISITED_END, PersistentDataType.BYTE, (byte) 1);
     }
 
-    /** Manual difficulty adjustment set by OPs, added on top of the computed danger. */
+    /** OP が設定する難易度手動調整値。算出値に加算される。 */
     public double getDifficultyOffset() {
         Double value = pdc.get(DIFFICULTY_OFFSET, PersistentDataType.DOUBLE);
         return value == null ? 0.0 : value;

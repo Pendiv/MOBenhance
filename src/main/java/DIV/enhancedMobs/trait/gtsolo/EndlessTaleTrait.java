@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Revives on lethal damage with a chance that decays each success. */
+/** 致死ダメージ時に確率で復活し、復活成功のたびに次回の確率が0.8倍に減衰する。 */
 public final class EndlessTaleTrait extends Trait {
 
     public EndlessTaleTrait(int cost, int weight, int maxRank, int minLevel) {

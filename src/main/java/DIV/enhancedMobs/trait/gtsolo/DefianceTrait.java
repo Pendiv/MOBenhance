@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Attack ramps up with each hit taken (capped). */
+/** 被ダメージごとにスタックが増え、攻撃力が上昇する（上限あり）。 */
 public final class DefianceTrait extends Trait {
 
     public DefianceTrait(int cost, int weight, int maxRank, int minLevel) {

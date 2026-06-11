@@ -7,8 +7,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * Trait that applies a potion effect to whatever the mob hits (POISON, WITHER, SLOWNESS, ...).
- * Mirrors L2Hostility's {@code TargetEffectTrait}.
+ * モブが攻撃した相手にポーションエフェクトを付与するトレイト（POISON, WITHER, SLOWNESS など）。
+ * L2Hostility の {@code TargetEffectTrait} に対応する。
  */
 public class TargetEffectTrait extends Trait {
 

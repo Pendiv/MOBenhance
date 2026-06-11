@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Player attacks have a 50% chance to whiff. */
+/** プレイヤーの攻撃を50%の確率で無効化する。 */
 public final class StupefactionTrait extends Trait {
 
     public StupefactionTrait(int cost, int weight, int maxRank, int minLevel) {

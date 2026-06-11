@@ -19,8 +19,8 @@ import org.bukkit.projectiles.ProjectileSource;
 import java.util.Locale;
 
 /**
- * Shows a mob's level and stats in the attacker's action bar when they hit it.
- * Only active for players who toggled it on via {@code /emdebug}. Development scaffolding.
+ * モブを攻撃したプレイヤーのアクションバーにレベルとステータスを表示する。
+ * {@code /emdebug} で有効化したプレイヤーにのみ動作する開発用スキャフォールド。
  */
 public final class DebugListener implements Listener {
 
@@ -70,7 +70,7 @@ public final class DebugListener implements Listener {
         return inst == null ? "—" : fmt(inst.getValue(), decimals);
     }
 
-    /** Our enhancement contribution to an attribute (sum of modifiers in our namespace). */
+    /** 属性に対する当プラグインの加算分（自名前空間のモディファイア合計）。 */
     private String bonStr(LivingEntity mob, Attribute attribute, int decimals) {
         AttributeInstance inst = mob.getAttribute(attribute);
         if (inst == null) {

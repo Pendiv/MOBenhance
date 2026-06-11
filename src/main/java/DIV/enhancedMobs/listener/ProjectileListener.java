@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.persistence.PersistentDataType;
 
-/** Dispatches a trait projectile's impact to the trait that fired it (see RangedTrait). */
+/** トレイト飛翔体の着弾を発射元のトレイトにディスパッチする（RangedTrait 参照）。 */
 public final class ProjectileListener implements Listener {
 
     private final EnhancedMobs plugin;

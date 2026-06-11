@@ -9,7 +9,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-/** Skeleton fires arrows that explode on impact (no block damage). */
+/** スケルトン専用: 命中時に爆発する矢を射つ（ブロックダメージなし）。 */
 public final class ExplosiveArrowUserTrait extends RangedTrait {
 
     public ExplosiveArrowUserTrait(int cost, int weight, int maxRank, int minLevel) {

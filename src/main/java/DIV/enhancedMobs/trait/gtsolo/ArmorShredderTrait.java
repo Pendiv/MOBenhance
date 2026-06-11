@@ -8,7 +8,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-/** Skeleton fires arrows that deal bonus armor-ignoring damage. */
+/** 防具無視の追加ダメージを与える矢を射るスケルトン。 */
 public final class ArmorShredderTrait extends RangedTrait {
 
     public ArmorShredderTrait(int cost, int weight, int maxRank, int minLevel) {

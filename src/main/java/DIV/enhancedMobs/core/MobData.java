@@ -7,11 +7,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Read/write wrapper over a mob's PersistentDataContainer.
+ * モブの PersistentDataContainer に対する読み書きラッパー。
  *
- * <p>This is the plugin equivalent of L2Hostility's {@code MobTraitCap}: all per-mob
- * persistent state (level, traits, init stage) lives here, and nothing outside core/
- * touches the raw PDC.
+ * <p>L2Hostility の {@code MobTraitCap} に相当。レベル・トレイト等の
+ * モブ固有の永続状態はすべてここで管理し、core/ 外から PDC を直接触らない。
  */
 public final class MobData {
 
@@ -34,7 +33,7 @@ public final class MobData {
         return new MobData(entity);
     }
 
-    /** True once this mob has been assigned a level (so we never process it twice). */
+    /** レベルが付与済みであれば true（二重処理防止）。 */
     public boolean isProcessed() {
         return pdc.has(LEVEL, PersistentDataType.INTEGER);
     }
@@ -48,7 +47,7 @@ public final class MobData {
         pdc.set(LEVEL, PersistentDataType.INTEGER, level);
     }
 
-    /** Trait map serialized as {@code "tank:3;fiery:1"}. Empty string when none. */
+    /** トレイトマップを {@code "tank:3;fiery:1"} 形式で返す。未設定時は空文字列。 */
     public String getTraitsRaw() {
         String value = pdc.get(TRAITS, PersistentDataType.STRING);
         return value == null ? "" : value;

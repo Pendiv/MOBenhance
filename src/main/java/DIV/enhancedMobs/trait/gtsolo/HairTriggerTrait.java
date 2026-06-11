@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 
-/** Creeper with a much shorter fuse. */
+/** 導火線を短縮したクリーパー。最短5ティックまで短縮。 */
 public final class HairTriggerTrait extends Trait {
 
     public HairTriggerTrait(int cost, int weight, int maxRank, int minLevel) {

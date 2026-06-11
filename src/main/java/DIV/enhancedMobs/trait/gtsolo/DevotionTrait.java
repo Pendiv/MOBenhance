@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-/** On death, heals nearby mobs. */
+/** 死亡時に周囲のMobを回復する。 */
 public final class DevotionTrait extends Trait {
 
     public DevotionTrait(int cost, int weight, int maxRank, int minLevel) {

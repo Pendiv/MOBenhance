@@ -9,7 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataType;
 
-/** Survives one otherwise-lethal hit, restoring full health. */
+/** 致死の一撃を1度だけ無効化し、全回復する。 */
 public final class UndyingTrait extends Trait {
 
     private final NamespacedKey usedKey;

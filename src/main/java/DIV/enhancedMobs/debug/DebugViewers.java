@@ -5,16 +5,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * In-memory set of players who have the debug readout enabled.
+ * デバッグ表示が有効なプレイヤーのインメモリセット。
  *
- * <p>This whole {@code debug/} package is development scaffolding — trim or delete it before the
- * final build.
+ * <p>{@code debug/} パッケージ全体が開発用足場。リリース前に削除または縮小すること。
  */
 public final class DebugViewers {
 
     private final Set<UUID> viewers = ConcurrentHashMap.newKeySet();
 
-    /** @return true if now ON, false if now OFF. */
+    /** @return ON になった場合 true、OFF になった場合 false。 */
     public boolean toggle(UUID id) {
         if (!viewers.add(id)) {
             viewers.remove(id);

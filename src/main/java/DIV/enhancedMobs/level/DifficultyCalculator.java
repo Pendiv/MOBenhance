@@ -13,30 +13,29 @@ import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Computes a mob's level from a layered "danger" model.
+ * 多層的な「危険度」モデルからモブのレベルを算出する。
  *
  * <pre>
- * danger = (D_global + D_personal) * T + offset(reference)      [clamp for mobs]
+ * danger = (D_global + D_personal) * T + offset(reference)      [モブはクランプあり]
  *
  * D_global   = base
- *            + distanceFactor * distanceFromWorldSpawn
- *            + floor( cbrt( sum of all online players' MOB_KILLS ) )
- *            + netherValue * (online who visited Nether / online total)
- *            + endValue    * (online who visited End    / online total)
- *            + gaussian * variation                              (mob spawns only)
+ *            + distanceFactor * ワールドスポーンからの距離
+ *            + floor( cbrt( 全オンラインプレイヤーの MOB_KILLS 合計 ) )
+ *            + netherValue * (ネザー訪問者数 / 全オンライン数)
+ *            + endValue    * (エンド訪問者数  / 全オンライン数)
+ *            + gaussian * variation                              (モブスポーン時のみ)
  *
- * D_personal = cbrt( sum_i  X_i / N_i^1.6 ) * I                  ("gravity" + importance)
- *   X_i = player i's MOB_KILLS,  N_i = chunk distance player i -> mob (min 1),
- *   over players in the mob's world only.
- *   I   = K0 / (K0 + c),  K0 = reference player's MOB_KILLS.
+ * D_personal = cbrt( sum_i  X_i / N_i^1.6 ) * I                 (重力 + 重要度)
+ *   X_i = プレイヤー i の MOB_KILLS、N_i = プレイヤー i → モブのチャンク距離 (最小1)、
+ *   対象はモブと同じワールドのプレイヤーのみ。
+ *   I   = K0 / (K0 + c)、K0 = 基準プレイヤーの MOB_KILLS。
  *
- * T          = round1( 1 + sqrt(Y) / 12 ),  Y = elapsed days of the primary world.
- * offset     = the reference player's manual difficulty offset (set by OPs).
+ * T          = round1( 1 + sqrt(Y) / 12 )、Y = プライマリワールドの経過日数。
+ * offset     = 基準プレイヤーの手動難易度調整値（OP が設定）。
  * </pre>
  *
- * <p>For a spawning mob the reference is the nearest player; for a player's own readout the
- * reference is that player. Both share this method so the number a player sees matches what
- * mobs around them experience.
+ * <p>スポーン時の基準は最近傍プレイヤー、プレイヤー自身の表示時は本人。
+ * 双方で同じメソッドを使うため、プレイヤーが見る数値とモブに適用される数値が一致する。
  */
 public final class DifficultyCalculator {
 
@@ -53,7 +52,7 @@ public final class DifficultyCalculator {
         this.locations = locations;
     }
 
-    /** Level for a spawning mob (with random wobble), clamped to [0, maxMobLevel]. */
+    /** スポーン時のレベルを算出（ランダム揺らぎあり）。[0, maxMobLevel] にクランプ。 */
     public int compute(Location loc) {
         Player reference = nearestPlayer(loc);
         int level = (int) Math.round(rawDanger(loc, reference, true));
@@ -69,7 +68,7 @@ public final class DifficultyCalculator {
         return level;
     }
 
-    /** Deterministic difficulty readout for a player (no random wobble), floored at 0. */
+    /** プレイヤーの難易度表示値を算出（揺らぎなし、0 以上）。 */
     public int playerDifficulty(Player player) {
         int value = (int) Math.round(rawDanger(player.getLocation(), player, false));
         value = dimensions.scaleLevel(player.getWorld(), value);
@@ -87,7 +86,7 @@ public final class DifficultyCalculator {
     private double globalDanger(Location loc, Player reference, boolean wobble) {
         double danger = config.baseLevel;
 
-        // distance: 75% from the world spawn + 25% from the nearest player's current respawn point.
+        // 距離: ワールドスポーン 75% + 基準プレイヤーのリスポーン地点 25% で加重平均。
         double worldDist = horizontalDistance(loc, loc.getWorld().getSpawnLocation());
         double respawnDist = worldDist;
         if (reference != null) {
@@ -150,7 +149,7 @@ public final class DifficultyCalculator {
     private double dayFactor() {
         long days = Bukkit.getWorlds().get(0).getGameTime() / 24000L;
         double raw = 1.0 + Math.sqrt((double) days) / 12.0;
-        return Math.round(raw * 10.0) / 10.0; // round at the 2nd decimal -> 1 decimal place
+        return Math.round(raw * 10.0) / 10.0; // 小数点第2位で四捨五入 → 小数1桁
     }
 
     public Player nearestPlayer(Location loc) {

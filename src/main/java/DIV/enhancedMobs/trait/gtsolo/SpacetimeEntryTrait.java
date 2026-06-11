@@ -4,7 +4,7 @@ import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 
-/** Marker: tags the mob as part of the "spacetime" family. */
+/** Mobに「spacetime」タグを付与するだけのマーカートレイト。 */
 public final class SpacetimeEntryTrait extends Trait {
 
     public SpacetimeEntryTrait(int cost, int weight, int maxRank, int minLevel) {

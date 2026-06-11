@@ -3,10 +3,12 @@ package DIV.enhancedMobs;
 import DIV.enhancedMobs.command.CgCommand;
 import DIV.enhancedMobs.command.DebugCommand;
 import DIV.enhancedMobs.command.DifficultyCommand;
+import DIV.enhancedMobs.command.TraitHelpCommand;
 import DIV.enhancedMobs.config.DimensionConfig;
 import DIV.enhancedMobs.config.EntityConfig;
 import DIV.enhancedMobs.config.LocationConfig;
 import DIV.enhancedMobs.config.MainConfig;
+import DIV.enhancedMobs.config.MobBonusConfig;
 import DIV.enhancedMobs.debug.DebugViewers;
 import DIV.enhancedMobs.display.TraitDisplay;
 import DIV.enhancedMobs.level.DifficultyCalculator;
@@ -43,8 +45,9 @@ public final class EnhancedMobs extends JavaPlugin {
     private TraitDisplay traitDisplay;
     private TraitService traitService;
     private DimensionConfig dimensionConfig;
+    private MobBonusConfig mobBonusConfig;
 
-    /** Global accessor so the small helper classes can build NamespacedKeys. */
+    /** NamespacedKey生成用のグローバルアクセサ。 */
     public static EnhancedMobs get() {
         return instance;
     }
@@ -56,12 +59,13 @@ public final class EnhancedMobs extends JavaPlugin {
 
         this.mainConfig = new MainConfig(this);
         this.dimensionConfig = new DimensionConfig(this);
+        this.mobBonusConfig = new MobBonusConfig(this);
         this.difficultyCalculator = new DifficultyCalculator(mainConfig, dimensionConfig, new LocationConfig(this));
         this.levelScaler = new LevelScaler(this, mainConfig);
         this.traitDisplay = new TraitDisplay(this, mainConfig);
         this.traitService = new TraitService(this, mainConfig, new EntityConfig(this), dimensionConfig);
 
-        // A previous run may have left floating displays if the server crashed.
+        // クラッシュ時に残留したDisplayエンティティを除去。
         traitDisplay.sweepOrphans();
 
         getServer().getPluginManager().registerEvents(new MobListener(this), this);
@@ -71,8 +75,10 @@ public final class EnhancedMobs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProjectileListener(this), this);
         getServer().getPluginManager().registerEvents(new ResurrectListener(), this);
         getServer().getPluginManager().registerEvents(new DisplayListener(this), this);
-        getServer().getPluginManager().registerEvents(new ItemXpListener(), this);
-        getServer().getPluginManager().registerEvents(new AnvilListener(), this);
+        if (mainConfig.enhancementEnabled) {
+            getServer().getPluginManager().registerEvents(new ItemXpListener(), this);
+            getServer().getPluginManager().registerEvents(new AnvilListener(), this);
+        }
 
         DifficultyCommand difficultyCommand = new DifficultyCommand(this);
         PluginCommand command = getCommand("difficultyset");
@@ -81,7 +87,7 @@ public final class EnhancedMobs extends JavaPlugin {
             command.setTabCompleter(difficultyCommand);
         }
 
-        // Debug scaffolding (remove before final build).
+        // デバッグ用足場。リリース前に削除すること。
         DebugViewers debugViewers = new DebugViewers();
         getServer().getPluginManager().registerEvents(new DebugListener(debugViewers), this);
         PluginCommand debugCommand = getCommand("emdebug");
@@ -94,6 +100,13 @@ public final class EnhancedMobs extends JavaPlugin {
         if (cg != null) {
             cg.setExecutor(cgCommand);
             cg.setTabCompleter(cgCommand);
+        }
+
+        TraitHelpCommand traitHelpCommand = new TraitHelpCommand(this);
+        PluginCommand traitHelp = getCommand("traithelp");
+        if (traitHelp != null) {
+            traitHelp.setExecutor(traitHelpCommand);
+            traitHelp.setTabCompleter(traitHelpCommand);
         }
 
         int tickInterval = Math.max(1, mainConfig.traitTickInterval);
@@ -112,14 +125,16 @@ public final class EnhancedMobs extends JavaPlugin {
     }
 
     /**
-     * Full per-mob setup: store level, scale stats, roll + apply traits, glow, and show the head
-     * display. Used by natural spawns and by traits that spawn mobs (e.g. SPLIT).
+     * モブの初期化処理（レベル保存・ステータススケーリング・特性付与・グロー・頭上表示）。
+     * 自然スポーンおよびSPLIT等の特性によるスポーン時に呼ばれる。
      */
     public void initializeMob(LivingEntity entity, int level) {
         MobData.of(entity).setLevel(level);
         levelScaler.apply(entity, level);
 
-        Map<Trait, Integer> traits = traitService.generateAndApply(entity, level);
+        Map<Trait, Integer> traits = mainConfig.traitsEnabled
+                ? traitService.generateAndApply(entity, level)
+                : Map.of();
         String traitText = traitService.displayText(traits);
 
         if (mainConfig.logTraitedSpawns && !traits.isEmpty()) {
@@ -159,5 +174,9 @@ public final class EnhancedMobs extends JavaPlugin {
 
     public DimensionConfig dimensions() {
         return dimensionConfig;
+    }
+
+    public MobBonusConfig mobBonus() {
+        return mobBonusConfig;
     }
 }

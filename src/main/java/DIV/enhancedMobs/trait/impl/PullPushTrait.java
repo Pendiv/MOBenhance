@@ -6,12 +6,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-/** Aura that pulls nearby players toward (PULLING) or pushes them away (REPELLING). */
+/** 周囲のプレイヤーを引き寄せる（PULLING）か弾き飛ばす（REPELLING）オーラ。 */
 public final class PullPushTrait extends Trait {
 
     private final double range;
     private final double strength;
-    private final double direction; // +1 toward the mob, -1 away
+    private final double direction; // +1 でモブ方向へ引き寄せ、-1 で遠ざける
 
     public PullPushTrait(String id, String shortName, int cost, int weight, int maxRank, int minLevel,
                          double range, double strength, double direction) {

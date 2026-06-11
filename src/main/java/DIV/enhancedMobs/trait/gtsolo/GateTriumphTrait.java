@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Periodically repositions to a medium distance from the nearest player. */
+/** 一定間隔で最近傍プレイヤーの中距離にテレポートする。 */
 public final class GateTriumphTrait extends Trait {
 
     public GateTriumphTrait(int cost, int weight, int maxRank, int minLevel) {

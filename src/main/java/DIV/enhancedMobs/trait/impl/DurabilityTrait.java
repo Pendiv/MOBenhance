@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Damages a random piece of the target's equipment on hit (CORROSION / EROSION). */
+/** ヒット時に対象の装備からランダムな1スロットを損耗させる（CORROSION / EROSION）。 */
 public final class DurabilityTrait extends Trait {
 
     private static final EquipmentSlot[] SLOTS = {

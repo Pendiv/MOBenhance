@@ -9,7 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-/** Periodically launches ignited creepers at the nearest player. */
+/** 一定間隔で着火済みクリーパーを最近傍プレイヤーに向けて射出する。 */
 public final class BomberDispatchTrait extends Trait {
 
     public BomberDispatchTrait(int cost, int weight, int maxRank, int minLevel) {

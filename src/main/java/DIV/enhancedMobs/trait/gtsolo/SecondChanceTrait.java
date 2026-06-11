@@ -7,7 +7,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Creeper that survives a lethal hit once, restored to full health. */
+/** クリーパー限定: 致死ダメージを一度だけ無効化し、満HP復活する。 */
 public final class SecondChanceTrait extends Trait {
 
     public SecondChanceTrait(int cost, int weight, int maxRank, int minLevel) {

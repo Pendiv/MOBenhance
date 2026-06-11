@@ -9,7 +9,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 
-/** Zombie with a higher reinforcement-spawn chance. */
+/** ゾンビの増援召喚確率を上昇させる。 */
 public final class KinCallTrait extends Trait {
 
     public KinCallTrait(int cost, int weight, int maxRank, int minLevel) {

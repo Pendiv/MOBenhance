@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Invisible until a player gets close. */
+/** 6ブロック以内にプレイヤーが近づくまで透明状態を維持する。 */
 public final class SpacetimeShadowTrait extends Trait {
 
     public SpacetimeShadowTrait(int cost, int weight, int maxRank, int minLevel) {

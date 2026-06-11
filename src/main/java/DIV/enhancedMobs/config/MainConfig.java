@@ -3,13 +3,16 @@ package DIV.enhancedMobs.config;
 import DIV.enhancedMobs.EnhancedMobs;
 import org.bukkit.configuration.file.FileConfiguration;
 
-/** Snapshot of config.yml values, read once on enable. */
+/** 有効化時に一度だけ読み込む config.yml の値のスナップショット。 */
 public final class MainConfig {
 
+    public final boolean levelingEnabled;
     public final int maxMobLevel;
     public final double distanceFactor;
     public final double finalMultiplier;
 
+    public final boolean enhancementEnabled;
+    public final double itemXpMultiplier;
     public final int coarseDraws;
     public final double enhHealth;
     public final double enhArmor;
@@ -17,6 +20,7 @@ public final class MainConfig {
     public final double enhSpeed;
     public final double maxSpeedBonus;
 
+    public final boolean traitsEnabled;
     public final int traitMaxCount;
     public final double traitSuppression;
     public final int traitTickInterval;
@@ -37,21 +41,25 @@ public final class MainConfig {
 
     public MainConfig(EnhancedMobs plugin) {
         FileConfiguration c = plugin.getConfig();
+        this.levelingEnabled = c.getBoolean("leveling.enabled", true);
         this.maxMobLevel = c.getInt("leveling.max-mob-level", 500);
         this.distanceFactor = c.getDouble("leveling.distance-factor", 0.02);
         this.finalMultiplier = c.getDouble("leveling.final-multiplier", 0.72);
+        this.enhancementEnabled = c.getBoolean("enhancement.enabled", true);
+        this.itemXpMultiplier = c.getDouble("enhancement.xp-multiplier", 1.0);
         this.coarseDraws = c.getInt("enhancement.coarse-draws", 10);
         this.enhHealth = c.getDouble("enhancement.per-step.health", 1.0);
         this.enhArmor = c.getDouble("enhancement.per-step.armor", 0.5);
         this.enhAttack = c.getDouble("enhancement.per-step.attack-damage", 0.25);
         this.enhSpeed = c.getDouble("enhancement.per-step.movement-speed", 0.005);
         this.maxSpeedBonus = c.getDouble("enhancement.max-speed-bonus", 0.3);
+        this.traitsEnabled = c.getBoolean("traits.enabled", true);
         this.traitMaxCount = c.getInt("traits.max-count", 4);
         this.traitSuppression = c.getDouble("traits.suppression", 0.1);
         this.traitTickInterval = c.getInt("traits.tick-interval", 20);
         this.traitCostFactor = c.getDouble("traits.cost-factor", 1.0);
         this.traitGlobalMaxRank = c.getInt("traits.global-max-rank", 5);
-        this.logTraitedSpawns = c.getBoolean("logging.traited-spawns", true);
+        this.logTraitedSpawns = c.getBoolean("logging.traited-spawns", false);
         this.baseLevel = c.getInt("default-difficulty.base", 1);
         this.variation = c.getDouble("default-difficulty.variation", 2.0);
         this.netherValue = c.getDouble("danger.nether-value", 16.0);

@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Heals from a fraction of the player damage it takes. */
+/** プレイヤーから受けた最終ダメージの10%×ランク分を回復する。 */
 public final class RebirthTrait extends Trait {
 
     public RebirthTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Negates all fire and freeze damage. */
+/** 火炎・溶岩・高温ブロック・凍結によるダメージをすべて無効化する。 */
 public final class EctothermTrait extends Trait {
 
     public EctothermTrait(int cost, int weight, int maxRank, int minLevel) {

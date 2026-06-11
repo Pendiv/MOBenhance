@@ -6,10 +6,10 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 
 /**
- * Periodic ticker for tick-based traits (SHULKER, KILLER_AURA, PULLING, REPELLING).
+ * tick ベーストレイト（SHULKER・KILLER_AURA・PULLING・REPELLING 等）の定期実行タスク。
  *
- * <p>Scans living entities in each world; only those carrying our PDC are ticked. Fine for now;
- * if entity counts grow, switch to a tracked Set of managed UUIDs.
+ * <p>全ワールドの生物エンティティをスキャンし、当プラグインの PDC を持つものだけ tick する。
+ * エンティティ数が増大した場合は管理 UUID セットへの切り替えを検討。
  */
 public final class MobTickTask implements Runnable {
 

@@ -9,9 +9,9 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A mob trait. Singletons (one instance, applied to many mobs with a rank), mirroring
- * L2Hostility's {@code MobTrait}. Metadata fields drive the weighted draw in
- * {@link TraitGenerator}; the hooks implement the actual behaviour.
+ * モブトレイト基底クラス。シングルトン（1インスタンスを多数のモブに rank 付きで適用）。
+ * L2Hostility の {@code MobTrait} に対応する。メタデータフィールドが {@link TraitGenerator}
+ * の重み付き抽選を制御し、フックが実際の挙動を実装する。
  */
 public abstract class Trait {
 
@@ -35,7 +35,7 @@ public abstract class Trait {
         return id;
     }
 
-    /** Abbreviated label shown above the mob's head, e.g. "TANK". */
+    /** モブの頭上に表示する省略ラベル（例: "TANK"）。 */
     public final String shortName() {
         return shortName;
     }
@@ -44,7 +44,7 @@ public abstract class Trait {
         return cost;
     }
 
-    /** Effective cost scaled by the cost factor (L2H: {@code max(1, round(cost * factor))}). */
+    /** コスト係数を掛けた実効コスト（L2H 仕様: {@code max(1, round(cost * factor))}）。 */
     public final int getCost(double factor) {
         return Math.max(1, (int) Math.round(cost * factor));
     }
@@ -61,37 +61,37 @@ public abstract class Trait {
         return minLevel;
     }
 
-    /** Whether this trait may be rolled on the given mob (trait-side restriction). */
+    /** このトレイトを指定モブに抽選できるか（トレイト側の制限）。 */
     public boolean appliesTo(LivingEntity mob) {
         return true;
     }
 
-    /** Called once when the trait is granted (apply attributes / lasting effects). */
+    /** トレイト付与時に1度だけ呼ばれる（属性値追加・永続エフェクト適用など）。 */
     public void initialize(LivingEntity mob, int rank) {
     }
 
-    /** Periodic hook (no ticker is scheduled yet; reserved for future tick-based traits). */
+    /** 定期フック（現時点では未スケジュール。将来のtickベーストレイト向けに予約）。 */
     public void tick(LivingEntity mob, int rank) {
     }
 
-    /** The mob dealt damage to {@code target}. */
+    /** モブが {@code target} にダメージを与えた。 */
     public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
     }
 
-    /** The mob took damage. */
+    /** モブがダメージを受けた。 */
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
     }
 
-    /** The mob took damage from {@code attacker} (the resolved living source, or null). */
+    /** モブが {@code attacker} からダメージを受けた（生きているソースに解決済み。null の場合あり）。 */
     public void onAttackedBy(LivingEntity mob, int rank, @Nullable LivingEntity attacker,
                              EntityDamageByEntityEvent event) {
     }
 
-    /** The mob died. */
+    /** モブが死亡した。 */
     public void onDeath(LivingEntity mob, int rank, EntityDeathEvent event) {
     }
 
-    /** A projectile this trait fired (via {@link DIV.enhancedMobs.trait.base.RangedTrait}) hit. */
+    /** このトレイトが発射した飛翔体（{@link DIV.enhancedMobs.trait.base.RangedTrait} 経由）が着弾した。 */
     public void onProjectileHit(@Nullable LivingEntity shooter, int rank, Projectile projectile,
                                 ProjectileHitEvent event) {
     }

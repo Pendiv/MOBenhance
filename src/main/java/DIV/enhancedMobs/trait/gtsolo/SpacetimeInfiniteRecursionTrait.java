@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-/** On death, recurs into a weaker copy. */
+/** 時空族: 死亡時に自身の半レベルのコピーを同地点に出現させる。レベルが1未満なら再帰しない。 */
 public final class SpacetimeInfiniteRecursionTrait extends Trait {
 
     public SpacetimeInfiniteRecursionTrait(int cost, int weight, int maxRank, int minLevel) {

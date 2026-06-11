@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** A killing blow from this mob denies the victim's totem revive. */
+/** このMobの攻撃で対象が致死ダメージを受けた場合、トーテムによる復活を封じる。 */
 public final class SoulDestructionTrait extends Trait {
 
     public SoulDestructionTrait(int cost, int weight, int maxRank, int minLevel) {

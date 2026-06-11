@@ -11,8 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Location-based difficulty multipliers (biome + depth), loaded from location.yml. Applied on top
- * of the per-dimension scaling.
+ * location.yml から読み込む位置ベースの難易度倍率（バイオーム・深度）。
+ * ディメンションスケーリングの後に乗算される。
  */
 public final class LocationConfig {
 
@@ -46,7 +46,7 @@ public final class LocationConfig {
         }
     }
 
-    /** Combined biome * depth multiplier at this location. */
+    /** バイオーム倍率 × 深度倍率を返す。 */
     public double multiplier(Location loc) {
         return biomeMultiplier(loc) * depthMultiplier(loc);
     }

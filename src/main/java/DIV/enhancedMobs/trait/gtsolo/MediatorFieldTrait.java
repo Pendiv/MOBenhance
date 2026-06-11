@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** The ground around it afflicts nearby players with a random debuff. */
+/** 範囲内のプレイヤーにランダムなデバフを付与するオーラ。 */
 public final class MediatorFieldTrait extends AuraTrait {
 
     private static final PotionEffectType[] DEBUFFS = {

@@ -9,7 +9,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
-/** Redefined GROWTH: flat max-health buff of +20% plus +10% per rank. Slimes only. */
+/** 再定義 GROWTH: 最大HPを +20% + ランク×10% 増加させる。スライム系専用。 */
 public final class GrowthTrait extends Trait {
 
     private final NamespacedKey key;
@@ -21,7 +21,7 @@ public final class GrowthTrait extends Trait {
 
     @Override
     public boolean appliesTo(LivingEntity mob) {
-        return mob instanceof Slime; // MagmaCube extends Slime
+        return mob instanceof Slime; // MagmaCube は Slime のサブクラスなので含まれる
     }
 
     @Override

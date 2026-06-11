@@ -9,12 +9,12 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Per-player, per-trait cooldown that escalates under sustained pressure. For "undefendable" traits
- * (auras, position-swaps, knockback volleys), this stops a single player from being chain-locked:
- * once affected, they get a cooldown, and being hit again before it resets makes the next cooldown
- * longer (up to a cap). A long enough break resets the escalation.
+ * プレイヤー×トレイトごとの段階的クールダウン。オーラ・位置交換・連続ノックバック等の
+ * 「回避不可」トレイトによるチェインロック防止用。一度被弾するとクールダウンが発生し、
+ * リセット前に再び被弾すると次回がさらに延長される（上限あり）。
+ * 十分な間隔を置くと段階がリセットされる。
  *
- * <p>Non-players are never put on cooldown (returns true) — only players get the protection.
+ * <p>プレイヤー以外は常に true を返す（保護対象外）。
  */
 public final class TraitCooldown {
 
@@ -25,14 +25,14 @@ public final class TraitCooldown {
         return new NamespacedKey(EnhancedMobs.get(), name);
     }
 
-    /** Convenience: base 2s, +1s per consecutive hit, cap 5 stacks, reset after 10s. */
+    /** 簡易呼び出し: 基底 2s、連続被弾ごとに +1s、上限 5 スタック、10s でリセット。 */
     public static boolean ready(LivingEntity target, String traitId) {
         return ready(target, traitId, 40, 20, 5, 200);
     }
 
     /**
-     * @return true if the trait may affect this target now. On true for a player, registers the hit
-     *         and (re)sets the escalating cooldown.
+     * @return トレイトが今この対象に作用できれば true。
+     *         プレイヤーで true の場合、被弾を記録して段階的クールダウンをセット（または延長）する。
      */
     public static boolean ready(LivingEntity target, String traitId, int baseTicks, int stepTicks,
                                 int maxStacks, int resetWindowTicks) {

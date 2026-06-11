@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Spreads poison to nearby players. */
+/** 範囲内のプレイヤーに毒を伝染させるオーラ。 */
 public final class PandemicTrait extends AuraTrait {
 
     public PandemicTrait(int cost, int weight, int maxRank, int minLevel) {

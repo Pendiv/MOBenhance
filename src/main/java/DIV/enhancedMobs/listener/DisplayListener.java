@@ -10,8 +10,8 @@ import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 
 /**
- * Keeps head displays in sync with their mobs: removes the tag whenever a managed mob leaves the
- * world (death, despawn, /kill, void), and re-attaches tags when chunks load back in.
+ * ヘッド表示をモブと同期させる。管理対象モブがワールドから消えた際（死亡・デスポーン・/kill・虚空）
+ * にタグを除去し、チャンクロード時に再アタッチする。
  */
 public final class DisplayListener implements Listener {
 

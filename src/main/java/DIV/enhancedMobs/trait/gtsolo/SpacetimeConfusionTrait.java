@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Saps the attack of nearby mobs. */
+/** 時空族: 周囲8m以内のMobに継続的に弱体化を与える。 */
 public final class SpacetimeConfusionTrait extends AuraTrait {
 
     public SpacetimeConfusionTrait(int cost, int weight, int maxRank, int minLevel) {

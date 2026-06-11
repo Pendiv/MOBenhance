@@ -6,8 +6,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityResurrectEvent;
 
 /**
- * Lets "certain-kill" traits deny totem-of-undying revives: a trait sets the {@code deny_resurrect}
- * timed flag on its victim, and this cancels the resurrect while the flag is active.
+ * 「確殺」系トレイトが不死のトーテム復活を阻止できるようにする。
+ * トレイトが対象に {@code deny_resurrect} タイムドフラグをセットし、
+ * フラグが有効な間は蘇生をキャンセルする。
  */
 public final class ResurrectListener implements Listener {
 

@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Spacetime predator (approx: lasting strength). */
+/** 時空族: 近似実装として永続力増強（ランクに応じたレベル）を付与する。 */
 public final class SpacetimeBonePickerTrait extends Trait {
 
     public SpacetimeBonePickerTrait(int cost, int weight, int maxRank, int minLevel) {

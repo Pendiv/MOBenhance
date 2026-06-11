@@ -8,7 +8,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Set;
 
-/** Compromise DRAIN: steals one beneficial potion effect from the target and gains it. */
+/** 近似実装 DRAIN: 対象から有益なポーション効果を1つ奪い、自分に付与する。 */
 public final class DrainTrait extends Trait {
 
     private static final Set<PotionEffectType> BENEFICIAL = Set.of(

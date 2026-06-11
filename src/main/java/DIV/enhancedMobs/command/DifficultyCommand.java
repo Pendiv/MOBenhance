@@ -17,11 +17,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * {@code /difficulty <get|set|add|reset> ...}
+ * {@code /difficultyset <get|set|add|reset> ...}
  *
- * <p>Per-subcommand permissions: {@code get} is open to everyone
- * ({@code enhancedmobs.difficulty.get}); {@code set/add/reset} require
- * {@code enhancedmobs.difficulty.manage} (OP by default).
+ * <p>権限: {@code get} は全員（{@code enhancedmobs.difficulty.get}）、
+ * {@code set/add/reset} はOP用（{@code enhancedmobs.difficulty.manage}）。
  */
 public final class DifficultyCommand implements CommandExecutor, TabCompleter {
 

@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Approximation: erratic empowerment (strength + speed). */
+/** 近似実装: 力+速度で強化する。 */
 public final class JailbreakTrait extends Trait {
 
     public JailbreakTrait(int cost, int weight, int maxRank, int minLevel) {

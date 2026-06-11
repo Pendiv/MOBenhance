@@ -9,7 +9,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Huge health pool, but takes greatly amplified damage (a glass cannon of HP). */
+/** HPを大幅増加するが、受けるダメージも大幅増加する。高HP・脆い構成。 */
 public final class HighAltitudeTrait extends Trait {
 
     public HighAltitudeTrait(int cost, int weight, int maxRank, int minLevel) {

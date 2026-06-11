@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Launches the target upward on hit. */
+/** 攻撃命中時に対象を上方へ吹き飛ばす。 */
 public final class TossUpTrait extends Trait {
 
     public TossUpTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Per-dimension enable/disable + difficulty scaling, plus a global trait kill-switch list.
- * Loaded from dimensions.yml.
+ * ディメンション別の有効/無効切り替え・難易度スケーリング、およびトレイト無効化リスト。
+ * dimensions.yml から読み込む。
  *
- * <p>Scaling is {@code level * multiply + add}, so a rule can multiply, add, or both. The
- * {@code default} rule covers any dimension not listed (including unknown / modded ones).
+ * <p>スケーリング式は {@code level * multiply + add}。{@code default} ルールは
+ * 未記載のディメンション（モッド追加ディメンション含む）に適用される。
  */
 public final class DimensionConfig {
 
@@ -64,7 +64,7 @@ public final class DimensionConfig {
         return rule(world).enabled();
     }
 
-    /** Scale a computed level by the dimension's rule: {@code level * multiply + add}. */
+    /** ディメンションルールでレベルをスケーリング（{@code level * multiply + add}）。 */
     public int scaleLevel(World world, int level) {
         Rule rule = rule(world);
         return (int) Math.round(level * rule.multiply() + rule.add());

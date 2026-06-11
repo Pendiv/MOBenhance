@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Drains the hit player's food. */
+/** 攻撃時にプレイヤーの食料レベルをランク分減らす。 */
 public final class HungerDrainTrait extends Trait {
 
     public HungerDrainTrait(int cost, int weight, int maxRank, int minLevel) {

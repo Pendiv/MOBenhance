@@ -9,7 +9,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Small chance to blink to a player after landing a hit. */
+/** 時空族: 攻撃命中時にランク×3%の確率で最寄りのプレイヤーの足元へテレポートする。 */
 public final class SpacetimeChainOfCausalityTrait extends Trait {
 
     public SpacetimeChainOfCausalityTrait(int cost, int weight, int maxRank, int minLevel) {

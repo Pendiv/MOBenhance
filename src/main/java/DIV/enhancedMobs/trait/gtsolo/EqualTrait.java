@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Invulnerable for 5 seconds after first acquiring a target. */
+/** ターゲットを初めて取得した瞬間から5秒間無敵になる（1回限り）。 */
 public final class EqualTrait extends Trait {
 
     public EqualTrait(int cost, int weight, int maxRank, int minLevel) {

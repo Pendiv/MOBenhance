@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Counterattacks whoever hits the mob. */
+/** 被ダメージ時に攻撃者へ反撃する。 */
 public final class StrikeTrait extends Trait {
 
     private final double damagePerRank;

@@ -6,7 +6,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Deals more damage to wounded targets. */
+/** 対象のHP欠損率に応じてダメージを増幅する（欠損100%でrank×50%増）。 */
 public final class SpacetimeRuptureTrait extends Trait {
 
     public SpacetimeRuptureTrait(int cost, int weight, int maxRank, int minLevel) {

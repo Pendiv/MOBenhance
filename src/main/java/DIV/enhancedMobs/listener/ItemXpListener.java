@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-/** Grants weapon/armor XP: big on a kill (scaled by mob level), small per hit dealt / taken. */
+/** 武器・防具に XP を付与する。キル時はモブレベルに比例した大きな値、攻撃の命中・被弾時は微量。 */
 public final class ItemXpListener implements Listener {
 
     @EventHandler

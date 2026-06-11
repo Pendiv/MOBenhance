@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Teleports a short distance when hurt (chance-based). */
+/** 被ダメージ時に確率で近距離テレポートする。 */
 public final class EnderTrait extends Trait {
 
     private final double range;

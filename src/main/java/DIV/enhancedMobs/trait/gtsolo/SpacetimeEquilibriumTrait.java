@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Weakens nearby players and non-spacetime mobs. */
+/** 時空族: 周囲8m以内のプレイヤーおよび非時空族Mobに継続的に弱体化を与える。 */
 public final class SpacetimeEquilibriumTrait extends AuraTrait {
 
     public SpacetimeEquilibriumTrait(int cost, int weight, int maxRank, int minLevel) {

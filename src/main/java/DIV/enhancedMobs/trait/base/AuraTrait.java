@@ -6,8 +6,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 /**
- * Base for periodic area-of-effect traits: each tick, applies {@link #affect} to every nearby
- * living entity matching the target kind. Covers damage auras, debuff auras, buff-nearby-mobs, etc.
+ * 定期範囲効果トレイトの基底クラス。毎 tick、対象種別に一致する近隣の生きているエンティティ全てに
+ * {@link #affect} を適用する。ダメージオーラ、デバフオーラ、味方バフなどに対応する。
  */
 public abstract class AuraTrait extends Trait {
 

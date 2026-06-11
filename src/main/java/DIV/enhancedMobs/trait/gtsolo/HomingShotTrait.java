@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
-/** Skeleton fires accurate arrows straight at the target. */
+/** スケルトンが目標に向かって精密な矢を射る。 */
 public final class HomingShotTrait extends RangedTrait {
 
     public HomingShotTrait(int cost, int weight, int maxRank, int minLevel) {

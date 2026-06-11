@@ -9,8 +9,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Compromise ADAPTIVE: learns the repeated damage cause and reduces it. Vanilla {@code DamageCause}
- * is coarser than L2's damage types, but repeated same-cause hits ramp up resistance.
+ * 近似実装 ADAPTIVE: 同じ原因の攻撃が連続するほど被ダメージを減少させる。
+ * バニラの {@code DamageCause} はL2のダメージ種別より粗いが、同一原因の連打で耐性が積み上がる。
  */
 public final class AdaptiveTrait extends Trait {
 

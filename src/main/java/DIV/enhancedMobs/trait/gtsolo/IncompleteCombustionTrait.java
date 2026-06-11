@@ -6,7 +6,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Survives once if killed in a single hit from full health. */
+/** 満HP状態から一撃死する攻撃を一度だけ1HPで耐える。発動後は無効。 */
 public final class IncompleteCombustionTrait extends Trait {
 
     public IncompleteCombustionTrait(int cost, int weight, int maxRank, int minLevel) {

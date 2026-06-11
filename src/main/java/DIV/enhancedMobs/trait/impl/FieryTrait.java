@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Fire resistance for the mob, and sets whatever it hits on fire. */
+/** 自身に火耐性を付与し、ヒット時に対象を着火する。 */
 public final class FieryTrait extends Trait {
 
     private static final int LONG_DURATION = 1_000_000;

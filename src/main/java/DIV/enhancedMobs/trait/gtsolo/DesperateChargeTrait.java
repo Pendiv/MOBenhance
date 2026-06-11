@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Hitting a player "seals" them: weakness, slowness, and mining fatigue. */
+/** プレイヤーへの命中時に弱体化・鈍足・採掘疲労を付与する。 */
 public final class DesperateChargeTrait extends Trait {
 
     public DesperateChargeTrait(int cost, int weight, int maxRank, int minLevel) {

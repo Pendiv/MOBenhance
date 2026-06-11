@@ -9,7 +9,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Nearly immobile, but its hits bypass armor (doubled damage). */
+/** 移動速度95%減で事実上不動だが、攻撃は防具を無視してダメージ2倍。 */
 public final class AllOrNothingTrait extends Trait {
 
     public AllOrNothingTrait(int cost, int weight, int maxRank, int minLevel) {

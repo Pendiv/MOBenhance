@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Reinterpreted RAGNAROK: on hit, seals a random inventory item into an edible carrier. The
- * player must eat it to restore the original (eat duration = unseal time).
+ * 再解釈 RAGNAROK: ヒット時に確率でインベントリのランダムアイテムを「封印」する。
+ * プレイヤーはそれを食べることで元のアイテムを取り戻せる（食事時間 = 封印解除時間）。
  */
 public final class RagnarokTrait extends Trait {
 

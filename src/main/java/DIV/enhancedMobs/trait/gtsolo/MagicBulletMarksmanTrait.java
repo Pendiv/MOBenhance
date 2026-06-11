@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
-/** Skeleton sharpshooter firing fast, accurate arrows. */
+/** 速度4.0の矢を高速連射するスケルトン狙撃手。 */
 public final class MagicBulletMarksmanTrait extends RangedTrait {
 
     public MagicBulletMarksmanTrait(int cost, int weight, int maxRank, int minLevel) {

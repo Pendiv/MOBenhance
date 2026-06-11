@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-/** Learns the repeated damage type and resists it more each time. */
+/** 同じダメージ種別を受けるたびに耐性が累積し、最大80%軽減する。 */
 public final class RejectionUnknownTrait extends Trait {
 
     private final NamespacedKey causeKey;

@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Annihilates nearby non-spacetime mobs (15% are converted instead). */
+/** 近傍の非spacetime Mobを即死させる。15%の確率で殺す代わりにspacetimeタグを付与して仲間化。 */
 public final class SpacetimeTranscendentTrait extends AuraTrait {
 
     public SpacetimeTranscendentTrait(int cost, int weight, int maxRank, int minLevel) {

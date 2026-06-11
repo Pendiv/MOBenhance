@@ -8,7 +8,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 
-/** Boss-like: large health, armor and attack buffs. */
+/** ボス的な強化: 最大HP・攻撃力・防具値を大幅に上乗せする。 */
 public final class BushidoSpiritTrait extends Trait {
 
     public BushidoSpiritTrait(int cost, int weight, int maxRank, int minLevel) {

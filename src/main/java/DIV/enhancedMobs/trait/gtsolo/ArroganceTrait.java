@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Rapidly self-heals, but player hits suppress that healing for a while. */
+/** 毎ティック高速自己回復するが、プレイヤーに攻撃されると一定時間回復が停止する。 */
 public final class ArroganceTrait extends Trait {
 
     public ArroganceTrait(int cost, int weight, int maxRank, int minLevel) {

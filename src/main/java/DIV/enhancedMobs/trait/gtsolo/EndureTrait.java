@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Survives one lethal hit at 1 HP, then gains brief Resistance V. */
+/** 致死ダメージを一度だけ1HPで耐え、直後にResistance Vを短時間付与する（1回限り）。 */
 public final class EndureTrait extends Trait {
 
     public EndureTrait(int cost, int weight, int maxRank, int minLevel) {

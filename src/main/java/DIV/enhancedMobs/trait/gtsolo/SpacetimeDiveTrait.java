@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Blocks physical damage; only magic gets through. */
+/** 時空族: 近接・遠距離攻撃を無効化し、魔法ダメージのみ通す。 */
 public final class SpacetimeDiveTrait extends Trait {
 
     public SpacetimeDiveTrait(int cost, int weight, int maxRank, int minLevel) {

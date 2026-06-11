@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Strips all absorption (yellow hearts) from whatever it hits. */
+/** 攻撃命中時にターゲットの吸収ハート（黄色ハート）をすべて除去する。 */
 public final class FactAdaptationTrait extends Trait {
 
     public FactAdaptationTrait(int cost, int weight, int maxRank, int minLevel) {

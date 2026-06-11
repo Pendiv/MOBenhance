@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Set;
 
-/** On death, spawns half-level copies of the same mob type (splittable mobs only). */
+/** 死亡時に同種モブをレベル半減でコピースポーンする（分裂可能な種別のみ）。 */
 public final class SplitTrait extends Trait {
 
     private static final Set<EntityType> SPLITTABLE = Set.of(

@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** On death, curses nearby players with weakness and slowness. */
+/** 死亡時、周囲8マスのプレイヤーに弱体化と移動速度低下を付与する。 */
 public final class ResentmentTrait extends Trait {
 
     public ResentmentTrait(int cost, int weight, int maxRank, int minLevel) {

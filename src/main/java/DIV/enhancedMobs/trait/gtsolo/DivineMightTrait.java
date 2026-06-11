@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** Caps incoming player damage at 1.0, negating weapon/enchant bonuses. */
+/** プレイヤーからの被ダメージを最大1.0に制限し、武器・エンチャントによる過剰ダメージを無効化する。 */
 public final class DivineMightTrait extends Trait {
 
     public DivineMightTrait(int cost, int weight, int maxRank, int minLevel) {

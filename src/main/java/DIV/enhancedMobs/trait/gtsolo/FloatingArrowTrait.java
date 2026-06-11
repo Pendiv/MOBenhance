@@ -10,7 +10,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Skeleton fires arrows that apply levitation on hit. */
+/** スケルトン専用: 命中時に浮遊効果を付与する矢を射つ。 */
 public final class FloatingArrowTrait extends RangedTrait {
 
     public FloatingArrowTrait(int cost, int weight, int maxRank, int minLevel) {

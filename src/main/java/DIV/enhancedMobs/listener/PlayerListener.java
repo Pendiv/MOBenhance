@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-/** Records which special dimensions each player has entered (danger component 3). */
+/** 各プレイヤーが入った特殊ディメンションを記録する（難易度要素3）。 */
 public final class PlayerListener implements Listener {
 
     @EventHandler
@@ -18,7 +18,7 @@ public final class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // Catch players who log straight into the Nether/End.
+        // ネザー/エンドに直接ログインしたプレイヤーを捕捉する。
         mark(event.getPlayer());
     }
 

@@ -30,6 +30,8 @@ dimensions:
 
 # Traits listed here never roll anywhere -- a kill-switch for problem traits.
 # Use the trait ids (see trait_names.yml for the full list).
-disabled-traits: []
+disabled-traits:
+  - magical_creatures
+  - undying
 #  - turning_heavens
 #  - spacetime_transcendent

@@ -3,8 +3,8 @@ package DIV.enhancedMobs.trait.gtsolo;
 import DIV.enhancedMobs.trait.TraitRegistry;
 
 /**
- * Registers the ported GTsolo custom traits. Same package as the trait classes, so no imports
- * needed. Values are the cost/weight/max_rank/min_level from gtcsolo's datapack configs.
+ * GTsoloカスタムトレイトを登録する。同一パッケージのためimport不要。
+ * 引数は gtcsolo データパック設定の cost/weight/max_rank/min_level。
  */
 public final class GTsoloTraits {
 
@@ -12,7 +12,7 @@ public final class GTsoloTraits {
     }
 
     public static void register(TraitRegistry r) {
-        // --- Batch 1: damage/attribute events ---
+        // --- バッチ1: ダメージ/属性イベント系 ---
         r.register(new AngerTrait(20, 75, 3, 100));
         r.register(new CutoffTrait(20, 100, 1, 20));
         r.register(new DivineMightTrait(150, 30, 1, 300));
@@ -27,27 +27,27 @@ public final class GTsoloTraits {
         r.register(new WellFedDefenseTrait(50, 70, 1, 150));
         r.register(new GroupPsychologyTrait(20, 100, 5, 20));
 
-        // --- Batch 1: init / glow / buff ---
+        // --- バッチ1: 初期化/グロウ/バフ系 ---
         r.register(new PreparedTrait(100, 150, 5, 100));
         r.register(new AttentionSeekerTrait(25, 100, 1, 20));
         r.register(new ShowstopperTrait(5, 80, 1, 100));
         r.register(new OtherworldWalkerTrait(5, 240, 3, 100));
 
-        // --- Batch 1: auras ---
+        // --- バッチ1: オーラ系 ---
         r.register(new DamageAuraTrait(100, 50, 3, 200));
         r.register(new DeathAuraTrait(400, 30, 5, 500));
         r.register(new FamineTrait(50, 75, 5, 150));
 
-        // --- Batch 1: skeleton arrows ---
+        // --- バッチ1: スケルトン矢系 ---
         r.register(new ExplosiveArrowUserTrait(60, 70, 3, 200));
         r.register(new FloatingArrowTrait(50, 160, 3, 150));
         r.register(new LightningUserTrait(60, 80, 5, 200));
 
-        // --- Batch 1: spacetime ---
+        // --- バッチ1: 時空間系 ---
         r.register(new SpacetimeEntryTrait(50, 100, 1, 300));
         r.register(new SpacetimeLeapTrait(150, 100, 1, 400));
 
-        // --- Batch 2: creeper ---
+        // --- バッチ2: クリーパー系 ---
         r.register(new ChainDetonationTrait(20, 100, 1, 20));
         r.register(new ExplosiveHeresyTrait(20, 100, 1, 100));
         r.register(new ExplosiveResonanceTrait(20, 100, 1, 100));
@@ -56,7 +56,7 @@ public final class GTsoloTraits {
         r.register(new ProximityFuseTrait(40, 100, 3, 100));
         r.register(new AccumulationTrait(50, 50, 3, 100));
 
-        // --- Batch 2: death / revive ---
+        // --- バッチ2: 死亡/蘇生系 ---
         r.register(new EndureTrait(15, 50, 1, 50));
         r.register(new IncompleteCombustionTrait(10, 100, 1, 100));
         r.register(new EndlessTaleTrait(50, 100, 10, 100));
@@ -65,7 +65,7 @@ public final class GTsoloTraits {
         r.register(new LastStandTrait(50, 50, 1, 200));
         r.register(new LunaticCurseTrait(200, 25, 1, 200));
 
-        // --- Batch 2: auras / spacetime / misc ---
+        // --- バッチ2: オーラ/時空間/その他 ---
         r.register(new LazinessTrait(75, 25, 3, 200));
         r.register(new SpacetimeRejectionTrait(80, 120, 3, 400));
         r.register(new SpacetimeDiveTrait(150, 100, 1, 400));
@@ -76,7 +76,7 @@ public final class GTsoloTraits {
         r.register(new DiurnalTrait(50, 50, 3, 100));
         r.register(new NocturnalTrait(50, 25, 3, 50));
 
-        // --- Batch 3: certain-kill / spacetime ---
+        // --- バッチ3: 即死/時空間系 ---
         r.register(new SoulDestructionTrait(200, 100, 1, 200));
         r.register(new SpacetimeAnnihilationTrait(150, 100, 1, 400));
         r.register(new SpacetimeConformityTrait(80, 120, 1, 400));
@@ -86,7 +86,7 @@ public final class GTsoloTraits {
         r.register(new SpacetimeEternalReturnTrait(150, 100, 1, 400));
         r.register(new SpacetimeTranscendentTrait(200, 40, 1, 400));
 
-        // --- Batch 3: attribute / event self ---
+        // --- バッチ3: 属性/自己イベント系 ---
         r.register(new DefianceTrait(100, 50, 5, 100));
         r.register(new LoneWolfTrait(50, 100, 5, 100));
         r.register(new HighAltitudeTrait(50, 100, 5, 100));
@@ -97,7 +97,7 @@ public final class GTsoloTraits {
         r.register(new AudienceEffectTrait(50, 50, 3, 100));
         r.register(new HarmoniousMarchTrait(350, 125, 3, 500));
 
-        // --- Batch 3: skeleton arrows / misc ---
+        // --- バッチ3: スケルトン矢/その他 ---
         r.register(new CrossbowmanTrait(50, 120, 5, 100));
         r.register(new ConsequentialistTrait(40, 60, 3, 100));
         r.register(new ArmorShredderTrait(50, 160, 3, 150));
@@ -106,7 +106,7 @@ public final class GTsoloTraits {
         r.register(new InnocenceBattleTrait(30, 100, 1, 20));
         r.register(new WalkingAbyssTrait(5, 100, 1, 20));
 
-        // --- Batch 4: remaining (some approximations) ---
+        // --- バッチ4: 残り(一部近似実装) ---
         r.register(new AliceSyndromeTrait(20, 120, 1, 100));
         r.register(new AllOrNothingTrait(30, 50, 1, 100));
         r.register(new ArroganceTrait(50, 50, 5, 100));
@@ -152,7 +152,7 @@ public final class GTsoloTraits {
         r.register(new VolatileMixTrait(20, 200, 5, 20));
         r.register(new WizardryTrait(45, 80, 5, 100));
 
-        // --- Batch 4: spacetime family ---
+        // --- バッチ4: 時空間ファミリー ---
         r.register(new SpacetimeBonePickerTrait(80, 120, 5, 400));
         r.register(new SpacetimeChainOfCausalityTrait(200, 40, 3, 400));
         r.register(new SpacetimeConfusionTrait(150, 100, 1, 400));

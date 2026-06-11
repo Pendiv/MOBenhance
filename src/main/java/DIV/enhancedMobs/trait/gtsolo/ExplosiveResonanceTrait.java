@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Heals from explosion damage instead of taking it. */
+/** 爆発ダメージをキャンセルし、同量のHPを回復する。 */
 public final class ExplosiveResonanceTrait extends Trait {
 
     public ExplosiveResonanceTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -8,11 +8,11 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * A plugin-side "healing_received" pseudo-attribute, modelled on AttributesLib's attribute of the
- * same name (base 1.0, 0 = no healing). Real attributes can't be registered at runtime, so the
- * value lives in PDC and is applied by {@code HealListener} hooking EntityRegainHealthEvent.
+ * プラグイン独自の回復量倍率（AttributesLib の同名属性に倣い、基底値 1.0、0 = 回復なし）。
+ * Bukkit はカスタム属性をランタイム登録できないため PDC に保持し、
+ * {@code HealListener} が EntityRegainHealthEvent で適用する。
  *
- * <p>Supports a permanent base factor plus a timed "curse" override (used by CURSED).
+ * <p>恒久的な基底倍率と、CURSED が使う時限「呪い」上書きをサポート。
  */
 public final class HealMultiplier {
 
@@ -27,7 +27,7 @@ public final class HealMultiplier {
     private HealMultiplier() {
     }
 
-    /** Effective heal factor for this entity right now (1.0 = unchanged). */
+    /** 現在の実効回復倍率（1.0 = 変化なし）。 */
     public static double effective(LivingEntity entity) {
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
         double factor = pdc.getOrDefault(BASE, PersistentDataType.DOUBLE, 1.0);
@@ -38,7 +38,7 @@ public final class HealMultiplier {
         return factor;
     }
 
-    /** Temporarily multiply the entity's healing (CURSED). mult 0 = no healing for the duration. */
+    /** 回復量に時限倍率を付与（CURSED 用）。mult 0 で期間中の回復を完全封鎖。 */
     public static void applyCurse(LivingEntity entity, double mult, int durationTicks) {
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
         pdc.set(CURSE_MULT, PersistentDataType.DOUBLE, mult);

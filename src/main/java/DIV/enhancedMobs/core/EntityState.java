@@ -7,9 +7,8 @@ import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Generic per-entity scratch state for traits: timed flags (cooldowns, windows) and
- * accumulating numbers (stacks, multipliers). Stored in PDC, works on any entity or player.
- * Reusable building block for porting the GTsolo traits.
+ * トレイト用の汎用エンティティ状態管理。時限フラグ（クールダウン・ウィンドウ）と
+ * 累積数値（スタック・倍率）を PDC に保存。エンティティ・プレイヤー両方で動作する。
  */
 public final class EntityState {
 
@@ -20,7 +19,7 @@ public final class EntityState {
         return new NamespacedKey(EnhancedMobs.get(), name);
     }
 
-    /** Set a flag that stays active for {@code durationTicks} (also used as a cooldown). */
+    /** 指定 tick 間アクティブなフラグをセット（クールダウンとしても利用）。 */
     public static void setFlag(PersistentDataHolder holder, String name, int durationTicks) {
         holder.getPersistentDataContainer().set(key(name), PersistentDataType.LONG,
                 (long) Bukkit.getCurrentTick() + durationTicks);

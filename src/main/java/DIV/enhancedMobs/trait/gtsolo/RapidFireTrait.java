@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
-/** Skeleton that fires arrows very quickly. */
+/** クールダウン10tickで矢を高速連射するスケルトン。 */
 public final class RapidFireTrait extends RangedTrait {
 
     public RapidFireTrait(int cost, int weight, int maxRank, int minLevel) {

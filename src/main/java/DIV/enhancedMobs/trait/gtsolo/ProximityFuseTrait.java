@@ -5,7 +5,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 
-/** Creeper that auto-ignites when a player is close. */
+/** 一定距離内にプレイヤーが入ると自動着火するクリーパー。 */
 public final class ProximityFuseTrait extends Trait {
 
     public ProximityFuseTrait(int cost, int weight, int maxRank, int minLevel) {

@@ -7,7 +7,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-/** Empowered while it has no mob company nearby (loves the spotlight). */
+/** 近く16ブロック以内に他のMobがいないとき、筋力・耐性が付与される。 */
 public final class AudienceEffectTrait extends Trait {
 
     public AudienceEffectTrait(int cost, int weight, int maxRank, int minLevel) {

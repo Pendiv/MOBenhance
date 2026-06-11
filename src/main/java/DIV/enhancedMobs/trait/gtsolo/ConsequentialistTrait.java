@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 
-/** Skeleton fires very fast (near-hitscan) arrows. */
+/** 速度4.0の高速矢（ほぼヒットスキャン相当）を射るスケルトン。 */
 public final class ConsequentialistTrait extends RangedTrait {
 
     public ConsequentialistTrait(int cost, int weight, int maxRank, int minLevel) {

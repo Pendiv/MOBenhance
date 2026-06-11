@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.ShulkerBullet;
 
-/** Periodically fires a homing shulker bullet at the mob's target. */
+/** 定期的にターゲットへホーミングするシュルカー弾を発射する。 */
 public final class ShulkerTrait extends Trait {
 
     public ShulkerTrait(int cost, int weight, int maxRank, int minLevel) {

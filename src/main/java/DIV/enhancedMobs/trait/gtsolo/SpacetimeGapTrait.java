@@ -7,7 +7,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** Fully heals when it has not been hit for a while. */
+/** 時空族: ダメージを受けていない間は毎ティック満HP回復する。被ダメージ時にクールダウンをセットし、ランクが高いほど解除が早い。 */
 public final class SpacetimeGapTrait extends Trait {
 
     public SpacetimeGapTrait(int cost, int weight, int maxRank, int minLevel) {

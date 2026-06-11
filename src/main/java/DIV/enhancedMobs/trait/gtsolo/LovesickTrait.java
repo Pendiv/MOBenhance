@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-/** Creeper that lunges toward the nearest player. */
+/** 最寄りのプレイヤーへ向かって突進するクリーパー。 */
 public final class LovesickTrait extends Trait {
 
     public LovesickTrait(int cost, int weight, int maxRank, int minLevel) {

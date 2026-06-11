@@ -6,12 +6,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * Trait that grants the mob a lasting self potion effect (PROTECTION, REGEN, INVISIBLE).
- * Mirrors L2Hostility's {@code SelfEffectTrait}.
+ * モブに永続ポーションエフェクトを自己付与するトレイト（PROTECTION, REGEN, INVISIBLE など）。
+ * L2Hostility の {@code SelfEffectTrait} に対応する。
  */
 public class SelfEffectTrait extends Trait {
 
-    // Long but finite so we don't depend on an "infinite duration" API constant.
+    // 有限だが十分に長い値。Paper の "infinite duration" 定数に依存しないための措置。
     private static final int LONG_DURATION = 1_000_000;
 
     private final PotionEffectType type;
