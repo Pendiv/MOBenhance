@@ -1,9 +1,13 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
+import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 /** 被ダメージごとにスタックが増え、攻撃力が上昇する（上限あり）。 */
@@ -15,12 +19,14 @@ public final class DefianceTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        EntityState.addInt(mob, "defiance", 1);
-    }
-
-    @Override
-    public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
-        int stacks = Math.min(EntityState.getInt(mob, "defiance", 0), 200 + 100 * rank);
-        event.setDamage(event.getDamage() * (1.0 + stacks * 0.001 * (2 + rank)));
+        if (event.getDamage() <= 0) {
+            return;
+        }
+        // 1スタック = 0.1×(2+N)%、上限 200+100N スタック。
+        // 原典どおり ATTACK_DAMAGE 属性へ MULTIPLY_BASE（Bukkit の ADD_SCALAR）で反映する
+        int stacks = Math.min(EntityState.addInt(mob, "defiance", 1), 200 + 100 * rank);
+        Mobs.addModifier(mob, Attribute.ATTACK_DAMAGE,
+                new NamespacedKey(EnhancedMobs.get(), "trait_defiance_atk"),
+                stacks * 0.001 * (2 + rank), AttributeModifier.Operation.ADD_SCALAR);
     }
 }

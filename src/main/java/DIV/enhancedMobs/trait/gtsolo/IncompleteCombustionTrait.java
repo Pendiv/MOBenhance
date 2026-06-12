@@ -1,12 +1,14 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
-import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** 満HP状態から一撃死する攻撃を一度だけ1HPで耐える。発動後は無効。 */
+/**
+ * 満HP状態からの一撃即死を無効化して全快する。回数制限なし
+ * （一度でも非致死ダメージで削ってから倒すのが攻略法）。
+ */
 public final class IncompleteCombustionTrait extends Trait {
 
     public IncompleteCombustionTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,14 +17,17 @@ public final class IncompleteCombustionTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        if (EntityState.hasFlag(mob, "ic_used")) {
-            return;
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.VOID) {
+            return; // 無敵貫通ダメージ（/kill・奈落）は素通し
         }
-        boolean wasFull = mob.getHealth() >= Mobs.maxHealth(mob) - 0.01;
-        if (wasFull && mob.getHealth() - event.getFinalDamage() <= 0) {
+        double maxHealth = Mobs.maxHealth(mob);
+        boolean wasFull = mob.getHealth() >= maxHealth - 0.001;
+        // 原典は防具計算前の amount ≥ HP 判定（BASE ダメージで近似）
+        boolean lethal = event.getDamage() >= mob.getHealth();
+        if (wasFull && lethal) {
             event.setCancelled(true);
-            mob.setHealth(1);
-            EntityState.setFlag(mob, "ic_used", Integer.MAX_VALUE);
+            mob.setHealth(maxHealth);
         }
     }
 }

@@ -39,7 +39,12 @@ public abstract class RangedTrait extends Trait {
         if (projectile != null) {
             TraitProjectiles.tag(projectile, id(), rank);
         }
-        EntityState.setFlag(mob, cooldown, cooldownTicks);
+        EntityState.setFlag(mob, cooldown, cooldownTicks(rank));
+    }
+
+    /** rank依存のクールダウン。既定はコンストラクタの固定値。原典がrankで短縮する場合は上書き。 */
+    protected int cooldownTicks(int rank) {
+        return cooldownTicks;
     }
 
     /** 飛翔体を生成・照準して返す（タグ付けされる）。発射しない場合は null を返す。 */

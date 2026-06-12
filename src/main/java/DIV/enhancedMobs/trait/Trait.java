@@ -5,6 +5,9 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,6 +92,18 @@ public abstract class Trait {
 
     /** モブが死亡した。 */
     public void onDeath(LivingEntity mob, int rank, EntityDeathEvent event) {
+    }
+
+    /** このモブの爆発が起爆した（クリーパー系。半径 {@code setRadius} / 着火 {@code setFire} の調整用）。 */
+    public void onExplosionPrime(LivingEntity mob, int rank, ExplosionPrimeEvent event) {
+    }
+
+    /** このモブにポーション効果が付与・変更されようとしている（拒否は {@code event.setCancelled}）。 */
+    public void onPotionEffect(LivingEntity mob, int rank, EntityPotionEffectEvent event) {
+    }
+
+    /** 他のエンティティがこのモブをターゲットしようとしている（隠密系の索敵回避用）。 */
+    public void onTargeted(LivingEntity mob, int rank, EntityTargetLivingEntityEvent event) {
     }
 
     /** このトレイトが発射した飛翔体（{@link DIV.enhancedMobs.trait.base.RangedTrait} 経由）が着弾した。 */

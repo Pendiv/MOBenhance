@@ -6,6 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,6 +25,14 @@ public final class ItemXpListener implements Listener {
         int xp = Math.max(1, MobData.of(dead).getLevel());
         grantWeapon(killer, xp);
         grantArmor(killer, xp);
+    }
+
+    /** 採掘でも手持ちの道具に微量 XP（瞬時破壊ブロックは対象外）。 */
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (event.getBlock().getType().getHardness() > 0) {
+            grantWeapon(event.getPlayer(), 1);
+        }
     }
 
     @EventHandler

@@ -4,7 +4,7 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 
-/** 導火線を短縮したクリーパー。最短5ティックまで短縮。 */
+/** 導火線を短縮したクリーパー。fuse = max(1, 30 - 4×ランク) tick。 */
 public final class HairTriggerTrait extends Trait {
 
     public HairTriggerTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -19,7 +19,7 @@ public final class HairTriggerTrait extends Trait {
     @Override
     public void initialize(LivingEntity mob, int rank) {
         if (mob instanceof Creeper creeper) {
-            creeper.setMaxFuseTicks(Math.max(5, 30 - 4 * rank));
+            creeper.setMaxFuseTicks(Math.max(1, 30 - 4 * rank));
         }
     }
 }

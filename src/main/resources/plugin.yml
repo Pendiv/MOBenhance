@@ -18,6 +18,10 @@ commands:
   traithelp:
     description: Look up trait descriptions and appearance levels.
     usage: /traithelp [sort [min N] [max N] | <id|"name">]
+  levelingskill:
+    description: Manipulate the held item's enhancement level / skill (OP debug).
+    usage: /levelingskill <targets> <lvl|skill|skill_lvl> <value>
+    permission: enhancedmobs.levelingskill
 
 permissions:
   enhancedmobs.difficulty.get:
@@ -35,3 +39,6 @@ permissions:
   enhancedmobs.traithelp:
     description: Look up trait descriptions.
     default: true
+  enhancedmobs.levelingskill:
+    description: Manipulate held item enhancement level / skill.
+    default: op

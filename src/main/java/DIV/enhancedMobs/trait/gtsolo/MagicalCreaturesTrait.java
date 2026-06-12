@@ -14,7 +14,11 @@ public final class MagicalCreaturesTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.MAGIC) {
+        // 原典の WITCH_RESISTANT_TO タグ相当: magic / indirect_magic / sonic_boom / thorns
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause == EntityDamageEvent.DamageCause.MAGIC
+                || cause == EntityDamageEvent.DamageCause.SONIC_BOOM
+                || cause == EntityDamageEvent.DamageCause.THORNS) {
             event.setCancelled(true);
             mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + event.getDamage() * 0.5));
         }

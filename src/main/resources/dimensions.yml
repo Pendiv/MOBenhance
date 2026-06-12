@@ -16,16 +16,16 @@ default:
 
 dimensions:
   "minecraft:overworld":
-    enabled: true
+    enabled: false   # 現世はレベル付与なし
     multiply: 1.0
     add: 0
   "minecraft:the_nether":
     enabled: true
     multiply: 1.0
-    add: 20
+    add: 0
   "minecraft:the_end":
     enabled: true
-    multiply: 1.5
+    multiply: 1.0
     add: 0
 
 # Traits listed here never roll anywhere -- a kill-switch for problem traits.

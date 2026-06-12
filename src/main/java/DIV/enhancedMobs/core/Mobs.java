@@ -11,7 +11,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import DIV.enhancedMobs.EnhancedMobs;
+
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /** 特性実装が共用するユーティリティ。 */
 public final class Mobs {
@@ -19,12 +22,24 @@ public final class Mobs {
     private Mobs() {
     }
 
-    /** 特性による自己複製（クローン・自身の召喚）を禁止するボス・ミニボス種別。 */
+    /**
+     * 特性による自己複製（クローン・自身の召喚）を禁止するボス・ミニボス種別。
+     * 特にウィザーは召喚直後の無敵中に新たな無敵ウィザーが湧き、周囲が爆発し続けるため厳禁。
+     */
     private static final Set<EntityType> BOSSES = Set.of(
             EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.WARDEN, EntityType.ELDER_GUARDIAN);
-//witherは一番ダメ。償還後無敵の最中に新しい無敵witherが出現し、戦闘とか関係なく周囲が爆発し続ける
+
     public static boolean isBoss(EntityType type) {
         return BOSSES.contains(type);
+    }
+
+    /**
+     * 原典の「毎tick確率p」を特性tick間隔（traits.tick-interval）1回分の判定に換算する。
+     * 例: 原典が毎tick 0.5% なら chancePerTick(0.005) — 間隔20tickなら 10% で判定される。
+     */
+    public static boolean chancePerTick(double perTickChance) {
+        int interval = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval);
+        return ThreadLocalRandom.current().nextDouble() < Math.min(1.0, perTickChance * interval);
     }
 
     public static double maxHealth(LivingEntity entity) {

@@ -5,7 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** 攻撃時にプレイヤーの食料レベルをランク分減らす。 */
+/** 攻撃時にプレイヤーの消耗度を 2.0×ランク 加算する（食料 0.5×ランク 相当）。 */
 public final class HungerDrainTrait extends Trait {
 
     public HungerDrainTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,7 +15,8 @@ public final class HungerDrainTrait extends Trait {
     @Override
     public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
         if (target instanceof Player player) {
-            player.setFoodLevel(Math.max(0, player.getFoodLevel() - rank));
+            // 原典は addExhaustion(2.0 × lv)。隠し満腹度から先に削れる vanilla 仕様に乗る
+            player.setExhaustion(player.getExhaustion() + 2.0f * rank);
         }
     }
 }

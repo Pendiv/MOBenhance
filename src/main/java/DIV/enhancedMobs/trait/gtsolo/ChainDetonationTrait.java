@@ -19,8 +19,9 @@ public final class ChainDetonationTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
+        // 原典の IS_FIRE タグはマグマブロック（HOT_FLOOR）も包含する
         switch (event.getCause()) {
-            case FIRE, FIRE_TICK, LAVA, BLOCK_EXPLOSION, ENTITY_EXPLOSION -> {
+            case FIRE, FIRE_TICK, LAVA, HOT_FLOOR, BLOCK_EXPLOSION, ENTITY_EXPLOSION -> {
                 if (mob instanceof Creeper creeper) {
                     creeper.setIgnited(true);
                 }

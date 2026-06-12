@@ -14,7 +14,8 @@ public final class CutoffTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        if (event.getFinalDamage() < Mobs.maxHealth(mob) * 0.01) {
+        // 原典は防具適用前の amount で判定するため getDamage()（raw）を使う
+        if (event.getDamage() < Mobs.maxHealth(mob) * 0.01) {
             event.setCancelled(true);
         }
     }

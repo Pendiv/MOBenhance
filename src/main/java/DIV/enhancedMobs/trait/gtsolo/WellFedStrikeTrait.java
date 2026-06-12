@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** 対象のHP比率に応じてダメージを増幅する（満HP=等倍、低HP=低倍率）。 */
+/** プレイヤーのHP割合が高いほど与ダメージを増幅する（rank1満タンで×1.48、rank5で×1.80）。 */
 public final class WellFedStrikeTrait extends Trait {
 
     public WellFedStrikeTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,8 +15,11 @@ public final class WellFedStrikeTrait extends Trait {
 
     @Override
     public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
-        if (target instanceof Player) {
-            event.setDamage(event.getDamage() * Mobs.healthRatio(target));
+        if (!(target instanceof Player)) {
+            return;
         }
+        // 原典: M = HP割合(0〜100)、倍率 = 1 + (M + 20×rank) × 0.4%（常に増幅）。
+        double m = Math.max(0.0, Math.min(1.0, Mobs.healthRatio(target))) * 100.0;
+        event.setDamage(event.getDamage() * (1.0 + (m + 20.0 * rank) * 0.004));
     }
 }

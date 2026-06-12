@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.enhancedMobs.core.HealMultiplier;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
@@ -17,7 +18,9 @@ public final class ExplosiveResonanceTrait extends Trait {
         switch (event.getCause()) {
             case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> {
                 event.setCancelled(true);
-                mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + event.getDamage()));
+                // 回復はプラグイン共通の回復倍率を尊重（原典は heal イベント経由）
+                double heal = event.getDamage() * HealMultiplier.effective(mob);
+                mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + heal));
             }
             default -> {
             }

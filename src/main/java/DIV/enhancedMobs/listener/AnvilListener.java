@@ -2,6 +2,7 @@ package DIV.enhancedMobs.listener;
 
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.item.ItemEnhancer;
+import DIV.enhancedMobs.item.ItemSkills;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -56,7 +57,7 @@ public final class AnvilListener implements Listener {
         }
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
-        if (!ItemEnhancer.isEnhanceable(held)) {
+        if (!ItemEnhancer.isPlaceable(held)) {
             return; // 対象外なら通常の金床GUIを開かせる
         }
         Location loc = block.getLocation().add(0.5, 1.0, 0.5);
@@ -92,28 +93,50 @@ public final class AnvilListener implements Listener {
             inter.remove();
             return;
         }
-        if (held.getType() == placed.getType()) {
+        boolean repairOnly = !ItemEnhancer.isEnhanceable(placed);
+        if (ItemEnhancer.isRepairMaterial(placed, held.getType())) {
+            if (ItemEnhancer.repair(placed)) {
+                display.setItemStack(placed);
+                consumeOne(player);
+                if (ItemEnhancer.isBroken(placed)) {
+                    msg(player, "耐久値を回復しました（75%以上で破壊寸前が解除されます）", NamedTextColor.GREEN);
+                } else {
+                    msg(player, "耐久値を回復しました", NamedTextColor.GREEN);
+                }
+            } else {
+                msg(player, "耐久値は満タンです", NamedTextColor.GRAY);
+            }
+        } else if (ItemSkills.isBonusItem(held)) {
+            switch (ItemSkills.grantBonus(placed, held)) {
+                case GRANTED -> {
+                    display.setItemStack(placed);
+                    consumeOne(player);
+                    msg(player, "付加スキル【" + ItemSkills.bonusDisplayName(held) + "】を付与しました",
+                            NamedTextColor.LIGHT_PURPLE);
+                }
+                case ALREADY -> msg(player, "既に付与済みです", NamedTextColor.RED);
+                case NOT_APPLICABLE -> msg(player, "このアイテムには付与できません", NamedTextColor.RED);
+            }
+        } else if (repairOnly) {
+            msg(player, "このアイテムは耐久回復のみ対応です（修理素材を持って右クリック）", NamedTextColor.RED);
+        } else if (held.getType() == Material.MACE
+                && !(placed.getType() == Material.MACE && player.isSneaking())) {
+            // 鍛造を精錬より優先（メイス×メイスの誤消費防止）。メイス同士の精錬はスニーククリックで行う。
+            if (ItemEnhancer.forge(placed)) {
+                display.setItemStack(placed);
+                msg(player, "鍛造しました", NamedTextColor.LIGHT_PURPLE);
+            } else if (placed.getType() == Material.MACE) {
+                msg(player, "既に鍛造済みです（精錬する場合はスニーク右クリック）", NamedTextColor.YELLOW);
+            } else {
+                msg(player, "既に鍛造済みです", NamedTextColor.RED);
+            }
+        } else if (held.getType() == placed.getType()) {
             if (ItemEnhancer.refine(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
                 msg(player, "精錬しました", NamedTextColor.GOLD);
             } else {
                 msg(player, "これ以上精錬できません", NamedTextColor.RED);
-            }
-        } else if (held.getType() == Material.MACE) {
-            if (ItemEnhancer.forge(placed)) {
-                display.setItemStack(placed);
-                msg(player, "鍛造しました", NamedTextColor.LIGHT_PURPLE);
-            } else {
-                msg(player, "既に鍛造済みです", NamedTextColor.RED);
-            }
-        } else if (ItemEnhancer.isRepairMaterial(placed, held.getType())) {
-            if (ItemEnhancer.repair(placed)) {
-                display.setItemStack(placed);
-                consumeOne(player);
-                msg(player, "耐久値を回復しました", NamedTextColor.GREEN);
-            } else {
-                msg(player, "耐久値は満タンです", NamedTextColor.GRAY);
             }
         }
     }

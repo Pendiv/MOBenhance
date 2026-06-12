@@ -3,6 +3,7 @@ package DIV.enhancedMobs;
 import DIV.enhancedMobs.command.CgCommand;
 import DIV.enhancedMobs.command.DebugCommand;
 import DIV.enhancedMobs.command.DifficultyCommand;
+import DIV.enhancedMobs.command.LevelingSkillCommand;
 import DIV.enhancedMobs.command.TraitHelpCommand;
 import DIV.enhancedMobs.config.DimensionConfig;
 import DIV.enhancedMobs.config.EntityConfig;
@@ -16,15 +17,24 @@ import DIV.enhancedMobs.level.LevelScaler;
 import DIV.enhancedMobs.listener.DebugListener;
 import DIV.enhancedMobs.listener.DisplayListener;
 import DIV.enhancedMobs.listener.AnvilListener;
+import DIV.enhancedMobs.item.ItemSkills;
+import DIV.enhancedMobs.listener.ArmorSkillListener;
+import DIV.enhancedMobs.listener.AutoMaceListener;
+import DIV.enhancedMobs.listener.AxeSkillListener;
+import DIV.enhancedMobs.listener.FlyingAxeListener;
 import DIV.enhancedMobs.listener.HealListener;
+import DIV.enhancedMobs.listener.ItemBreakGuardListener;
 import DIV.enhancedMobs.listener.ItemXpListener;
 import DIV.enhancedMobs.listener.MobListener;
 import DIV.enhancedMobs.listener.PlayerListener;
 import DIV.enhancedMobs.listener.ProjectileListener;
 import DIV.enhancedMobs.listener.ResurrectListener;
 import DIV.enhancedMobs.listener.SealListener;
+import DIV.enhancedMobs.listener.SpearSkillListener;
+import DIV.enhancedMobs.listener.SwordSkillListener;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.PlayerData;
+import DIV.enhancedMobs.task.FastTick;
 import DIV.enhancedMobs.task.MobTickTask;
 import DIV.enhancedMobs.trait.Trait;
 import DIV.enhancedMobs.trait.TraitService;
@@ -78,6 +88,22 @@ public final class EnhancedMobs extends JavaPlugin {
         if (mainConfig.enhancementEnabled) {
             getServer().getPluginManager().registerEvents(new ItemXpListener(), this);
             getServer().getPluginManager().registerEvents(new AnvilListener(), this);
+            getServer().getPluginManager().registerEvents(new ItemBreakGuardListener(), this);
+            getServer().getPluginManager().registerEvents(new FlyingAxeListener(this), this);
+            getServer().getPluginManager().registerEvents(new AutoMaceListener(this), this);
+            getServer().getPluginManager().registerEvents(new SwordSkillListener(this), this);
+            getServer().getPluginManager().registerEvents(new SpearSkillListener(), this);
+            getServer().getPluginManager().registerEvents(new AxeSkillListener(), this);
+            getServer().getPluginManager().registerEvents(new ArmorSkillListener(), this);
+            // 付加スキルの周期効果（暗視: 5秒ごとに10秒付与）
+            getServer().getScheduler().runTaskTimer(this, ItemSkills::tickBonusEffects, 100L, 100L);
+        }
+
+        PluginCommand levelingSkill = getCommand("levelingskill");
+        if (levelingSkill != null) {
+            LevelingSkillCommand lsCommand = new LevelingSkillCommand();
+            levelingSkill.setExecutor(lsCommand);
+            levelingSkill.setTabCompleter(lsCommand);
         }
 
         DifficultyCommand difficultyCommand = new DifficultyCommand(this);
@@ -111,6 +137,8 @@ public final class EnhancedMobs extends JavaPlugin {
 
         int tickInterval = Math.max(1, mainConfig.traitTickInterval);
         getServer().getScheduler().runTaskTimer(this, new MobTickTask(this), tickInterval, tickInterval);
+        // 高頻度特性（誘導・吸引等）用の1tickレーン。登録が無ければ即returnで負荷ゼロ。
+        getServer().getScheduler().runTaskTimer(this, new FastTick(), 1, 1);
 
         getLogger().info("EnhancedMobs enabled with " + traitService.registry().all().size() + " traits.");
     }

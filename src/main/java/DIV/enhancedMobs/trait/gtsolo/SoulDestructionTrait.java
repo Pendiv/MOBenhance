@@ -5,7 +5,10 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** このMobの攻撃で対象が致死ダメージを受けた場合、トーテムによる復活を封じる。 */
+/**
+ * このMobの攻撃で対象が致死ダメージを受けた場合、トーテムによる復活を封じる。
+ * 矢などの飛翔体キルも射手に解決されて発火する（MobListener.resolveAttacker）。
+ */
 public final class SoulDestructionTrait extends Trait {
 
     public SoulDestructionTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -15,7 +18,8 @@ public final class SoulDestructionTrait extends Trait {
     @Override
     public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
         if (target.getHealth() - event.getFinalDamage() <= 0) {
-            EntityState.setFlag(target, "deny_resurrect", 40);
+            // 窓は同tick内のトーテム判定に十分な最小限（別死因の巻き込み防止）
+            EntityState.setFlag(target, "deny_resurrect", 10);
         }
     }
 }

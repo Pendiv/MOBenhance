@@ -9,7 +9,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 
-/** ゾンビの増援召喚確率を上昇させる。 */
+/** ゾンビの増援召喚確率を基礎値の2倍にする（原典: MULTIPLY_TOTAL +1.0、rank非依存）。 */
 public final class KinCallTrait extends Trait {
 
     public KinCallTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -23,8 +23,9 @@ public final class KinCallTrait extends Trait {
 
     @Override
     public void initialize(LivingEntity mob, int rank) {
+        // MULTIPLY_SCALAR_1 +1.0 = 原典の MULTIPLY_TOTAL「×2」を厳密再現
         Mobs.addModifier(mob, Attribute.SPAWN_REINFORCEMENTS,
-                new NamespacedKey(EnhancedMobs.get(), "trait_kin_call"), 0.2 * rank,
-                AttributeModifier.Operation.ADD_NUMBER);
+                new NamespacedKey(EnhancedMobs.get(), "trait_kin_call"), 1.0,
+                AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     }
 }

@@ -15,10 +15,10 @@ public final class FirstMeetingTrait extends Trait {
 
     @Override
     public void onAttackedBy(LivingEntity mob, int rank, LivingEntity attacker, EntityDamageByEntityEvent event) {
-        if (!(attacker instanceof Player) || EntityState.hasFlag(mob, "first_used")) {
+        if (!(attacker instanceof Player) || EntityState.hasFlag(mob, "first_meeting_used")) {
             return;
         }
         event.setCancelled(true);
-        EntityState.setFlag(mob, "first_used", Integer.MAX_VALUE);
+        EntityState.setFlag(mob, "first_meeting_used", Integer.MAX_VALUE);
     }
 }

@@ -2,27 +2,22 @@ package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectTypeCategory;
 
-/** tickごとに有害ポーション効果を除去し続ける。 */
+/** 有害カテゴリのポーション効果を付与時点で拒否する（バニラ・カスタム問わず全有害効果）。 */
 public final class PureHeartTrait extends Trait {
-
-    private static final PotionEffectType[] HARMFUL = {
-            PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.SLOWNESS,
-            PotionEffectType.WEAKNESS, PotionEffectType.MINING_FATIGUE, PotionEffectType.BLINDNESS,
-            PotionEffectType.NAUSEA, PotionEffectType.LEVITATION
-    };
 
     public PureHeartTrait(int cost, int weight, int maxRank, int minLevel) {
         super("pure_heart", "PURE", cost, weight, maxRank, minLevel);
     }
 
     @Override
-    public void tick(LivingEntity mob, int rank) {
-        for (PotionEffectType type : HARMFUL) {
-            if (mob.hasPotionEffect(type)) {
-                mob.removePotionEffect(type);
-            }
+    public void onPotionEffect(LivingEntity mob, int rank, EntityPotionEffectEvent event) {
+        PotionEffect effect = event.getNewEffect(); // 除去イベントでは null
+        if (effect != null && effect.getType().getCategory() == PotionEffectTypeCategory.HARMFUL) {
+            event.setCancelled(true);
         }
     }
 }

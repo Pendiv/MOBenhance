@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-/** 初回被攻撃時に限り、攻撃プレイヤーのHPを20に切り下げる（1回限り発動）。 */
+/** 初めてプレイヤーに攻撃を当てた時に限り、そのプレイヤーのHPを20に切り下げる（1回限り発動）。 */
 public final class LunaticCurseTrait extends Trait {
 
     public LunaticCurseTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -14,11 +14,14 @@ public final class LunaticCurseTrait extends Trait {
     }
 
     @Override
-    public void onAttackedBy(LivingEntity mob, int rank, LivingEntity attacker, EntityDamageByEntityEvent event) {
-        if (!(attacker instanceof Player player) || EntityState.hasFlag(mob, "lc_used")) {
+    public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
+        if (!(target instanceof Player player) || EntityState.hasFlag(mob, "lc_used")) {
             return;
         }
-        player.setHealth(Math.min(player.getHealth(), 20.0));
+        // 原典同様、HP20以下の相手に当てても発動済み扱い。maxHealth は触らない。
         EntityState.setFlag(mob, "lc_used", Integer.MAX_VALUE);
+        if (player.getHealth() > 20.0) {
+            player.setHealth(20.0);
+        }
     }
 }

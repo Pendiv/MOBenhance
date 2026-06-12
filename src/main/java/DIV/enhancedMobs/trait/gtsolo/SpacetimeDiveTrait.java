@@ -3,9 +3,11 @@ package DIV.enhancedMobs.trait.gtsolo;
 import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
-/** 時空族: 近接・遠距離攻撃を無効化し、魔法ダメージのみ通す。 */
+/** 時空族: 潜航状態。魔術系ダメージのみ受け付け、それ以外は全て無効化する。さらに他MobのAIターゲットから除外される。 */
 public final class SpacetimeDiveTrait extends Trait {
 
     public SpacetimeDiveTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -19,10 +21,20 @@ public final class SpacetimeDiveTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
+        // 原典は forge:is_magic タグのホワイトリスト。魔術相当のみ通し、物理・矢・爆発・炎などは全無効。
         switch (event.getCause()) {
-            case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK, PROJECTILE -> event.setCancelled(true);
-            default -> {
+            case MAGIC, WITHER, SONIC_BOOM, DRAGON_BREATH -> {
             }
+            default -> event.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void onTargeted(LivingEntity mob, int rank, EntityTargetLivingEntityEvent event) {
+        // 全MobのAIターゲットから除外（原典 TargetingConditionsMixin 相当）。既存ターゲットも解除。
+        event.setCancelled(true);
+        if (event.getEntity() instanceof Mob targeter && targeter.getTarget() == mob) {
+            targeter.setTarget(null);
         }
     }
 }

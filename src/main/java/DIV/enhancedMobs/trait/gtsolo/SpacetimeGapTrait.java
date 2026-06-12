@@ -7,8 +7,14 @@ import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-/** 時空族: ダメージを受けていない間は毎ティック満HP回復する。被ダメージ時にクールダウンをセットし、ランクが高いほど解除が早い。 */
+/**
+ * 時空族: 一定時間（400 - 20rank tick、下限20）攻撃を受けないと全回復する。
+ * 全回復に成功すると固定 1200 tick のクールタイムに入る。
+ */
 public final class SpacetimeGapTrait extends Trait {
+
+    /** 全回復成功後の固定クールダウン。 */
+    private static final int HEAL_COOLDOWN = 1200;
 
     public SpacetimeGapTrait(int cost, int weight, int maxRank, int minLevel) {
         super("spacetime_gap", "STGAP", cost, weight, maxRank, minLevel);
@@ -21,13 +27,18 @@ public final class SpacetimeGapTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        EntityState.setFlag(mob, "gap_hit", Math.max(40, 200 - 40 * rank));
+        // 被弾で無被弾タイマーをリセット（原典: 400 - 20n tick、下限 20）
+        EntityState.setFlag(mob, "gap_hit", Math.max(20, 400 - 20 * rank));
     }
 
     @Override
     public void tick(LivingEntity mob, int rank) {
-        if (!EntityState.hasFlag(mob, "gap_hit")) {
+        if (EntityState.hasFlag(mob, "gap_hit") || EntityState.hasFlag(mob, "gap_cd")) {
+            return;
+        }
+        if (mob.getHealth() < Mobs.maxHealth(mob)) {
             mob.setHealth(Mobs.maxHealth(mob));
+            EntityState.setFlag(mob, "gap_cd", HEAL_COOLDOWN);
         }
     }
 }

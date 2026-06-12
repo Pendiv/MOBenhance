@@ -1,6 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.trait.Trait;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -18,6 +19,8 @@ public final class JustParryTrait extends Trait {
     public void onAttackedBy(LivingEntity mob, int rank, LivingEntity attacker, EntityDamageByEntityEvent event) {
         if (attacker instanceof Player && ThreadLocalRandom.current().nextDouble() < 0.3 + 0.07 * rank) {
             event.setCancelled(true);
+            // パリィされたことを音で伝える（原典に無い演出だが視認性向上のため追加）
+            mob.getWorld().playSound(mob.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f, 1.0f);
         }
     }
 }

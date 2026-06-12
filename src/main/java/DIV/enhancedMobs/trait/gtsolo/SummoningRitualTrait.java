@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-/** 死亡時に自身より高レベルの同種Mobを召喚する。 */
+/** 死亡時、同種のより強大な敵を1体召喚する（自然相場レベル + 自身レベル×10%×rank）。 */
 public final class SummoningRitualTrait extends Trait {
 
     public SummoningRitualTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -25,9 +25,14 @@ public final class SummoningRitualTrait extends Trait {
     public void onDeath(LivingEntity mob, int rank, EntityDeathEvent event) {
         Entity copy = mob.getWorld().spawnEntity(mob.getLocation(), mob.getType());
         if (copy instanceof LivingEntity living) {
-            EnhancedMobs.get().initializeMob(living, MobData.of(mob).getLevel() + 5 * rank);
-            // 召喚体がさらに儀式を持つと死ぬたびに無限強化するため、召喚後は除去する。
-            EnhancedMobs.get().traits().stripTrait(living, "summoning_ritual");
+            EnhancedMobs plugin = EnhancedMobs.get();
+            // 原典: 自然抽選レベル（スポーン地点の相場）に 自身レベル×10%×rank を上乗せ。
+            int natural = plugin.mobBonus().apply(living.getType(),
+                    plugin.difficulty().compute(living.getLocation()));
+            int bonus = (int) Math.round(MobData.of(mob).getLevel() * 0.10 * rank);
+            plugin.initializeMob(living, natural + bonus);
+            // 召喚体がさらに儀式を持つと死ぬたびに無限強化するため、召喚後は除去する（安全装置）。
+            plugin.traits().stripTrait(living, "summoning_ritual");
         }
     }
 }

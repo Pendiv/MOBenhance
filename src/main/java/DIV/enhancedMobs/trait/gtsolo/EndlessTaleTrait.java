@@ -8,7 +8,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** 致死ダメージ時に確率で復活し、復活成功のたびに次回の確率が0.8倍に減衰する。 */
+/**
+ * 致死ダメージ時に確率でフルHP復活する。初回確率は 50% + 22.15%×rank（rank3 で確定）。
+ * 復活成功のたびに確率が ×0.8 − 5% に減衰し、0 以下になると以後復活しない。
+ */
 public final class EndlessTaleTrait extends Trait {
 
     public EndlessTaleTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -20,12 +23,13 @@ public final class EndlessTaleTrait extends Trait {
         if (mob.getHealth() - event.getFinalDamage() > 0) {
             return;
         }
-        int revives = EntityState.getInt(mob, "et_revives", 0);
-        double chance = (0.5 + 0.02 * rank) * Math.pow(0.8, revives);
-        if (ThreadLocalRandom.current().nextDouble() < chance) {
-            event.setCancelled(true);
-            mob.setHealth(Mobs.maxHealth(mob) * 0.5);
-            EntityState.setInt(mob, "et_revives", revives + 1);
+        double chance = EntityState.getDouble(mob, "et_chance", 0.50 + 0.2215 * rank);
+        if (chance <= 0 || ThreadLocalRandom.current().nextDouble() >= chance) {
+            return;
         }
+        event.setCancelled(true);
+        mob.setHealth(Mobs.maxHealth(mob));
+        // 減衰は成功時のみ（原典: currentChance = c×0.8 − 0.05）
+        EntityState.setDouble(mob, "et_chance", chance * 0.8 - 0.05);
     }
 }

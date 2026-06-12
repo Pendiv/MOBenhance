@@ -16,6 +16,11 @@ public final class EndureTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
+        // /kill・奈落は素通し（原典の BYPASSES_INVULNERABILITY 相当）
+        if (event.getCause() == EntityDamageEvent.DamageCause.KILL
+                || event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            return;
+        }
         if (EntityState.hasFlag(mob, "endure_used") || mob.getHealth() - event.getFinalDamage() > 0) {
             return;
         }

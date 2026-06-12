@@ -31,6 +31,13 @@ public final class MobTags {
         return get(holder).contains(tag);
     }
 
+    public static void remove(PersistentDataHolder holder, String tag) {
+        Set<String> tags = get(holder);
+        if (tags.remove(tag)) {
+            holder.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, String.join(",", tags));
+        }
+    }
+
     private static Set<String> get(PersistentDataHolder holder) {
         String raw = holder.getPersistentDataContainer().getOrDefault(KEY, PersistentDataType.STRING, "");
         Set<String> set = new LinkedHashSet<>();

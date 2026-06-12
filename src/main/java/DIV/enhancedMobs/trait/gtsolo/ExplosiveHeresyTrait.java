@@ -3,6 +3,7 @@ package DIV.enhancedMobs.trait.gtsolo;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 /** クリーパー専用: 爆発ダメージを2.5倍で受ける。 */
@@ -20,7 +21,13 @@ public final class ExplosiveHeresyTrait extends Trait {
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
         switch (event.getCause()) {
-            case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> event.setDamage(event.getDamage() * 2.5);
+            case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> {
+                // 自爆は除外（原典: source.getEntity() ≠ 自身）
+                if (event instanceof EntityDamageByEntityEvent byEntity && byEntity.getDamager() == mob) {
+                    return;
+                }
+                event.setDamage(event.getDamage() * 2.5);
+            }
             default -> {
             }
         }
