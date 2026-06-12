@@ -1,5 +1,8 @@
 package DIV.enhancedMobs.listener;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.item.ItemEnhancer;
 import DIV.enhancedMobs.item.ItemSkills;
@@ -16,6 +19,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -45,6 +49,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *       攻撃力ぶん切りつける（爆風エフェクト = 剣戟表現）。CT 5/4.5/4/1.5 秒。</li>
  *   <li><b>エネルギー吸収</b>: 接地して静止した状態で右クリックすると HP を回復
  *       （3/4/5/10 ハート）。CT 13/12/10/5 秒。</li>
+ *   <li><b>朽ちた英雄の賛歌</b>: 攻撃時、対象の回復を10tick封印（不死の蘇生も失敗）し、
+ *       雷とともに攻撃力の 50/70/100/150% を追加ダメージとして与える。</li>
  * </ul>
  */
 public final class SwordSkillListener implements Listener {
@@ -60,6 +66,38 @@ public final class SwordSkillListener implements Listener {
 
     public SwordSkillListener(EnhancedMobs plugin) {
         this.plugin = plugin;
+    }
+
+    // ---- 朽ちた英雄の賛歌 ----
+
+    /** 回復封印の付与元 sourceId（attributelib）。 */
+    private static final String HYMN_SOURCE = "enhancedmobs:skill/hero_hymn";
+
+    /**
+     * 特性処理（NORMAL の MobListener ディスパッチ）より先に回復封印を入れるため LOWEST。
+     * これにより、この一撃が致死なら不死特性の蘇生（=全回復）もそのまま失敗する。
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onHeroHymn(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)
+                || !(event.getEntity() instanceof LivingEntity victim)
+                || victim instanceof ArmorStand) {
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_HERO_HYMN);
+        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+            return;
+        }
+        // 回復封印（10tick、付け直しでリフレッシュ）
+        Attributes.removeAll(victim, HYMN_SOURCE);
+        Attributes.addTransient(victim, StandardAttributes.HEAL_MULTIPLIER, HYMN_SOURCE,
+                Operation.MULTIPLY, 0.0, ItemSkills.HYMN_CURSE_TICKS);
+        // 雷とともに攻撃力比の追加ダメージ（落雷は演出のみ。延焼・雷ダメージの二重付与を避ける）
+        AttributeInstance atk = player.getAttribute(Attribute.ATTACK_DAMAGE);
+        double bonus = (atk != null ? atk.getValue() : 1.0) * ItemSkills.HYMN_DAMAGE_PCT[stage];
+        event.setDamage(event.getDamage() + bonus);
+        victim.getWorld().strikeLightningEffect(victim.getLocation());
     }
 
     // ---- 攻撃時スキル（勇猛果敢・攻撃滞留） ----

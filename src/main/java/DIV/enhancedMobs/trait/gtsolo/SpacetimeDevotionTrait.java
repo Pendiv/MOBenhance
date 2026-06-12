@@ -1,7 +1,6 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.EnhancedMobs;
-import DIV.enhancedMobs.core.HealMultiplier;
 import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
@@ -87,7 +86,6 @@ public final class SpacetimeDevotionTrait extends Trait {
 
     /** 回復倍率（呪い等）を尊重した回復。 */
     private static void heal(LivingEntity entity, double amount) {
-        double healed = amount * HealMultiplier.effective(entity);
-        entity.setHealth(Math.min(Mobs.maxHealth(entity), entity.getHealth() + healed));
+        Mobs.heal(entity, amount);
     }
 }

@@ -2,7 +2,6 @@ package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
-import DIV.enhancedMobs.core.HealMultiplier;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.core.Mobs;
@@ -77,7 +76,6 @@ public final class SpacetimeBonePickerTrait extends Trait {
                 count * HP_PER_STACK, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
         mob.setHealth(Math.min(Mobs.maxHealth(mob), Math.max(1.0, ratio * Mobs.maxHealth(mob))));
         // 拾うたび最大HPの10%回復（回復倍率を尊重）。
-        double heal = Mobs.maxHealth(mob) * HEAL_PCT * HealMultiplier.effective(mob);
-        mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + heal));
+        Mobs.heal(mob, Mobs.maxHealth(mob) * HEAL_PCT);
     }
 }

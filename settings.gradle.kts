@@ -4,3 +4,7 @@ plugins {
 }
 
 rootProject.name = "EnhancedMobs"
+
+// attributelib(兄弟プロジェクト)を composite build で参照する。
+// 依存表記 "DIV:attributelib" は自動的にローカルビルドへ置換される。
+includeBuild("../attributelib")

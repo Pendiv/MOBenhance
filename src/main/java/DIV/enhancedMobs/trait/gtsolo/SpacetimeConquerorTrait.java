@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.core.Mobs;
@@ -10,7 +12,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 
 /**
  * 時空族: 近くに他の時空タイプ mob が存在できない。代わりに全ステータスが大幅上昇する。
@@ -39,12 +40,8 @@ public final class SpacetimeConquerorTrait extends Trait {
             Mobs.addModifier(mob, Attribute.ARMOR, new NamespacedKey(EnhancedMobs.get(), "trait_conqueror_armor_flat"),
                     10.0 * (rank - 1), AttributeModifier.Operation.ADD_NUMBER);
         }
-    }
-
-    @Override
-    public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        // 原典: L2DT REDUCTION +20%（固定）。Bukkit では乗算近似。
-        event.setDamage(event.getDamage() * 0.8);
+        // 原典: L2DT REDUCTION +20%（固定）。attributelib の標準属性で乗算近似を常時適用。
+        Mobs.setTraitAttribute(mob, id(), StandardAttributes.DAMAGE_TAKEN, Operation.MULTIPLY, 0.8);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
@@ -18,7 +20,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -31,7 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * 魔弾の射手。スケルトン専用のボス級射手（原典 MagicBulletMarksmanTrait）。
  * <ul>
  *   <li>付与時: 攻撃力・最大HP +(10+5N)% + 全回復。被ダメージは (10+5N)% 軽減
- *       （原典 L2DT REDUCTION 属性の onAttacked 近似）</li>
+ *       （原典 L2DT REDUCTION 属性 → attributelib damage_taken の乗算近似）</li>
  *   <li>半径48の最寄りプレイヤー（アグロ不要）へ CD 40tick で照準矢（初速3.0・ばらつき1.0）</li>
  *   <li>12ブロック以内に接近されると透明化 + 移動速度 +50%（離れると解除）</li>
  *   <li>特殊矢: 発射ごとに rank×7% + 累積ボーナスの確率で6種プール
@@ -78,6 +79,8 @@ public final class MagicBulletMarksmanTrait extends Trait {
                 AttributeModifier.Operation.ADD_SCALAR);
         Mobs.addModifier(mob, Attribute.MAX_HEALTH, key("mbm_hp"), pct,
                 AttributeModifier.Operation.ADD_SCALAR);
+        // 原典 L2DT REDUCTION 属性の近似: 全被ダメ (10+5N)% 軽減（attributelib 標準属性で常時適用）。
+        Mobs.setTraitAttribute(mob, id(), StandardAttributes.DAMAGE_TAKEN, Operation.MULTIPLY, 1 - pct);
         mob.setHealth(Mobs.maxHealth(mob));
     }
 
@@ -120,12 +123,6 @@ public final class MagicBulletMarksmanTrait extends Trait {
             // 通常矢 → 確率累積 +4%
             EntityState.addDouble(mob, BONUS, MISS_GAIN);
         }
-    }
-
-    /** 原典 REDUCTION 属性の近似: 全被ダメージを (10+5N)% 軽減。 */
-    @Override
-    public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        event.setDamage(event.getDamage() * (1 - (0.10 + 0.05 * rank)));
     }
 
     /** 原典 onHurtByOthers: 被弾するたび特殊矢確率 +3% 累積（rank 非参照）。 */

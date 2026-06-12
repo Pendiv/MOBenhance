@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.DamageLib;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.Location;
@@ -12,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 
 /**
  * 半径 4・厚み 1.5 の円盤オーラ。2 秒（40t）ごとに範囲内の自分以外の全 LivingEntity へ
- * 攻撃力×(0.10+0.30N) の防具無視ダメージ（壁貫通）+ 2 秒着火を与える。
+ * 攻撃力×(0.10+0.30N) の魔法ダメージ（防具素通り・壁貫通）+ 2 秒着火を与える。
  * 円周 24 点を FLAME で描画する。
  */
 public final class DeathAuraTrait extends Trait {
@@ -49,8 +50,8 @@ public final class DeathAuraTrait extends Trait {
             if (dx * dx + dz * dz > RADIUS * RADIUS) {
                 continue;
             }
-            // 原典 magic 相当: 防具非適用（CUSTOM cause）・壁貫通・モブも巻き込む
-            target.damage(damage);
+            // 原典どおりの魔法ダメージ（attributelib:magic = 防具素通り・魔法軽減%有効・攻撃者帰属）
+            DamageLib.magic(mob, target, damage);
             target.setFireTicks(Math.max(target.getFireTicks(), 40));
         }
     }

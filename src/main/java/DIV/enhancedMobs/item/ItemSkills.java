@@ -69,6 +69,8 @@ public final class ItemSkills {
     public static final String SKILL_LION_HEART = "lion_heart";
     public static final String SKILL_SET_BONUS = "set_bonus";
     public static final String SKILL_PAST_GIFT = "past_gift";
+    public static final String SKILL_HERO_HYMN = "hero_hymn";
+    public static final String SKILL_ASAHI = "asahi_mourning";
     private static final String BONUS_NIGHT_VISION = "night_vision";
     public static final String BONUS_AUTO_MACE = "auto_mace";
     public static final String BONUS_ATTACK_LINGER = "attack_linger";
@@ -79,7 +81,7 @@ public final class ItemSkills {
             SKILL_DURABILITY, SKILL_FLYING, SKILL_HEALTH, SKILL_CHARGE, SKILL_VALOR, SKILL_DASH,
             SKILL_ALL_IN, SKILL_JUST_BLOCK, SKILL_TAKENOKO, SKILL_ENERGY_ABSORB,
             SKILL_DEBUFF_IMMUNITY, SKILL_ARMOR_BOOST, SKILL_LION_HEART, SKILL_SET_BONUS,
-            SKILL_PAST_GIFT);
+            SKILL_PAST_GIFT, SKILL_HERO_HYMN, SKILL_ASAHI);
 
     /** 強化段階ごとの耐久上限倍率（未強化/+1/+2/+3）。 */
     private static final double[] DURA_MULT = {1.2, 1.4, 1.6, 2.2};
@@ -133,6 +135,14 @@ public final class ItemSkills {
     private static final double SET_BONUS_ATK_AMOUNT = 5;
     /** 過去からの贈り物: 死亡時に未来へ送る防御力の割合。 */
     public static final double PAST_GIFT_RATIO = 0.25;
+    /** 朽ちた英雄の賛歌: 雷の追加ダメージ（攻撃力比）。仕様 50/70/150% を補間（段階2=100%）。 */
+    public static final double[] HYMN_DAMAGE_PCT = {0.5, 0.7, 1.0, 1.5};
+    /** 朽ちた英雄の賛歌: 回復封印の持続（tick）。 */
+    public static final int HYMN_CURSE_TICKS = 10;
+    /** 旭の弔い: 燃焼中の対象が受ける炎ダメージ増加。仕様 20/30/70% を補間（段階2=50%）。 */
+    public static final double[] ASAHI_FIRE_VULN = {0.20, 0.30, 0.50, 0.70};
+    /** 旭の弔い: 攻撃時の着火時間（tick、火属性化）。 */
+    public static final int ASAHI_IGNITE_TICKS = 80;
     /** 一括破壊: 段階ごとの連鎖範囲（起点からのチェビシェフ距離）。 */
     public static final int[] BULK_RANGE = {1, 1, 2, 2};
     /** 一括破壊: 1回の発動で破壊できるブロック総数（起点含む）。 */
@@ -156,11 +166,13 @@ public final class ItemSkills {
             pool.add(SKILL_FLYING); // 斧限定
             pool.add(SKILL_ALL_IN);
             pool.add(SKILL_TAKENOKO);
+            pool.add(SKILL_ASAHI);
         }
         if (n.endsWith("_SWORD")) {
             pool.add(SKILL_VALOR); // 剣限定
             pool.add(SKILL_DASH);
             pool.add(SKILL_ENERGY_ABSORB);
+            pool.add(SKILL_HERO_HYMN);
         }
         if (n.endsWith("SPEAR")) {
             pool.add(SKILL_CHARGE); // 槍限定
@@ -302,6 +314,14 @@ public final class ItemSkills {
                     String.format("死亡時、防御力の%.0f%%を未来へ送る", PAST_GIFT_RATIO * 100),
                     "次のリスポーンで防御力上昇として受け取る",
                     "（受領中に死亡すると効果を失い、送らない）");
+            case SKILL_HERO_HYMN -> List.of(
+                    String.format("攻撃時、対象の回復を%.1f秒間封じ", HYMN_CURSE_TICKS / 20.0),
+                    String.format("雷とともに攻撃力の%.0f%%を追加で与える", HYMN_DAMAGE_PCT[s] * 100),
+                    "（回復封印中は不死の蘇生も失敗する）");
+            case SKILL_ASAHI -> List.of(
+                    String.format("攻撃が火属性になる（%.0f秒着火）", ASAHI_IGNITE_TICKS / 20.0),
+                    String.format("燃えている対象は受ける炎ダメージ +%.0f%%、", ASAHI_FIRE_VULN[s] * 100),
+                    "回復効果を受けられない（不死の蘇生も失敗）");
             default -> List.of();
         };
     }
@@ -323,6 +343,11 @@ public final class ItemSkills {
         };
     }
 
+    /** スキルの表示名（サイドバー等の外部表示用）。 */
+    public static String skillDisplayName(String id) {
+        return skillName(id);
+    }
+
     private static String skillName(String id) {
         return switch (id) {
             case SKILL_DURABILITY -> "耐久強化";
@@ -340,6 +365,8 @@ public final class ItemSkills {
             case SKILL_LION_HEART -> "獅子の心臓";
             case SKILL_SET_BONUS -> "セット商法";
             case SKILL_PAST_GIFT -> "過去からの贈り物";
+            case SKILL_HERO_HYMN -> "朽ちた英雄の賛歌";
+            case SKILL_ASAHI -> "旭の弔い";
             default -> id;
         };
     }

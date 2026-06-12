@@ -1,5 +1,11 @@
 package DIV.enhancedMobs.core;
 
+import DIV.attributelib.api.AttributeType;
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.Condition;
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
+import DIV.attributelib.api.VanillaAttributes;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -55,15 +61,51 @@ public final class Mobs {
         return max <= 0 ? 1 : entity.getHealth() / max;
     }
 
-    /** アトリビュートモディファイアを冪等に適用（既存を削除してから追加）。 */
+    /** バニラ属性モディファイアを冪等に適用（attributelib VanillaAttributes への委譲）。 */
     public static void addModifier(LivingEntity entity, Attribute attribute, NamespacedKey key,
                                    double amount, AttributeModifier.Operation op) {
-        AttributeInstance inst = entity.getAttribute(attribute);
-        if (inst == null) {
-            return;
+        VanillaAttributes.set(entity, attribute, key, op, amount);
+    }
+
+    /**
+     * 特性由来のカスタム属性モディファイアを冪等に付与する（REPLACE 運用）。
+     * sourceId は「特性id + 属性キー」単位なので、initialize の再実行（ランク昇格・
+     * チャンク再ロード）で重複しない。永続保存され、特性と同じくモブの寿命まで残る。
+     */
+    public static void setTraitAttribute(LivingEntity entity, String traitId, AttributeType type,
+                                         Operation op, double value) {
+        String source = "enhancedmobs:trait/" + traitId + "/" + type.key().getKey();
+        Attributes.removeAll(entity, source);
+        Attributes.add(entity, type, source, op, value);
+    }
+
+    /** 条件付き版: 条件（夜間のみ等）が成立している間だけ効く特性属性。 */
+    public static void setTraitAttribute(LivingEntity entity, String traitId, AttributeType type,
+                                         Operation op, double value, Condition condition) {
+        String source = "enhancedmobs:trait/" + traitId + "/" + type.key().getKey();
+        Attributes.removeAll(entity, source);
+        Attributes.add(entity, type, source, op, value, condition);
+    }
+
+    /**
+     * 回復倍率（attributelib heal_multiplier、呪い等）を尊重した直接回復。
+     * EntityRegainHealthEvent を発火しない setHealth 経路の回復はこれを使うこと。
+     */
+    public static void heal(LivingEntity entity, double amount) {
+        double healed = amount * Attributes.get(entity, StandardAttributes.HEAL_MULTIPLIER);
+        if (healed > 0) {
+            entity.setHealth(Math.min(maxHealth(entity), entity.getHealth() + healed));
         }
-        inst.getModifiers().stream().filter(m -> key.equals(m.getKey())).toList().forEach(inst::removeModifier);
-        inst.addModifier(new AttributeModifier(key, amount, op));
+    }
+
+    /**
+     * 時限の回復倍率デバフ（呪い）。同じ sourceId は付け直し（リフレッシュ）になる。
+     * 期限はワールド gameTime 基準（attributelib）なので再起動を跨いでも正しく失効する。
+     */
+    public static void healCurse(LivingEntity entity, String sourceId, double mult, int durationTicks) {
+        Attributes.removeAll(entity, sourceId);
+        Attributes.add(entity, StandardAttributes.HEAL_MULTIPLIER, sourceId,
+                Operation.MULTIPLY, mult, durationTicks);
     }
 
     /**

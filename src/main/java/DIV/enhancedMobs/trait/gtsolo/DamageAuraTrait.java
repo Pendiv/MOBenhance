@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.DamageLib;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.Location;
@@ -12,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 
 /**
  * 1 辺 (4+N) ブロックの立方体オーラ。20t ごとに範囲内の自分以外の全 LivingEntity
- * （モブ含む）へ 3 + 攻撃力×0.25N の防具無視ダメージ（壁貫通）を与える。
+ * （モブ含む）へ 3 + 攻撃力×0.25N の魔法ダメージ（防具素通り・壁貫通）を与える。
  * 立方体 12 辺を SOUL_FIRE_FLAME で描画し、プレイヤーが境界を視認して回避できる。
  */
 public final class DamageAuraTrait extends Trait {
@@ -38,8 +39,8 @@ public final class DamageAuraTrait extends Trait {
         double amount = 3.0 + atk * 0.25 * rank;
         for (Entity entity : mob.getNearbyEntities(half, half, half)) {
             if (entity instanceof LivingEntity target && !target.isDead()) {
-                // 原典 magic 相当: 防具非適用（CUSTOM cause）・壁貫通・モブも巻き込む
-                target.damage(amount);
+                // 原典どおりの魔法ダメージ（attributelib:magic = 防具素通り・魔法軽減%有効・攻撃者帰属）
+                DamageLib.magic(mob, target, amount);
             }
         }
     }

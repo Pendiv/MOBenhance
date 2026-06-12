@@ -2,7 +2,6 @@ package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
-import DIV.enhancedMobs.core.HealMultiplier;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
@@ -34,7 +33,7 @@ public final class ArroganceTrait extends Trait {
             int block = Math.max(20, (7 - rank) * 20);
             EntityState.setFlag(mob, "arr_block", block);
             // 停止中はポーション・他特性等の外部回復も遮断（原典の LivingHealEvent cancel 相当）。
-            HealMultiplier.applyCurse(mob, 0.0, block);
+            Mobs.healCurse(mob, "enhancedmobs:curse/arrogance", 0.0, block);
         }
     }
 }

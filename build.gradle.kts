@@ -10,6 +10,9 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.69-stable")
+    // カスタム属性・ダメージパイプライン基盤(別プラグインとして同サーバーに配置する)。
+    // composite build によりローカルの ../attributelib が使われる。
+    compileOnly("DIV:attributelib:1.0-SNAPSHOT")
 }
 
 java {
@@ -28,9 +31,15 @@ tasks {
         // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("26.1.2")
         jvmArgs("-Xms2G", "-Xmx2G")
+        // attributelib もテストサーバーへ自動配置する(composite build で先にビルドされる)
+        dependsOn(gradle.includedBuild("attributelib").task(":jar"))
+        pluginJars.from(file("../attributelib/build/libs/attributelib-1.0-SNAPSHOT.jar"))
     }
 
     processResources {
+        // expand はこの charset でファイルを読む。未指定だとプラットフォーム既定(Windows では
+        // Shift-JIS)になり、UTF-8 の日本語コメントが壊れて plugin.yml が読めなくなる
+        filteringCharset = "UTF-8"
         val props = mapOf("version" to version)
         filesMatching("plugin.yml") {
             expand(props)

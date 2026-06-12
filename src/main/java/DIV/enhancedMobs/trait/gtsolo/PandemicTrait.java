@@ -1,8 +1,11 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.MobData;
+import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -33,6 +36,12 @@ public final class PandemicTrait extends Trait {
     }
 
     @Override
+    public void initialize(LivingEntity mob, int rank) {
+        // 与ダメ倍率 ×(1.3+0.1n) は失効後も残存 → attributelib 標準属性で常時適用。
+        Mobs.setTraitAttribute(mob, id(), StandardAttributes.DAMAGE_DEALT, Operation.MULTIPLY, 1.3 + 0.1 * rank);
+    }
+
+    @Override
     public void tick(LivingEntity mob, int rank) {
         // 失効ポイント累積: 原典は毎tick (感染数+1)² → tick間隔換算で加算。
         int infected = EntityState.getInt(mob, INFECTED_KEY, 0);
@@ -53,10 +62,9 @@ public final class PandemicTrait extends Trait {
         }
     }
 
-    /** 与ダメ倍率 ×(1.3+0.1n)。与ダメ対象がモブの場合も感染試行（原典準拠: 失効チェックなし）。 */
+    /** 与ダメ対象がモブの場合も感染試行（原典準拠: 失効チェックなし）。倍率は initialize の属性側。 */
     @Override
     public void onHurtTarget(LivingEntity mob, int rank, LivingEntity target, EntityDamageByEntityEvent event) {
-        event.setDamage(event.getDamage() * (1.3 + 0.1 * rank));
         if (target instanceof Mob other) {
             tryInfect(mob, other, rank);
         }

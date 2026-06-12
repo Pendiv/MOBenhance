@@ -1,6 +1,5 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
-import DIV.enhancedMobs.core.HealMultiplier;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
@@ -27,9 +26,6 @@ public final class RebirthTrait extends Trait {
         if (taken <= 0) {
             return;
         }
-        double heal = taken * HEAL_RATIO_PER_RANK * rank * HealMultiplier.effective(mob);
-        if (heal > 0) {
-            mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + heal));
-        }
+        Mobs.heal(mob, taken * HEAL_RATIO_PER_RANK * rank);
     }
 }

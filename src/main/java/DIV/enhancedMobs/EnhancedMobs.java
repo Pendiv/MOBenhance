@@ -11,6 +11,7 @@ import DIV.enhancedMobs.config.LocationConfig;
 import DIV.enhancedMobs.config.MainConfig;
 import DIV.enhancedMobs.config.MobBonusConfig;
 import DIV.enhancedMobs.debug.DebugViewers;
+import DIV.enhancedMobs.display.SideboardIntegration;
 import DIV.enhancedMobs.display.TraitDisplay;
 import DIV.enhancedMobs.level.DifficultyCalculator;
 import DIV.enhancedMobs.level.LevelScaler;
@@ -35,6 +36,7 @@ import DIV.enhancedMobs.listener.SpearSkillListener;
 import DIV.enhancedMobs.listener.SwordSkillListener;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.PlayerData;
+import DIV.enhancedMobs.core.TraitConditions;
 import DIV.enhancedMobs.task.FastTick;
 import DIV.enhancedMobs.task.MobTickTask;
 import DIV.enhancedMobs.trait.Trait;
@@ -69,6 +71,9 @@ public final class EnhancedMobs extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
+        // attributelib への適用条件の登録（特性 initialize より先に必要）。
+        TraitConditions.init(this);
+
         this.mainConfig = new MainConfig(this);
         this.dimensionConfig = new DimensionConfig(this);
         this.mobBonusConfig = new MobBonusConfig(this);
@@ -79,6 +84,9 @@ public final class EnhancedMobs extends JavaPlugin {
 
         // クラッシュ時に残留したDisplayエンティティを除去。
         traitDisplay.sweepOrphans();
+
+        // attributelib のステータスサイドバーへ統合（危険度行の差し替え + 装備強化ジャンル）。
+        SideboardIntegration.init(this);
 
         getServer().getPluginManager().registerEvents(new MobListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);

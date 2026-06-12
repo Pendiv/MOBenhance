@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.Mobs;
@@ -49,9 +51,9 @@ public final class AliceSyndromeTrait extends Trait {
     }
 
     @Override
-    public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        // 原典どおり全ダメージ源を35%軽減（rank非依存）。
-        event.setDamage(event.getDamage() * 0.65);
+    public void initialize(LivingEntity mob, int rank) {
+        // 原典どおり全ダメージ源を35%軽減（rank非依存）。attributelib の標準属性で常時適用。
+        Mobs.setTraitAttribute(mob, id(), StandardAttributes.DAMAGE_TAKEN, Operation.MULTIPLY, 0.65);
     }
 
     @Override

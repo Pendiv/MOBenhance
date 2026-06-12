@@ -1,6 +1,6 @@
 package DIV.enhancedMobs.trait.impl;
 
-import DIV.enhancedMobs.core.HealMultiplier;
+import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -24,6 +24,6 @@ public final class CursedTrait extends Trait {
             return;
         }
         double mult = Math.max(0.0, 1.0 - reductionPerRank * rank);
-        HealMultiplier.applyCurse(target, mult, durationTicks);
+        Mobs.healCurse(target, "enhancedmobs:curse/cursed", mult, durationTicks);
     }
 }

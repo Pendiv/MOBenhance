@@ -4,6 +4,8 @@ version: '$version'
 main: DIV.enhancedMobs.EnhancedMobs
 api-version: '26.1.2'
 load: POSTWORLD
+# カスタム属性・ダメージパイプライン基盤(回復倍率・与被ダメ倍率・魔法ダメージが依存)
+depend: [attributelib]
 
 commands:
   difficultyset:
