@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.trait.impl;
 
+import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -26,6 +27,6 @@ public final class EnderTrait extends Trait {
         double dx = (random.nextDouble() * 2 - 1) * range;
         double dz = (random.nextDouble() * 2 - 1) * range;
         Location target = mob.getLocation().add(dx, 0, dz);
-        mob.teleport(target);
+        Mobs.teleport(mob, target);
     }
 }

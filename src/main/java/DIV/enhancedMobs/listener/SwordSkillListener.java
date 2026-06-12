@@ -20,6 +20,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -27,7 +29,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,14 +43,20 @@ import java.util.concurrent.ThreadLocalRandom;
  *       レベルが1ずつ上昇。上限 5/10/20/99、効果時間 5/5/6/10 秒（攻撃のたびリフレッシュ）。</li>
  *   <li><b>突飛</b>: 右クリックで前方へ吹き飛ぶ（突進距離は段階で上昇）。強化2回以降は道中の敵を
  *       攻撃力ぶん切りつける（爆風エフェクト = 剣戟表現）。CT 5/4.5/4/1.5 秒。</li>
+ *   <li><b>エネルギー吸収</b>: 接地して静止した状態で右クリックすると HP を回復
+ *       （3/4/5/10 ハート）。CT 13/12/10/5 秒。</li>
  * </ul>
  */
 public final class SwordSkillListener implements Listener {
 
     /** 突飛: 切りつけ判定の継続 tick。 */
     private static final int DASH_SLASH_TICKS = 12;
+    /** エネルギー吸収: この時間（ms）水平移動が無ければ「静止」とみなす。 */
+    private static final long STILL_THRESHOLD_MS = 300;
 
     private final EnhancedMobs plugin;
+    /** エネルギー吸収の静止判定用: プレイヤー UUID → 最後に水平移動した時刻（ms）。 */
+    private final Map<UUID, Long> lastMove = new HashMap<>();
 
     public SwordSkillListener(EnhancedMobs plugin) {
         this.plugin = plugin;
@@ -120,6 +130,58 @@ public final class SwordSkillListener implements Listener {
                 }
             }
         }.runTaskTimer(plugin, 20L, 20L);
+    }
+
+    // ---- エネルギー吸収 ----
+
+    /** 静止判定: 水平移動（x/z 差 > 0.001）したプレイヤーの最終移動時刻を記録する。 */
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        if (Math.abs(event.getTo().getX() - event.getFrom().getX()) > 0.001
+                || Math.abs(event.getTo().getZ() - event.getFrom().getZ()) > 0.001) {
+            lastMove.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        lastMove.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onEnergyAbsorb(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND
+                || (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+        Player player = event.getPlayer();
+        ItemStack held = player.getInventory().getItemInMainHand();
+        int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_ENERGY_ABSORB);
+        if (stage < 0) {
+            return;
+        }
+        event.setCancelled(true);
+        if (player.getCooldown(held.getType()) > 0) {
+            return;
+        }
+        if (ItemEnhancer.isBroken(held)) {
+            player.sendActionBar(Component.text("破壊寸前のため使用できません", NamedTextColor.RED));
+            return;
+        }
+        Long moved = lastMove.get(player.getUniqueId());
+        boolean still = moved == null || System.currentTimeMillis() - moved >= STILL_THRESHOLD_MS;
+        if (!player.isOnGround() || !still) {
+            // 条件不成立は CT を消費しない
+            player.sendActionBar(Component.text("接地して静止した状態で使用してください", NamedTextColor.YELLOW));
+            return;
+        }
+        player.setCooldown(held.getType(), ItemSkills.ENERGY_COOLDOWN_SEC[stage] * 20);
+        AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+        double max = maxHealth != null ? maxHealth.getValue() : 20.0;
+        player.setHealth(Math.min(max, player.getHealth() + ItemSkills.ENERGY_HEAL[stage]));
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.6f);
+        player.getWorld().spawnParticle(Particle.HEART,
+                player.getLocation().add(0, 1.5, 0), 8, 0.4, 0.4, 0.4);
     }
 
     // ---- 突飛 ----

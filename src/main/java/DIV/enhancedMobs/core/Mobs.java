@@ -6,6 +6,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -13,6 +14,8 @@ import org.bukkit.util.Vector;
 
 import DIV.enhancedMobs.EnhancedMobs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -61,6 +64,24 @@ public final class Mobs {
         }
         inst.getModifiers().stream().filter(m -> key.equals(m.getKey())).toList().forEach(inst::removeModifier);
         inst.addModifier(new AttributeModifier(key, amount, op));
+    }
+
+    /**
+     * 頭上表示などのパッセンジャー付きでも成立するテレポート。
+     * 素の teleport はパッセンジャーがいると失敗する（TeleportFlag.EntityState は削除予定 API）ため、
+     * いったん降ろして同行テレポートさせ、再搭乗させる。
+     */
+    public static boolean teleport(LivingEntity mob, Location dest) {
+        List<Entity> passengers = new ArrayList<>(mob.getPassengers());
+        passengers.forEach(mob::removePassenger);
+        boolean ok = mob.teleport(dest);
+        for (Entity passenger : passengers) {
+            if (passenger.isValid()) {
+                passenger.teleport(ok ? dest : mob.getLocation());
+                mob.addPassenger(passenger);
+            }
+        }
+        return ok;
     }
 
     public static Player nearestPlayer(LivingEntity mob, double range) {

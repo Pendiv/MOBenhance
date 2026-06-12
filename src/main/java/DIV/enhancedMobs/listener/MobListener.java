@@ -3,6 +3,13 @@ package DIV.enhancedMobs.listener;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.MobData;
+import DIV.enhancedMobs.core.MobTags;
+import DIV.enhancedMobs.trait.gtsolo.SorrowElegyTrait;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeBonePickerTrait;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeChainOfCausalityTrait;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeDiffusionTrait;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeHeroTrait;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeInfiniteRecursionTrait;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
@@ -49,6 +56,8 @@ public final class MobListener implements Listener {
         int level = plugin.difficulty().compute(entity.getLocation());
         level = plugin.mobBonus().apply(entity.getType(), level);
         plugin.initializeMob(entity, level);
+        // 時空の敷衍: 新規スポーンへ確率で時空特性を抽選付与（初期化後に判定）。
+        SpacetimeDiffusionTrait.onMobSpawn(entity);
     }
 
     /**
@@ -57,6 +66,10 @@ public final class MobListener implements Listener {
      */
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
+        // 悲哀の挽歌: 仮死中のエンティティは被弾不可（貫通死は状態を掃除して素通し）。
+        if (SorrowElegyTrait.protectPseudoDead(event)) {
+            return;
+        }
         // STUPEFACTION: マークされたプレイヤーの攻撃は50%で外れる（ミス時は特性発火もなし）。
         if (event instanceof EntityDamageByEntityEvent byEntity
                 && event.getEntity() instanceof LivingEntity victim
@@ -80,6 +93,8 @@ public final class MobListener implements Listener {
                 plugin.traits().onHurtTarget(attacker, target, byEntity);
             }
         }
+        // 悲哀の挽歌: 致死ダメージの仮死化（被害者自身の復活系特性のキャンセルを先に通す）。
+        SorrowElegyTrait.tryPseudoDeath(event);
     }
 
     private LivingEntity resolveAttacker(Entity damager) {
@@ -128,6 +143,10 @@ public final class MobListener implements Listener {
     /** ターゲット設定を被ターゲット側の特性に通知（隠密系の索敵回避用）。 */
     @EventHandler
     public void onTarget(EntityTargetLivingEntityEvent event) {
+        // 悲哀の挽歌: 仮死中のエンティティは新規ターゲットの対象外。
+        if (SorrowElegyTrait.preventTargeting(event)) {
+            return;
+        }
         if (event.getTarget() instanceof LivingEntity target && MobData.of(target).isProcessed()) {
             plugin.traits().onTargeted(target, event);
         }
@@ -138,6 +157,17 @@ public final class MobListener implements Listener {
         LivingEntity entity = event.getEntity();
         if (MobData.of(entity).isProcessed()) {
             plugin.traits().onDeath(entity, event);
+        }
+        // 全死亡連動の時空系グローバルフック（保持者は死者ではなく近隣個体）。
+        SpacetimeBonePickerTrait.onAnyDeath(entity);
+        SpacetimeChainOfCausalityTrait.onAnyDeath(entity);
+        // 時空mobの死を近隣の「時空の英雄」へ通知（覚醒カウント）。
+        if (MobTags.has(entity, "spacetime")) {
+            SpacetimeHeroTrait.onSpacetimeDeath(entity);
+        }
+        // プレイヤーが「無限再帰」のキャリアなら近隣Mobへ再移譲する。
+        if (entity instanceof Player player) {
+            SpacetimeInfiniteRecursionTrait.onCarrierDeath(player);
         }
         plugin.traitDisplay().cleanup(entity);
     }

@@ -352,10 +352,12 @@ public final class ItemEnhancer {
             addBonus(meta, Attribute.ATTACK_DAMAGE, M_ATK,
                     level * 0.1 + r * baseStat(defaults, Attribute.ATTACK_DAMAGE, 1.0), group);
         } else {
+            // 防具性能上昇スキル: 素の防具性能の 20/40/60/120% を加算（無効時 0）
+            double boost = ItemSkills.armorBoostPct(meta, level);
             addBonus(meta, Attribute.ARMOR, M_ARM,
-                    level * 0.25 + r * baseStat(defaults, Attribute.ARMOR, 0.0), group);
+                    level * 0.25 + (r + boost) * baseStat(defaults, Attribute.ARMOR, 0.0), group);
             addBonus(meta, Attribute.ARMOR_TOUGHNESS, M_TUF,
-                    level * 0.1 + r * baseStat(defaults, Attribute.ARMOR_TOUGHNESS, 0.0), group);
+                    level * 0.1 + (r + boost) * baseStat(defaults, Attribute.ARMOR_TOUGHNESS, 0.0), group);
         }
         // 最大体力増加スキル（防具のみ抽選されるが、判定はスキル有無で行う）
         addBonus(meta, Attribute.MAX_HEALTH, M_HP, ItemSkills.healthBonus(meta, level), group);

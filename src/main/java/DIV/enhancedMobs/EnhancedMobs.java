@@ -25,6 +25,7 @@ import DIV.enhancedMobs.listener.FlyingAxeListener;
 import DIV.enhancedMobs.listener.HealListener;
 import DIV.enhancedMobs.listener.ItemBreakGuardListener;
 import DIV.enhancedMobs.listener.ItemXpListener;
+import DIV.enhancedMobs.listener.MiningSkillListener;
 import DIV.enhancedMobs.listener.MobListener;
 import DIV.enhancedMobs.listener.PlayerListener;
 import DIV.enhancedMobs.listener.ProjectileListener;
@@ -38,6 +39,7 @@ import DIV.enhancedMobs.task.FastTick;
 import DIV.enhancedMobs.task.MobTickTask;
 import DIV.enhancedMobs.trait.Trait;
 import DIV.enhancedMobs.trait.TraitService;
+import DIV.enhancedMobs.trait.gtsolo.MediatorFieldTrait;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -94,7 +96,8 @@ public final class EnhancedMobs extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new SwordSkillListener(this), this);
             getServer().getPluginManager().registerEvents(new SpearSkillListener(), this);
             getServer().getPluginManager().registerEvents(new AxeSkillListener(), this);
-            getServer().getPluginManager().registerEvents(new ArmorSkillListener(), this);
+            getServer().getPluginManager().registerEvents(new ArmorSkillListener(this), this);
+            getServer().getPluginManager().registerEvents(new MiningSkillListener(), this);
             // 付加スキルの周期効果（暗視: 5秒ごとに10秒付与）
             getServer().getScheduler().runTaskTimer(this, ItemSkills::tickBonusEffects, 100L, 100L);
         }
@@ -146,6 +149,8 @@ public final class EnhancedMobs extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
+        // 媒介野: 残存する罠ブロックを元のブロックへ一括復元（永続グリーフィング防止）。
+        MediatorFieldTrait.restoreAll();
         if (traitDisplay != null) {
             traitDisplay.removeAll();
         }

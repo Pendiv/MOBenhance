@@ -1,6 +1,7 @@
 package DIV.enhancedMobs.listener;
 
 import DIV.enhancedMobs.core.EntityState;
+import DIV.enhancedMobs.trait.gtsolo.SpacetimeAnnihilationTrait;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityResurrectEvent;
@@ -17,6 +18,11 @@ public final class ResurrectListener implements Listener {
     public void onResurrect(EntityResurrectEvent event) {
         if (EntityState.hasFlag(event.getEntity(), "deny_resurrect")) {
             event.setCancelled(true);
+            return;
+        }
+        if (!event.isCancelled()) {
+            // 蘇生成立（トーテムあり・非キャンセル）→ 時空の消滅の「確殺」覚醒トリガー。
+            SpacetimeAnnihilationTrait.onResurrected(event.getEntity());
         }
     }
 }

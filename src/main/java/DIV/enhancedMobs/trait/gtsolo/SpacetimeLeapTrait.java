@@ -57,7 +57,7 @@ public final class SpacetimeLeapTrait extends Trait {
             }
             target.setYaw(mob.getLocation().getYaw());
             target.setPitch(mob.getLocation().getPitch());
-            mob.teleport(target);
+            Mobs.teleport(mob, target);
             mob.getWorld().spawnParticle(Particle.PORTAL, target.clone().add(0, 1, 0), 32, 0.5, 1.0, 0.5);
             mob.getWorld().playSound(target, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
             return;
