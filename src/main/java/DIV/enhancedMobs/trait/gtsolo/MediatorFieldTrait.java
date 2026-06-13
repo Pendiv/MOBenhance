@@ -17,8 +17,10 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -154,28 +156,37 @@ public final class MediatorFieldTrait extends Trait {
         });
     }
 
-    /** チャンクアンロード時は域内の罠を一括復元する（永続グリーフィング防止）。 */
+    /**
+     * チャンクアンロード時は域内の罠を一括復元する（永続グリーフィング防止）。
+     * 復元の {@code setBlockData} がチャンク処理を再入させて TRAPS を構造変更しうるため、
+     * 対象を先に収集してからマップ操作・ブロック復元を行う（イテレート中の変更で
+     * ConcurrentModificationException を起こさない）。
+     */
     public static void onChunkUnload(ChunkUnloadEvent event) {
         if (TRAPS.isEmpty()) {
             return;
         }
         Chunk chunk = event.getChunk();
-        Iterator<Map.Entry<Location, Trap>> it = TRAPS.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Location, Trap> entry = it.next();
-            Location loc = entry.getKey();
+        List<Location> targets = new ArrayList<>();
+        for (Location loc : TRAPS.keySet()) {
             if (chunk.getWorld().equals(loc.getWorld())
                     && (loc.getBlockX() >> 4) == chunk.getX()
                     && (loc.getBlockZ() >> 4) == chunk.getZ()) {
-                restore(loc, entry.getValue());
-                it.remove();
+                targets.add(loc);
+            }
+        }
+        for (Location loc : targets) {
+            Trap trap = TRAPS.remove(loc);
+            if (trap != null) {
+                restore(loc, trap);
             }
         }
     }
 
     /** プラグイン無効化時に全罠を元のブロックへ復元する（再起動を跨ぐ罠は持たない）。 */
     public static void restoreAll() {
-        for (Map.Entry<Location, Trap> entry : TRAPS.entrySet()) {
+        // restore の setBlockData が再入しても安全なようスナップショットを走査する。
+        for (Map.Entry<Location, Trap> entry : new ArrayList<>(TRAPS.entrySet())) {
             if (entry.getKey().isChunkLoaded()) {
                 restore(entry.getKey(), entry.getValue());
             }
@@ -187,13 +198,15 @@ public final class MediatorFieldTrait extends Trait {
 
     /** 罠数上限の超過時、最古の罠を復元して破棄する。 */
     private static void evictOldest() {
-        Iterator<Map.Entry<Location, Trap>> it = TRAPS.entrySet().iterator();
-        if (it.hasNext()) {
-            Map.Entry<Location, Trap> entry = it.next();
-            if (entry.getKey().isChunkLoaded()) {
-                restore(entry.getKey(), entry.getValue());
-            }
-            it.remove();
+        Iterator<Location> it = TRAPS.keySet().iterator();
+        if (!it.hasNext()) {
+            return;
+        }
+        Location loc = it.next();
+        // ブロック復元（再入の可能性）より先にマップから外す。
+        Trap trap = TRAPS.remove(loc);
+        if (trap != null && loc.isChunkLoaded()) {
+            restore(loc, trap);
         }
     }
 

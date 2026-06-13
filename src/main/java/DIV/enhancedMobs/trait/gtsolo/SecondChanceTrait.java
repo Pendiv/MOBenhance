@@ -33,6 +33,7 @@ public final class SecondChanceTrait extends Trait {
             return;
         }
         EntityState.setFlag(mob, "sc_used", Integer.MAX_VALUE);
+        Mobs.playRevivalEffect(mob);
         // spawnEntity(CUSTOM) は MobListener.onSpawn を通り、レベル・特性が自動で新規抽選される
         Entity revived = mob.getWorld().spawnEntity(mob.getLocation(), EntityType.CREEPER);
         if (revived instanceof LivingEntity living) {

@@ -3,7 +3,6 @@ package DIV.enhancedMobs.trait.gtsolo;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.trait.Trait;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -32,7 +31,7 @@ public final class RejectionUnknownTrait extends Trait {
 
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
-        int now = Bukkit.getCurrentTick();
+        int now = (int) EntityState.gameTime();
         // 種類を問わず最後の被弾から30秒経過していれば適応をリセット。
         Map<String, Integer> counts = now - EntityState.getInt(mob, LAST_HIT_KEY, -1_000_000) > RESET_TICKS
                 ? new HashMap<>()

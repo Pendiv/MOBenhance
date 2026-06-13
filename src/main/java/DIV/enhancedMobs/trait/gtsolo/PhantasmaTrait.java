@@ -2,7 +2,6 @@ package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.trait.Trait;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -26,7 +25,7 @@ public final class PhantasmaTrait extends Trait {
         if (EntityState.getInt(mob, ILLUSION, 0) == 1) {
             return;
         }
-        int now = Bukkit.getCurrentTick();
+        int now = (int) EntityState.gameTime();
         double cd = EntityState.getDouble(mob, CD, -1);
         if (cd < 0) {
             EntityState.setDouble(mob, CD, now); // 初回はCD起点だけ記録
@@ -42,7 +41,7 @@ public final class PhantasmaTrait extends Trait {
         if (!(attacker instanceof Player)) {
             return; // プレイヤー由来のみカウント・無効化
         }
-        int now = Bukkit.getCurrentTick();
+        int now = (int) EntityState.gameTime();
         if (EntityState.getInt(mob, ILLUSION, 0) == 1) {
             event.setCancelled(true); // 1度だけ無効化して消費
             EntityState.setInt(mob, ILLUSION, 0);

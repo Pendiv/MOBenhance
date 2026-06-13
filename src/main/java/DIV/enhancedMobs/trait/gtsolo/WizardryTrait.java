@@ -78,7 +78,7 @@ public final class WizardryTrait extends Trait {
      * @return 発動可なら true（同時に CT を更新する）
      */
     private static boolean tryHit(Player player) {
-        int now = Bukkit.getCurrentTick();
+        int now = (int) EntityState.gameTime();
         if (now < EntityState.getInt(player, "wiz_ct_end", 0)) {
             return false; // 本CT中 → 免疫
         }

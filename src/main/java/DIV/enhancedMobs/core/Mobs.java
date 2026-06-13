@@ -8,6 +8,8 @@ import DIV.attributelib.api.StandardAttributes;
 import DIV.attributelib.api.VanillaAttributes;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
@@ -16,6 +18,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 import DIV.enhancedMobs.EnhancedMobs;
@@ -124,6 +127,29 @@ public final class Mobs {
             }
         }
         return ok;
+    }
+
+    /**
+     * 「一撃」ではなく毎tick削る継続的な環境ダメージか。
+     * 蘇生・即死回避系がこれに反応すると、削りのたびに蘇生して無限ループ（音スパム）になるため除外する。
+     * 能動カスタムダメージ（attributelib のオーラ等）はソースで判別しづらいので、蘇生側のCDで抑える。
+     */
+    public static boolean isEnvironmentalDoT(EntityDamageEvent.DamageCause cause) {
+        return switch (cause) {
+            case FIRE_TICK, LAVA, HOT_FLOOR, FREEZE, WITHER, POISON,
+                    SUFFOCATION, DROWNING, CONTACT, CRAMMING, STARVATION -> true;
+            default -> false;
+        };
+    }
+
+    /**
+     * 不死のトーテム相当の復活演出（金色パーティクル + トーテム使用音）。
+     * 復活系特性（不死・不完全燃焼・終わりなき物語・二度寝・夢に融ける等）の発動時に呼ぶ。
+     */
+    public static void playRevivalEffect(LivingEntity entity) {
+        entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_TOTEM_USE, 1f, 1f);
+        entity.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING,
+                entity.getLocation().add(0, 1, 0), 60, 0.5, 0.8, 0.5, 0.3);
     }
 
     public static Player nearestPlayer(LivingEntity mob, double range) {

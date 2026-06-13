@@ -41,13 +41,10 @@ public final class TrinityLifeTrait extends Trait {
     private static boolean reflecting = false;
 
     private final NamespacedKey resonanceKey;
-    private final NamespacedKey undyingUsedKey;
 
     public TrinityLifeTrait(int cost, int weight, int maxRank, int minLevel) {
         super("trinity_life", "TRINITY", cost, weight, maxRank, minLevel);
         this.resonanceKey = new NamespacedKey(EnhancedMobs.get(), "trait_trinity_resonance");
-        // UndyingTrait の消費フラグと同一キー（新規付与時に未消費へ戻すため）。
-        this.undyingUsedKey = new NamespacedKey(EnhancedMobs.get(), "undying_used");
     }
 
     /** 現在のモード（0=未抽選, 1=物理反射, 2=魔法生態, 3=不死）。 */
@@ -101,8 +98,7 @@ public final class TrinityLifeTrait extends Trait {
                 EntityState.setInt(mob, "trinity_granted_mc", 1);
             }
         } else if (next == 3 && !hasTrait(mob, "undying")) {
-            // 新規付与ぶんは未消費状態で渡す（元から持っていた場合は消費状態も含めて触らない）
-            mob.getPersistentDataContainer().remove(undyingUsedKey);
+            // 不死は回数無制限なので、モード3の間付与するだけでよい（消費フラグ管理は不要）。
             if (plugin.traits().addTrait(mob, "undying", 1)) {
                 EntityState.setInt(mob, "trinity_granted_undying", 1);
             }

@@ -11,6 +11,8 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  * 夜間のみ強化される（Diurnal の対特性）。
@@ -44,6 +46,8 @@ public final class NocturnalTrait extends Trait {
                     AttributeModifier.Operation.ADD_SCALAR);
             Mobs.addModifier(mob, Attribute.MOVEMENT_SPEED, key("nocturnal_spd"), 0.25,
                     AttributeModifier.Operation.ADD_SCALAR);
+            // 夜間に強化中であることを示す青いポーションエフェクト（暗視＝紺色の渦）。
+            mob.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 100, 0, true, true, false));
             double max = Mobs.maxHealth(mob);
             if (mob.getHealth() < max) {
                 // 原典: 毎秒 rank HP 回復（tick間隔換算）。
@@ -53,6 +57,7 @@ public final class NocturnalTrait extends Trait {
         } else {
             removeModifier(mob, Attribute.ATTACK_DAMAGE, key("nocturnal_atk"));
             removeModifier(mob, Attribute.MOVEMENT_SPEED, key("nocturnal_spd"));
+            mob.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }
     }
 

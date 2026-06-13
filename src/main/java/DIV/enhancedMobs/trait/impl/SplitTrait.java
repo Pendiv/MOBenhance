@@ -31,15 +31,30 @@ public final class SplitTrait extends Trait {
         return SPLITTABLE.contains(mob.getType());
     }
 
+    /** 同種の過密上限（分裂は世代連鎖するため、近傍が密ならスキップして指数増殖を防ぐ）。 */
+    private static final int MAX_NEARBY = 12;
+    private static final double NEARBY_RADIUS = 12.0;
+
     @Override
     public void onDeath(LivingEntity mob, int rank, EntityDeathEvent event) {
         int childLevel = MobData.of(mob).getLevel() / 2;
         if (childLevel < 1) {
             return;
         }
-        Location loc = mob.getLocation();
         EntityType type = mob.getType();
-        for (int i = 0; i < copies; i++) {
+        // 近傍の同種数で残枠を決める（過密ならスポーンしない）。
+        int nearby = 0;
+        for (Entity e : mob.getNearbyEntities(NEARBY_RADIUS, NEARBY_RADIUS, NEARBY_RADIUS)) {
+            if (e.getType() == type) {
+                nearby++;
+            }
+        }
+        int budget = Math.min(copies, MAX_NEARBY - nearby);
+        if (budget <= 0) {
+            return;
+        }
+        Location loc = mob.getLocation();
+        for (int i = 0; i < budget; i++) {
             Entity copy = mob.getWorld().spawnEntity(loc, type);
             if (copy instanceof LivingEntity living) {
                 EnhancedMobs.get().initializeMob(living, childLevel);

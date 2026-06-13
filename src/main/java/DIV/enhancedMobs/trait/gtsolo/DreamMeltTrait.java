@@ -70,5 +70,6 @@ public final class DreamMeltTrait extends Trait {
         Mobs.addModifier(mob, Attribute.MAX_HEALTH, new NamespacedKey(plugin, "trait_dream_hp"),
                 bonus, AttributeModifier.Operation.ADD_SCALAR);
         mob.setHealth(Mobs.maxHealth(mob));
+        Mobs.playRevivalEffect(mob);
     }
 }

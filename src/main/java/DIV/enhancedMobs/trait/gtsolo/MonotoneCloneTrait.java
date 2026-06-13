@@ -5,7 +5,6 @@ import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -47,7 +46,7 @@ public final class MonotoneCloneTrait extends Trait {
 
     @Override
     public void tick(LivingEntity mob, int rank) {
-        long now = Bukkit.getCurrentTick();
+        long now = EntityState.gameTime();
         double next = EntityState.getDouble(mob, NEXT_KEY, -1);
         if (next < 0) {
             EntityState.setDouble(mob, NEXT_KEY, now + cdTicks(rank));

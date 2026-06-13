@@ -4,7 +4,6 @@ import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -27,7 +26,7 @@ public final class AudienceEffectTrait extends Trait {
     @Override
     public void initialize(LivingEntity mob, int rank) {
         if (EntityState.getInt(mob, "aud_last", 0) == 0) {
-            EntityState.setInt(mob, "aud_last", Bukkit.getCurrentTick());
+            EntityState.setInt(mob, "aud_last", (int) EntityState.gameTime());
         }
         // 変身引き継ぎ等で既存スタックがある場合は属性を貼り直す。
         int stacks = EntityState.getInt(mob, "aud_stacks", 0);
@@ -38,7 +37,7 @@ public final class AudienceEffectTrait extends Trait {
 
     @Override
     public void tick(LivingEntity mob, int rank) {
-        int now = Bukkit.getCurrentTick();
+        int now = (int) EntityState.gameTime();
         int stacks = EntityState.getInt(mob, "aud_stacks", 0);
 
         if (Mobs.nearestPlayer(mob, RADIUS) != null) {

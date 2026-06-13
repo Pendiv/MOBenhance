@@ -121,16 +121,30 @@ public final class TraitService {
         });
     }
 
+    // いずれかの特性がイベントをキャンセルしたら、以降の特性は被ダメ修飾・反撃を行わない
+    // （パリィ成立後に別特性が setDamage でダメージを復活させる/反撃を飛ばす事故を防ぐ）。
     public void onHurtTarget(LivingEntity mob, LivingEntity target, EntityDamageByEntityEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onHurtTarget(mob, rank, target, event));
+        read(mob).forEach((trait, rank) -> {
+            if (!event.isCancelled()) {
+                trait.onHurtTarget(mob, rank, target, event);
+            }
+        });
     }
 
     public void onAttacked(LivingEntity mob, EntityDamageEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onAttacked(mob, rank, event));
+        read(mob).forEach((trait, rank) -> {
+            if (!event.isCancelled()) {
+                trait.onAttacked(mob, rank, event);
+            }
+        });
     }
 
     public void onAttackedBy(LivingEntity mob, LivingEntity attacker, EntityDamageByEntityEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onAttackedBy(mob, rank, attacker, event));
+        read(mob).forEach((trait, rank) -> {
+            if (!event.isCancelled()) {
+                trait.onAttackedBy(mob, rank, attacker, event);
+            }
+        });
     }
 
     public void tick(LivingEntity mob) {

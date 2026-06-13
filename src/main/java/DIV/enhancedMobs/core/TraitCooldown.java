@@ -1,7 +1,6 @@
 package DIV.enhancedMobs.core;
 
 import DIV.enhancedMobs.EnhancedMobs;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,7 +43,8 @@ public final class TraitCooldown {
         NamespacedKey lastKey = key("ct_" + traitId + "_last");
         NamespacedKey stackKey = key("ct_" + traitId + "_stk");
 
-        long now = Bukkit.getCurrentTick();
+        // 再起動安全な基準クロック（getCurrentTick はサーバー再起動で 0 に戻り CD が破綻する）。
+        long now = EntityState.gameTime();
         Long until = pdc.get(untilKey, PersistentDataType.LONG);
         if (until != null && now < until) {
             return false;

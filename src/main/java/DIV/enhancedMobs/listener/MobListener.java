@@ -10,12 +10,14 @@ import DIV.enhancedMobs.trait.gtsolo.SpacetimeChainOfCausalityTrait;
 import DIV.enhancedMobs.trait.gtsolo.SpacetimeDiffusionTrait;
 import DIV.enhancedMobs.trait.gtsolo.SpacetimeHeroTrait;
 import DIV.enhancedMobs.trait.gtsolo.SpacetimeInfiniteRecursionTrait;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -25,12 +27,32 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /** スポーン・戦闘・死亡イベントをレベリング・特性・ヘッド表示に繋ぐ。 */
 public final class MobListener implements Listener {
 
+    /**
+     * ダメージディスパッチの最大再入深さ。反撃（反射・反撃）やオーラが victim.damage() を
+     * 呼ぶと本ハンドラが再帰的に発火するため、相互反撃する2体が無限ループして
+     * StackOverflow でサーバーが落ちる。この深さを超えたら特性処理を打ち切る
+     * （その層のダメージ自体は通すが、さらなる連鎖反撃・オーラは発火させない）。
+     */
+    private static final int MAX_DISPATCH_DEPTH = 4;
+
+    /** 盾音: 軽減後のベースダメージが元のこの割合以下なら鳴らす。 */
+    private static final double SHIELD_FX_RATIO = 0.5;
+    /** 盾音のクールタイム（tick、2秒）。被弾対象ごと。 */
+    private static final int SHIELD_FX_CD = 40;
+
     private final EnhancedMobs plugin;
+    /** ダメージディスパッチの再入深さ（メインスレッド専用のため非同期化不要）。 */
+    private int dispatchDepth;
+    /** 盾音判定用: 軽減前のベースダメージ（LOWEST で記録 → MONITOR で比較）。 */
+    private final Map<UUID, Double> preReductionDamage = new HashMap<>();
 
     public MobListener(EnhancedMobs plugin) {
         this.plugin = plugin;
@@ -64,7 +86,37 @@ public final class MobListener implements Listener {
      * 全ダメージを特性にディスパッチ。環境ダメージ（炎・落下・奈落等）も onAttacked に届く。
      * by-entity の場合は飛翔体を射手に解決し、onAttackedBy / onHurtTarget も発火する。
      */
-    @EventHandler
+    /** 盾音判定: 軽減が走る前のベースダメージを記録する（全特性・属性軽減より先）。 */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void captureBaseDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof LivingEntity victim && MobData.of(victim).isProcessed()) {
+            preReductionDamage.put(victim.getUniqueId(), event.getDamage());
+        }
+    }
+
+    /**
+     * 盾音演出: 特性・属性による軽減（イベント系も attributelib の DAMAGE_TAKEN も含む）の結果、
+     * ベースダメージが元の50%以下に削られていたら盾で防いだ音を鳴らす（対象ごとに2秒CT）。
+     * 完全ブロック（キャンセル＝ジャストブロック等）は別演出があるため対象外。
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void shieldSoundFeedback(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
+            return;
+        }
+        Double original = preReductionDamage.remove(victim.getUniqueId());
+        if (original == null || original <= 0 || event.isCancelled()) {
+            return;
+        }
+        if (event.getDamage() <= original * SHIELD_FX_RATIO && !EntityState.hasFlag(victim, "shield_fx")) {
+            EntityState.setFlag(victim, "shield_fx", SHIELD_FX_CD);
+            victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.9f);
+        }
+    }
+
+    // ignoreCancelled=true: 既にキャンセル済み（ジャストブロック・パリィ等）の被弾では
+    // 被ダメ修飾・反撃を一切走らせない（パリィしたのに反撃が飛ぶ/ダメージが復活する事故を防ぐ）。
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         // 悲哀の挽歌: 仮死中のエンティティは被弾不可（貫通死は状態を掃除して素通し）。
         if (SorrowElegyTrait.protectPseudoDead(event)) {
@@ -77,21 +129,30 @@ public final class MobListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (event.getEntity() instanceof LivingEntity victim && MobData.of(victim).isProcessed()) {
-            plugin.traits().onAttacked(victim, event);
-            if (event instanceof EntityDamageByEntityEvent byEntity) {
-                LivingEntity attacker = resolveAttacker(byEntity.getDamager());
-                if (attacker != null) {
-                    plugin.traits().onAttackedBy(victim, attacker, byEntity);
+        // 反撃ループの暴走を打ち切る（素のダメージは通し、連鎖反撃・オーラだけ止める）。
+        if (dispatchDepth >= MAX_DISPATCH_DEPTH) {
+            return;
+        }
+        dispatchDepth++;
+        try {
+            if (event.getEntity() instanceof LivingEntity victim && MobData.of(victim).isProcessed()) {
+                plugin.traits().onAttacked(victim, event);
+                if (event instanceof EntityDamageByEntityEvent byEntity) {
+                    LivingEntity attacker = resolveAttacker(byEntity.getDamager());
+                    if (attacker != null) {
+                        plugin.traits().onAttackedBy(victim, attacker, byEntity);
+                    }
                 }
             }
-        }
-        if (event instanceof EntityDamageByEntityEvent byEntity
-                && event.getEntity() instanceof LivingEntity target) {
-            LivingEntity attacker = resolveAttacker(byEntity.getDamager());
-            if (attacker != null && attacker != target && MobData.of(attacker).isProcessed()) {
-                plugin.traits().onHurtTarget(attacker, target, byEntity);
+            if (event instanceof EntityDamageByEntityEvent byEntity
+                    && event.getEntity() instanceof LivingEntity target) {
+                LivingEntity attacker = resolveAttacker(byEntity.getDamager());
+                if (attacker != null && attacker != target && MobData.of(attacker).isProcessed()) {
+                    plugin.traits().onHurtTarget(attacker, target, byEntity);
+                }
             }
+        } finally {
+            dispatchDepth--;
         }
         // 悲哀の挽歌: 致死ダメージの仮死化（被害者自身の復活系特性のキャンセルを先に通す）。
         SorrowElegyTrait.tryPseudoDeath(event);

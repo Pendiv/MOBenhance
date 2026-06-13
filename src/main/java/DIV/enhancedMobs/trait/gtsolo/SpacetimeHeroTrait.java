@@ -5,7 +5,6 @@ import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.MobTags;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -45,7 +44,7 @@ public final class SpacetimeHeroTrait extends Trait {
         MobTags.add(mob, "spacetime");
         // 開始時刻は初回のみ記録（rank昇格などの再initializeで期限を引き延ばさない）。
         if (EntityState.getInt(mob, "hero_start", -1) < 0) {
-            EntityState.setInt(mob, "hero_start", Bukkit.getCurrentTick());
+            EntityState.setInt(mob, "hero_start", (int) EntityState.gameTime());
         }
     }
 
@@ -60,10 +59,10 @@ public final class SpacetimeHeroTrait extends Trait {
         }
         int start = EntityState.getInt(mob, "hero_start", -1);
         if (start < 0) {
-            EntityState.setInt(mob, "hero_start", Bukkit.getCurrentTick());
+            EntityState.setInt(mob, "hero_start", (int) EntityState.gameTime());
             return;
         }
-        if (Bukkit.getCurrentTick() - start > DEADLINE_TICKS) {
+        if ((int) EntityState.gameTime() - start > DEADLINE_TICKS) {
             // 期限切れ: 特性そのものが消滅する。
             EnhancedMobs.get().traits().stripTrait(mob, id());
         }

@@ -18,8 +18,17 @@ public final class EndlessTaleTrait extends Trait {
         super("endless_tale", "ENDLESS", cost, weight, maxRank, minLevel);
     }
 
+    /** 蘇生CD（tick）。オーラ等の毎tickダメージで蘇生スパムするのを防ぐ。 */
+    private static final int REVIVE_CD = 100;
+
     @Override
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        // 無敵貫通（/kill・奈落）と継続的な環境ダメージは対象外。直近に蘇生していたら再発火しない。
+        if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.VOID
+                || Mobs.isEnvironmentalDoT(cause) || EntityState.hasFlag(mob, "revive_cd")) {
+            return;
+        }
         if (mob.getHealth() - event.getFinalDamage() > 0) {
             return;
         }
@@ -29,6 +38,8 @@ public final class EndlessTaleTrait extends Trait {
         }
         event.setCancelled(true);
         mob.setHealth(Mobs.maxHealth(mob));
+        EntityState.setFlag(mob, "revive_cd", REVIVE_CD);
+        Mobs.playRevivalEffect(mob);
         // 減衰は成功時のみ（原典: currentChance = c×0.8 − 0.05）
         EntityState.setDouble(mob, "et_chance", chance * 0.8 - 0.05);
     }

@@ -117,6 +117,15 @@ public final class AnvilListener implements Listener {
                 case ALREADY -> msg(player, "既に付与済みです", NamedTextColor.RED);
                 case NOT_APPLICABLE -> msg(player, "このアイテムには付与できません", NamedTextColor.RED);
             }
+        } else if (held.getType() == Material.NETHER_STAR) {
+            if (ItemSkills.rerollSkill(placed)) {
+                display.setItemStack(placed);
+                consumeOne(player);
+                msg(player, "スキルを再抽選しました：" + ItemSkills.skillDisplayName(ItemSkills.skillId(placed)),
+                        NamedTextColor.GOLD);
+            } else {
+                msg(player, "再抽選できるスキルがありません（Lv10以上で抽選済みの装備が必要）", NamedTextColor.RED);
+            }
         } else if (repairOnly) {
             msg(player, "このアイテムは耐久回復のみ対応です（修理素材を持って右クリック）", NamedTextColor.RED);
         } else if (held.getType() == Material.MACE

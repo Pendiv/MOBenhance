@@ -11,6 +11,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.LivingEntity;
@@ -157,10 +158,10 @@ public final class FlyingAxeListener implements Listener {
                     new Quaternionf()));
         }
 
-        /** 最初に触れた生物1体へ投擲者起点のダメージを与える。 */
+        /** 最初に触れた敵対モブ1体へ投擲者起点のダメージを与える（ペット・プレイヤー・友好mobは巻き込まない）。 */
         private boolean hitEntity() {
             for (Entity entity : pos.getWorld().getNearbyEntities(pos, 0.7, 0.7, 0.7)) {
-                if (entity instanceof LivingEntity living && entity != thrower && !(entity instanceof ArmorStand)) {
+                if (entity instanceof Enemy && entity instanceof LivingEntity living && entity != thrower) {
                     living.damage(damage, thrower);
                     pos.getWorld().playSound(pos, Sound.ITEM_TRIDENT_HIT, 1f, 1f);
                     return true;

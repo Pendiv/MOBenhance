@@ -4,7 +4,10 @@ import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
@@ -42,8 +45,13 @@ public final class BushidoSpiritTrait extends Trait {
         EnhancedMobs.get().traits().addTrait(mob, "innocence_battle", rank);
     }
 
+    /** 一騎打ち空間の演出: 魂の松明エフェクトを 15° ごと（24点）の円形で本体に追従配置。 */
+    private static final double RING_RADIUS = 2.5;
+
     @Override
     public void tick(LivingEntity mob, int rank) {
+        // 一騎打ちの結界を魂の炎リングで可視化（tick ごとに本体位置へ追従）。
+        emitSoulRing(mob);
         // 一騎打ち空間: 2 秒（40t）ごとに周囲32の他 Mob を消去。
         // 原典の MASTER minion 除外は相当概念が無いためボス除外のみ（残差）。
         if (EntityState.hasFlag(mob, "bushido_purge")) {
@@ -54,6 +62,17 @@ public final class BushidoSpiritTrait extends Trait {
             if (entity instanceof Mob other && !Mobs.isBoss(other.getType())) {
                 other.remove();
             }
+        }
+    }
+
+    private static void emitSoulRing(LivingEntity mob) {
+        World world = mob.getWorld();
+        Location c = mob.getLocation();
+        for (int deg = 0; deg < 360; deg += 15) {
+            double a = Math.toRadians(deg);
+            world.spawnParticle(Particle.SOUL_FIRE_FLAME,
+                    c.getX() + Math.cos(a) * RING_RADIUS, c.getY() + 0.2, c.getZ() + Math.sin(a) * RING_RADIUS,
+                    1, 0, 0, 0, 0);
         }
     }
 

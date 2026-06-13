@@ -159,6 +159,12 @@ public final class ItemSkills {
         if (level < ROLL_LEVEL || pdc.has(SKILL, PersistentDataType.STRING)) {
             return;
         }
+        List<String> pool = skillPool(item);
+        pdc.set(SKILL, PersistentDataType.STRING, pool.get(ThreadLocalRandom.current().nextInt(pool.size())));
+    }
+
+    /** そのアイテムの分別（種別/カテゴリ）に応じた抽選プール。 */
+    private static List<String> skillPool(ItemStack item) {
         List<String> pool = new ArrayList<>();
         pool.add(SKILL_DURABILITY);
         String n = item.getType().name();
@@ -188,7 +194,42 @@ public final class ItemSkills {
             pool.add(SKILL_LION_HEART); // チェストプレート限定
             pool.add(SKILL_SET_BONUS);
         }
+        return pool;
+    }
+
+    /**
+     * スキルの再抽選（金床で要求アイテムを消費して発動）。自身の分別のプールから
+     * 現在のスキルを除いて1つ抽選し直す。プールに他候補が無ければ false（消費させない）。
+     * 耐久強化から離れる場合は耐久エンチャを素レベルへ戻す。
+     */
+    public static boolean rerollSkill(ItemStack item) {
+        if (!ItemEnhancer.isEnhanceable(item)) {
+            return false;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        String current = pdc.get(SKILL, PersistentDataType.STRING);
+        if (current == null) {
+            return false; // 未抽選（Lv10未満）は再抽選の対象外
+        }
+        List<String> pool = skillPool(item);
+        pool.remove(current); // 自身を除外
+        if (pool.isEmpty()) {
+            return false; // 他に引けるスキルが無い（道具で耐久のみ等）
+        }
+        // 耐久強化を抜ける場合、保存していた素の耐久エンチャレベルへ戻す。
+        Integer unbrBase = pdc.get(UNBR_BASE, PersistentDataType.INTEGER);
+        if (unbrBase != null) {
+            meta.addEnchant(Enchantment.UNBREAKING, unbrBase, true);
+            pdc.remove(UNBR_BASE);
+        }
         pdc.set(SKILL, PersistentDataType.STRING, pool.get(ThreadLocalRandom.current().nextInt(pool.size())));
+        ItemEnhancer.rebuild(item, meta);
+        item.setItemMeta(meta);
+        return true;
     }
 
     /** 強化段階: -1=未抽選または Lv30 未満（無効）、0=有効（未強化）、1〜3=強化回数。 */

@@ -19,15 +19,29 @@ public final class EntityState {
         return new NamespacedKey(EnhancedMobs.get(), name);
     }
 
+    /**
+     * サーバー全体で単調増加する基準クロック（プライマリワールドの gameTime）。
+     * {@code Bukkit.getCurrentTick()} はサーバー再起動で 0 に戻るため、PDC に保存する
+     * 期限値の基準には使えない（再起動後に CD が数時間スタックしたり、使い切りフラグが
+     * 復活する）。gameTime は level.dat に永続し、/time set でも巻き戻らない。
+     */
+    public static long gameTime() {
+        return Bukkit.getWorlds().get(0).getGameTime();
+    }
+
+    private static long now() {
+        return gameTime();
+    }
+
     /** 指定 tick 間アクティブなフラグをセット（クールダウンとしても利用）。 */
     public static void setFlag(PersistentDataHolder holder, String name, int durationTicks) {
         holder.getPersistentDataContainer().set(key(name), PersistentDataType.LONG,
-                (long) Bukkit.getCurrentTick() + durationTicks);
+                now() + durationTicks);
     }
 
     public static boolean hasFlag(PersistentDataHolder holder, String name) {
         Long until = holder.getPersistentDataContainer().get(key(name), PersistentDataType.LONG);
-        return until != null && Bukkit.getCurrentTick() < until;
+        return until != null && now() < until;
     }
 
     public static double getDouble(PersistentDataHolder holder, String name, double def) {

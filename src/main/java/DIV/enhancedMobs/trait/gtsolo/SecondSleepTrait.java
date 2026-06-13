@@ -29,6 +29,7 @@ public final class SecondSleepTrait extends Trait {
         }
         event.setCancelled(true);
         mob.setHealth(Mobs.maxHealth(mob));
+        Mobs.playRevivalEffect(mob);
         int delay = DELAY_MIN + ThreadLocalRandom.current().nextInt(DELAY_MAX - DELAY_MIN + 1);
         mob.setInvulnerable(true);
         EntityState.setFlag(mob, "ss_sleep", delay);
