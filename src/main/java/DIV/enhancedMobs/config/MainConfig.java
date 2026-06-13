@@ -1,7 +1,11 @@
 package DIV.enhancedMobs.config;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.item.ItemSkills;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /** 有効化時に一度だけ読み込む config.yml の値のスナップショット。 */
 public final class MainConfig {
@@ -39,6 +43,9 @@ public final class MainConfig {
     public final boolean headEnabled;
     public final double headViewDistance;
 
+    /** config の skills.* で無効化されたレベリングスキル id。抽選も発動も行われない。 */
+    private final Set<String> disabledSkills;
+
     public MainConfig(EnhancedMobs plugin) {
         FileConfiguration c = plugin.getConfig();
         this.levelingEnabled = c.getBoolean("leveling.enabled", true);
@@ -69,5 +76,26 @@ public final class MainConfig {
         this.glowStrongLevel = c.getInt("display.glow.strong-level", 100);
         this.headEnabled = c.getBoolean("display.head.enabled", true);
         this.headViewDistance = c.getDouble("display.head.view-distance", 32.0);
+        this.disabledSkills = loadDisabledSkills(c);
+    }
+
+    /**
+     * skills.&lt;id&gt; を読み、無効化されたスキル id の集合を作る。
+     * 既定は全て有効。範囲破壊(area_break)のみ既定で無効。
+     */
+    private static Set<String> loadDisabledSkills(FileConfiguration c) {
+        Set<String> disabled = new HashSet<>();
+        for (String id : ItemSkills.SKILL_IDS) {
+            boolean defaultEnabled = !id.equals(ItemSkills.SKILL_AREA_BREAK);
+            if (!c.getBoolean("skills." + id, defaultEnabled)) {
+                disabled.add(id);
+            }
+        }
+        return Set.copyOf(disabled);
+    }
+
+    /** レベリングスキルが config で有効か（抽選・発動の可否）。 */
+    public boolean skillEnabled(String id) {
+        return !disabledSkills.contains(id);
     }
 }

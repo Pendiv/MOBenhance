@@ -117,7 +117,7 @@ public final class AnvilListener implements Listener {
                 case ALREADY -> msg(player, "既に付与済みです", NamedTextColor.RED);
                 case NOT_APPLICABLE -> msg(player, "このアイテムには付与できません", NamedTextColor.RED);
             }
-        } else if (held.getType() == Material.NETHER_STAR) {
+        } else if (held.getType() == Material.WITHER_SKELETON_SKULL) {
             if (ItemSkills.rerollSkill(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
@@ -125,6 +125,15 @@ public final class AnvilListener implements Listener {
                         NamedTextColor.GOLD);
             } else {
                 msg(player, "再抽選できるスキルがありません（Lv10以上で抽選済みの装備が必要）", NamedTextColor.RED);
+            }
+        } else if (held.getType() == Material.DRAGON_HEAD) {
+            // ドラゴンの頭: ツール限定で即座にレベル・精錬MAX。
+            if (ItemEnhancer.category(placed) == ItemEnhancer.Category.TOOL && ItemEnhancer.maxOut(placed)) {
+                display.setItemStack(placed);
+                consumeOne(player);
+                msg(player, "ツールをレベル・精錬MAXにしました", NamedTextColor.LIGHT_PURPLE);
+            } else {
+                msg(player, "ドラゴンの頭はツール（ツルハシ/シャベル/斧）にのみ使えます", NamedTextColor.RED);
             }
         } else if (repairOnly) {
             msg(player, "このアイテムは耐久回復のみ対応です（修理素材を持って右クリック）", NamedTextColor.RED);

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:end_city",
+  "biomes": [
+    "enhancedmobs:ameijia_wastes",
+    "enhancedmobs:ameijia_deep_dark"
+  ],
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

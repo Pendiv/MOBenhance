@@ -47,6 +47,32 @@ traits:
   # Absolute trait rank ceiling. Traits roll up to their own max-rank, capped here.
   global-max-rank: 5
 
+skills:
+  # On/off switch per leveling skill. A disabled skill is never rolled (or rerolled into),
+  # and any item that already has it shows "（無効化中）" and its effect does nothing.
+  # Default: every skill on EXCEPT area_break (範囲破壊).
+  durability: true        # 耐久強化  (全装備)
+  flying: true            # 飛翔      (斧)
+  all_in: true            # オールイン (斧)
+  takenoko: true          # たけのこ魔法 (斧)
+  asahi_mourning: true    # 旭の弔い   (斧)
+  valor: true             # 勇猛果敢   (剣)
+  dash: true              # 突飛      (剣)
+  energy_absorb: true     # エネルギー吸収 (剣)
+  hero_hymn: true         # 朽ちた英雄の賛歌 (剣)
+  charge_relief: true     # 突進軽減   (槍)
+  spear_throw: true       # 投擲      (槍)
+  fast_mining: true       # 高速採掘   (ピッケル)
+  area_break: false       # 範囲破壊   (ピッケル) ← 既定でオフ
+  great_luck: true        # 豪運      (ピッケル)
+  max_health: true        # 最大体力増加 (防具)
+  just_block: true        # ジャストブロック (防具)
+  debuff_immunity: true   # デバフ免疫  (防具)
+  armor_boost: true       # 防具性能上昇 (防具)
+  past_gift: true         # 過去からの贈り物 (防具)
+  lion_heart: true        # 獅子の心臓  (チェストプレート)
+  set_bonus: true         # セット商法  (チェストプレート)
+
 logging:
   # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Spammy; testing only.
   traited-spawns: false

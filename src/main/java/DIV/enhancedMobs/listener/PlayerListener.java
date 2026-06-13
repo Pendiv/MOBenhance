@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.listener;
 
+import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.PlayerData;
 import DIV.enhancedMobs.trait.gtsolo.FamineTrait;
 import DIV.enhancedMobs.trait.gtsolo.MediatorFieldTrait;
@@ -30,6 +31,8 @@ public final class PlayerListener implements Listener {
         mark(event.getPlayer());
         // 天を焼く焔: 燃えたまま再ログインしたプレイヤーの焼印を再開する。
         SkyScorchingFlameTrait.resumeMark(event.getPlayer());
+        // 追加レシピをレシピブックに解禁する。
+        event.getPlayer().discoverRecipe(EnhancedMobs.elytraRecipeKey());
     }
 
     /** 天を焼く焔: 焼印中プレイヤーの炎上ダメージに現在体力比例の追撃を加算する。 */

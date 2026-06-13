@@ -27,6 +27,11 @@ dimensions:
     enabled: true
     multiply: 1.0
     add: 0
+  # カスタムディメンション「アメイジア」: 高難度の終盤ディメンション。
+  "enhancedmobs:ameijia":
+    enabled: true
+    multiply: 1.35   # レベル35%増し
+    add: 75          # さらに +75 レベル
 
 # Traits listed here never roll anywhere -- a kill-switch for problem traits.
 # Use the trait ids (see trait_names.yml for the full list).

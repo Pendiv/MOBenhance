@@ -1,0 +1,15 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 10387314,
+    "separation": 9,
+    "spacing": 18,
+    "spread_type": "triangular"
+  },
+  "structures": [
+    {
+      "structure": "enhancedmobs:end_city",
+      "weight": 1
+    }
+  ]
+}

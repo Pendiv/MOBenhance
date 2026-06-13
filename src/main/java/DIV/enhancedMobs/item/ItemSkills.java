@@ -43,10 +43,18 @@ public final class ItemSkills {
         return new NamespacedKey(EnhancedMobs.get(), name);
     }
 
+    /** config の skills.&lt;id&gt; で有効化されているか。プラグイン未初期化時はフェイルオープン（有効扱い）。 */
+    private static boolean enabled(String id) {
+        EnhancedMobs plugin = EnhancedMobs.get();
+        return plugin == null || plugin.mainConfig() == null || plugin.mainConfig().skillEnabled(id);
+    }
+
     /** 抽選で決まったレベリングスキルの id。 */
     public static final NamespacedKey SKILL = k("item_skill");
     /** 耐久強化: スキル適用前の素の耐久エンチャレベル（冪等な再適用のため保存）。 */
     public static final NamespacedKey UNBR_BASE = k("item_skill_unbr_base");
+    /** 豪運: スキル適用前の素の幸運エンチャレベル（冪等な再適用のため保存）。 */
+    public static final NamespacedKey LUCK_BASE = k("item_skill_luck_base");
     /** 付加スキル id のカンマ区切りリスト。 */
     public static final NamespacedKey BONUS = k("item_bonus_skills");
 
@@ -71,6 +79,10 @@ public final class ItemSkills {
     public static final String SKILL_PAST_GIFT = "past_gift";
     public static final String SKILL_HERO_HYMN = "hero_hymn";
     public static final String SKILL_ASAHI = "asahi_mourning";
+    public static final String SKILL_THROW = "spear_throw";
+    public static final String SKILL_FAST_MINING = "fast_mining";
+    public static final String SKILL_AREA_BREAK = "area_break";
+    public static final String SKILL_LUCK = "great_luck";
     private static final String BONUS_NIGHT_VISION = "night_vision";
     public static final String BONUS_AUTO_MACE = "auto_mace";
     public static final String BONUS_ATTACK_LINGER = "attack_linger";
@@ -81,7 +93,8 @@ public final class ItemSkills {
             SKILL_DURABILITY, SKILL_FLYING, SKILL_HEALTH, SKILL_CHARGE, SKILL_VALOR, SKILL_DASH,
             SKILL_ALL_IN, SKILL_JUST_BLOCK, SKILL_TAKENOKO, SKILL_ENERGY_ABSORB,
             SKILL_DEBUFF_IMMUNITY, SKILL_ARMOR_BOOST, SKILL_LION_HEART, SKILL_SET_BONUS,
-            SKILL_PAST_GIFT, SKILL_HERO_HYMN, SKILL_ASAHI);
+            SKILL_PAST_GIFT, SKILL_HERO_HYMN, SKILL_ASAHI,
+            SKILL_THROW, SKILL_FAST_MINING, SKILL_AREA_BREAK, SKILL_LUCK);
 
     /** 強化段階ごとの耐久上限倍率（未強化/+1/+2/+3）。 */
     private static final double[] DURA_MULT = {1.2, 1.4, 1.6, 2.2};
@@ -143,6 +156,18 @@ public final class ItemSkills {
     public static final double[] ASAHI_FIRE_VULN = {0.20, 0.30, 0.50, 0.70};
     /** 旭の弔い: 攻撃時の着火時間（tick、火属性化）。 */
     public static final int ASAHI_IGNITE_TICKS = 80;
+    /** 投擲（槍）: 段階ごとのクールタイム（秒）。 */
+    public static final int[] THROW_COOLDOWN_SEC = {10, 9, 8, 3};
+    /** 投擲（槍）: 段階ごとの飛翔初速（blocks/tick）。速いほどダメージも上がる。 */
+    public static final double[] THROW_SPEED = {1.6, 2.0, 2.5, 3.5};
+    /** 高速採掘: 段階ごとの採掘効率加算（mining_efficiency）。 */
+    static final double[] FAST_MINING_BONUS = {4.5, 9, 13.5, 90};
+    /** 範囲破壊: 段階ごとのクールタイム（秒）。 */
+    public static final int[] AREA_BREAK_COOLDOWN_SEC = {6, 7, 8, 12};
+    /** 範囲破壊: 段階ごとの立方体の一辺（ブロック）。 */
+    public static final int[] AREA_BREAK_SIZE = {3, 5, 7, 13};
+    /** 豪運: 段階ごとの幸運エンチャレベル。 */
+    private static final int[] LUCK_LEVELS = {2, 3, 4, 8};
     /** 一括破壊: 段階ごとの連鎖範囲（起点からのチェビシェフ距離）。 */
     public static final int[] BULK_RANGE = {1, 1, 2, 2};
     /** 一括破壊: 1回の発動で破壊できるブロック総数（起点含む）。 */
@@ -160,6 +185,9 @@ public final class ItemSkills {
             return;
         }
         List<String> pool = skillPool(item);
+        if (pool.isEmpty()) {
+            return; // 全スキルが config で無効など、引ける候補が無い
+        }
         pdc.set(SKILL, PersistentDataType.STRING, pool.get(ThreadLocalRandom.current().nextInt(pool.size())));
     }
 
@@ -182,6 +210,12 @@ public final class ItemSkills {
         }
         if (n.endsWith("SPEAR")) {
             pool.add(SKILL_CHARGE); // 槍限定
+            pool.add(SKILL_THROW);
+        }
+        if (n.endsWith("_PICKAXE")) {
+            pool.add(SKILL_FAST_MINING); // ピッケル限定
+            pool.add(SKILL_AREA_BREAK);
+            pool.add(SKILL_LUCK);
         }
         if (ItemEnhancer.category(item) == ItemEnhancer.Category.ARMOR) {
             pool.add(SKILL_HEALTH); // 防具限定
@@ -194,6 +228,7 @@ public final class ItemSkills {
             pool.add(SKILL_LION_HEART); // チェストプレート限定
             pool.add(SKILL_SET_BONUS);
         }
+        pool.removeIf(id -> !enabled(id)); // config で無効化されたスキルは抽選対象外
         return pool;
     }
 
@@ -220,21 +255,18 @@ public final class ItemSkills {
         if (pool.isEmpty()) {
             return false; // 他に引けるスキルが無い（道具で耐久のみ等）
         }
-        // 耐久強化を抜ける場合、保存していた素の耐久エンチャレベルへ戻す。
-        Integer unbrBase = pdc.get(UNBR_BASE, PersistentDataType.INTEGER);
-        if (unbrBase != null) {
-            meta.addEnchant(Enchantment.UNBREAKING, unbrBase, true);
-            pdc.remove(UNBR_BASE);
-        }
+        // 耐久強化・豪運を抜ける場合、付け替えたエンチャを素レベルへ戻す。
+        restoreSkillEnchants(meta, pdc);
         pdc.set(SKILL, PersistentDataType.STRING, pool.get(ThreadLocalRandom.current().nextInt(pool.size())));
         ItemEnhancer.rebuild(item, meta);
         item.setItemMeta(meta);
         return true;
     }
 
-    /** 強化段階: -1=未抽選または Lv30 未満（無効）、0=有効（未強化）、1〜3=強化回数。 */
+    /** 強化段階: -1=未抽選/Lv30未満/config無効（いずれも無効）、0=有効（未強化）、1〜3=強化回数。 */
     static int stage(PersistentDataContainer pdc, int level) {
-        if (!pdc.has(SKILL, PersistentDataType.STRING) || level < ACTIVE_LEVEL) {
+        String id = pdc.get(SKILL, PersistentDataType.STRING);
+        if (id == null || level < ACTIVE_LEVEL || !enabled(id)) {
             return -1;
         }
         int s = 0;
@@ -281,6 +313,11 @@ public final class ItemSkills {
         List<Component> lines = new ArrayList<>();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         String id = pdc.get(SKILL, PersistentDataType.STRING);
+        if (id != null && !enabled(id)) {
+            // config で無効化中。付与済みでも発動しないことを明示する。
+            lines.add(Component.text("スキル: " + skillName(id) + "（無効化中）", NamedTextColor.DARK_GRAY));
+            id = null; // 説明文は出さない
+        }
         if (id != null) {
             int s = stage(pdc, level);
             if (s < 0) {
@@ -363,6 +400,16 @@ public final class ItemSkills {
                     String.format("攻撃が火属性になる（%.0f秒着火）", ASAHI_IGNITE_TICKS / 20.0),
                     String.format("燃えている対象は受ける炎ダメージ +%.0f%%、", ASAHI_FIRE_VULN[s] * 100),
                     "回復効果を受けられない（不死の蘇生も失敗）");
+            case SKILL_THROW -> List.of(
+                    "右クリックで仮想の槍を前方へ投げる（魔法ダメージ）",
+                    String.format("速いほど高威力（初速 %.1f / CT %d秒）", THROW_SPEED[s], THROW_COOLDOWN_SEC[s]));
+            case SKILL_FAST_MINING -> List.of(
+                    String.format("採掘速度（採掘効率）+%.1f", FAST_MINING_BONUS[s]));
+            case SKILL_AREA_BREAK -> List.of(
+                    String.format("右クリックで視線先を %dx%dx%d 一括破壊", AREA_BREAK_SIZE[s], AREA_BREAK_SIZE[s], AREA_BREAK_SIZE[s]),
+                    String.format("巨大ピッケルを振り下ろす（CT %d秒）", AREA_BREAK_COOLDOWN_SEC[s]));
+            case SKILL_LUCK -> List.of(
+                    "幸運エンチャント Lv" + LUCK_LEVELS[s] + " を付与する");
             default -> List.of();
         };
     }
@@ -408,6 +455,10 @@ public final class ItemSkills {
             case SKILL_PAST_GIFT -> "過去からの贈り物";
             case SKILL_HERO_HYMN -> "朽ちた英雄の賛歌";
             case SKILL_ASAHI -> "旭の弔い";
+            case SKILL_THROW -> "投擲";
+            case SKILL_FAST_MINING -> "高速採掘";
+            case SKILL_AREA_BREAK -> "範囲破壊";
+            case SKILL_LUCK -> "豪運";
             default -> id;
         };
     }
@@ -445,6 +496,48 @@ public final class ItemSkills {
         return s < 0 ? 0 : ARMOR_BOOST_PCT[s];
     }
 
+    /** 高速採掘スキルによる採掘効率加算（無効時は 0）。ItemEnhancer.applyStats から呼ばれる。 */
+    static double fastMiningBonus(ItemMeta meta, int level) {
+        int s = activeStageOf(meta, level, SKILL_FAST_MINING);
+        return s < 0 ? 0 : FAST_MINING_BONUS[s];
+    }
+
+    /**
+     * 豪運スキル: 幸運エンチャントを段階レベル（2/3/4/8）へ引き上げる。
+     * 素レベルは初回適用時に PDC へ保存し、再適用（rebuild）で累積しないようにする。
+     */
+    static void applyFortune(ItemMeta meta, int level) {
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        int s = activeStageOf(meta, level, SKILL_LUCK);
+        if (s < 0) {
+            return;
+        }
+        Integer base = pdc.get(LUCK_BASE, PersistentDataType.INTEGER);
+        if (base == null) {
+            base = meta.getEnchantLevel(Enchantment.FORTUNE); // 素レベル（無ければ0）を保存
+            pdc.set(LUCK_BASE, PersistentDataType.INTEGER, base);
+        }
+        meta.addEnchant(Enchantment.FORTUNE, Math.max(base, LUCK_LEVELS[s]), true);
+    }
+
+    /** スキル変更時、耐久強化/豪運が付け替えたエンチャを素レベルへ戻す。 */
+    private static void restoreSkillEnchants(ItemMeta meta, PersistentDataContainer pdc) {
+        Integer unbrBase = pdc.get(UNBR_BASE, PersistentDataType.INTEGER);
+        if (unbrBase != null) {
+            meta.addEnchant(Enchantment.UNBREAKING, unbrBase, true);
+            pdc.remove(UNBR_BASE);
+        }
+        Integer luckBase = pdc.get(LUCK_BASE, PersistentDataType.INTEGER);
+        if (luckBase != null) {
+            if (luckBase > 0) {
+                meta.addEnchant(Enchantment.FORTUNE, luckBase, true);
+            } else {
+                meta.removeEnchant(Enchantment.FORTUNE);
+            }
+            pdc.remove(LUCK_BASE);
+        }
+    }
+
     // ---- 外部 API（リスナー・コマンド用） ----
 
     /** アイテムのレベリングスキル id（未抽選なら null）。 */
@@ -474,16 +567,15 @@ public final class ItemSkills {
         if (!ItemEnhancer.isEnhanceable(item) || (!"none".equals(id) && !SKILL_IDS.contains(id))) {
             return false;
         }
+        if (!"none".equals(id) && !enabled(id)) {
+            return false; // config で無効化されたスキルは設定不可（先に config で有効化する）
+        }
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             return false;
         }
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
-        Integer unbrBase = pdc.get(UNBR_BASE, PersistentDataType.INTEGER);
-        if (unbrBase != null) {
-            meta.addEnchant(Enchantment.UNBREAKING, unbrBase, true);
-            pdc.remove(UNBR_BASE);
-        }
+        restoreSkillEnchants(meta, pdc);
         if ("none".equals(id)) {
             pdc.remove(SKILL);
         } else {

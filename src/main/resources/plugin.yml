@@ -8,22 +8,10 @@ load: POSTWORLD
 depend: [attributelib]
 
 commands:
-  difficultyset:
-    description: View or manage EnhancedMobs difficulty.
-    usage: /difficultyset <get|set|add|reset> [target] [count]
-  emdebug:
-    description: Toggle the EnhancedMobs debug readout (shown on hit).
-    usage: /emdebug
-  cg:
-    description: Change game mode (self toggle, or target + mode).
-    usage: /cg [target] [gamemode]
-  traithelp:
-    description: Look up trait descriptions and appearance levels.
-    usage: /traithelp [sort [min N] [max N] | <id|"name">]
-  levelingskill:
-    description: Manipulate the held item's enhancement level / skill (OP debug).
-    usage: /levelingskill <targets> <lvl|skill|skill_lvl> <value>
-    permission: enhancedmobs.levelingskill
+  emob:
+    description: EnhancedMobs unified command (difficulty / gamemode / trait / skill / debug).
+    usage: /emob <difficulty|gamemode|trait|skill|dimension|debug> ...
+    aliases: [em]
 
 permissions:
   enhancedmobs.difficulty.get:
@@ -43,4 +31,7 @@ permissions:
     default: true
   enhancedmobs.levelingskill:
     description: Manipulate held item enhancement level / skill.
+    default: op
+  enhancedmobs.dimension:
+    description: Load and teleport to custom dimensions.
     default: op

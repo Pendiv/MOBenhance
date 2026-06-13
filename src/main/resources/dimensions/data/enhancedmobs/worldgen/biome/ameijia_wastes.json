@@ -1,0 +1,112 @@
+{
+  "attributes": {
+    "minecraft:visual/sky_color": "#b346ae",
+    "minecraft:visual/fog_color": "#a03a25"
+  },
+  "carvers": [
+    "enhancedmobs:cave_dense",
+    "enhancedmobs:cave_extra_dense",
+    "enhancedmobs:canyon_dense"
+  ],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#3f76e4",
+    "water_fog_color": "#050533"
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:ore_iron_upper",
+      "minecraft:ore_iron_middle",
+      "minecraft:ore_iron_small",
+      "minecraft:ore_copper",
+      "minecraft:ore_gold",
+      "minecraft:ore_gold_lower",
+      "minecraft:ore_redstone",
+      "minecraft:ore_redstone_lower",
+      "minecraft:ore_lapis",
+      "minecraft:ore_lapis_buried",
+      "minecraft:ore_diamond",
+      "minecraft:ore_diamond_medium",
+      "minecraft:ore_diamond_large",
+      "minecraft:ore_diamond_buried",
+      "minecraft:ore_emerald",
+      "enhancedmobs:ore_iron_block",
+      "enhancedmobs:ore_gold_block",
+      "enhancedmobs:ore_diamond_block",
+      "enhancedmobs:ore_emerald_block",
+      "enhancedmobs:ore_ancient_debris"
+    ],
+    [],
+    [],
+    [],
+    []
+  ],
+  "has_precipitation": false,
+  "spawn_costs": {},
+  "spawners": {
+    "ambient": [],
+    "axolotls": [],
+    "creature": [],
+    "misc": [],
+    "monster": [
+      {
+        "type": "minecraft:spider",
+        "minCount": 4,
+        "maxCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "minecraft:zombie",
+        "minCount": 4,
+        "maxCount": 4,
+        "weight": 95
+      },
+      {
+        "type": "minecraft:zombie_villager",
+        "minCount": 1,
+        "maxCount": 1,
+        "weight": 5
+      },
+      {
+        "type": "minecraft:skeleton",
+        "minCount": 4,
+        "maxCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "minecraft:creeper",
+        "minCount": 4,
+        "maxCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "minecraft:slime",
+        "minCount": 4,
+        "maxCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "minecraft:enderman",
+        "minCount": 1,
+        "maxCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:witch",
+        "minCount": 1,
+        "maxCount": 1,
+        "weight": 5
+      }
+    ],
+    "underground_water_creature": [],
+    "water_ambient": [],
+    "water_creature": []
+  },
+  "temperature": 2.0
+}

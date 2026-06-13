@@ -59,6 +59,14 @@ public final class ItemEnhancer {
     private static final NamespacedKey M_ARM = k("ench_arm");
     private static final NamespacedKey M_TUF = k("ench_tuf");
     private static final NamespacedKey M_HP = k("skill_hp");
+    private static final NamespacedKey M_MINE = k("ench_mine");
+    /**
+     * 採掘系のレベルあたり採掘効率（mining_efficiency 属性への加算）。即時化は 採掘速度 ≥ 硬度×30
+     * （深層岩=90 / 深層岩鉱石=135）。採掘効率5(+26)＋採掘速度上昇II の想定。
+     * Lv100 で深層岩鉱石(135)を確実に超えるよう、採掘速度上昇がボーナスに乗らない最悪ケースでも
+     * 足りる係数にしている（Lv100 で +90。実機の実速度を見て要微調整）。
+     */
+    private static final double MINING_PER_LEVEL = 0.9;
 
     public enum Category {
         WEAPON, ARMOR, TOOL
@@ -74,11 +82,17 @@ public final class ItemEnhancer {
                 || n.endsWith("_BOOTS") || n.equals("ELYTRA")) {
             return Category.ARMOR;
         }
-        // 道具ではピッケルのみフル強化対象。他の耐久品は isRepairOnly（耐久回復のみ）扱い。
-        if (n.endsWith("_PICKAXE")) {
+        // 道具はピッケル・シャベルがフル強化対象（採掘系）。他の耐久品は isRepairOnly（耐久回復のみ）。
+        if (n.endsWith("_PICKAXE") || n.endsWith("_SHOVEL")) {
             return Category.TOOL;
         }
         return null;
+    }
+
+    /** 採掘系（採掘速度ボーナス対象）: ピッケル・シャベル・斧。斧は武器カテゴリだが採掘もこなす。 */
+    private static boolean isMiningTool(ItemStack item) {
+        String n = item.getType().name();
+        return n.endsWith("_PICKAXE") || n.endsWith("_SHOVEL") || n.endsWith("_AXE");
     }
 
     /**
@@ -251,6 +265,30 @@ public final class ItemEnhancer {
         return true;
     }
 
+    /**
+     * 即座にレベル上限・精錬上限へ引き上げる（ドラゴンの頭での即時マックス用）。
+     * 鍛造マークも付与し、XP は 0、未抽選ならスキルも抽選する。
+     */
+    public static boolean maxOut(ItemStack item) {
+        if (!isEnhanceable(item)) {
+            return false;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+        var pdc = meta.getPersistentDataContainer();
+        int max = cap(item);
+        pdc.set(LEVEL, PersistentDataType.INTEGER, max);
+        pdc.set(XP, PersistentDataType.INTEGER, 0);
+        pdc.set(REFINE, PersistentDataType.INTEGER, maxRefine(item));
+        pdc.set(FORGED, PersistentDataType.INTEGER, GATE_FORGE);
+        ItemSkills.rollIfNeeded(item, pdc, max);
+        rebuild(item, meta);
+        item.setItemMeta(meta);
+        return true;
+    }
+
     /** 破壊寸前状態か。 */
     public static boolean isBroken(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
@@ -359,10 +397,17 @@ public final class ItemEnhancer {
             addBonus(meta, Attribute.ARMOR_TOUGHNESS, M_TUF,
                     level * 0.1 + (r + boost) * baseStat(defaults, Attribute.ARMOR_TOUGHNESS, 0.0), group);
         }
+        // 採掘系（ピッケル・シャベル・斧）はレベルに応じて採掘速度が少し上がる。
+        // さらに高速採掘スキルがあれば段階ぶん上乗せ（無効時 0）。
+        if (isMiningTool(item)) {
+            addBonus(meta, Attribute.MINING_EFFICIENCY, M_MINE,
+                    level * MINING_PER_LEVEL + ItemSkills.fastMiningBonus(meta, level), group);
+        }
         // 最大体力増加スキル（防具のみ抽選されるが、判定はスキル有無で行う）
         addBonus(meta, Attribute.MAX_HEALTH, M_HP, ItemSkills.healthBonus(meta, level), group);
         applyDurability(item, meta, cat, level, r);
         ItemSkills.applyUnbreaking(meta, level);
+        ItemSkills.applyFortune(meta, level);
     }
 
     /**
