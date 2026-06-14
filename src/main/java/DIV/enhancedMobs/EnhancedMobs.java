@@ -18,12 +18,16 @@ import DIV.enhancedMobs.item.ItemSkills;
 import DIV.enhancedMobs.listener.ArmorSkillListener;
 import DIV.enhancedMobs.listener.AutoMaceListener;
 import DIV.enhancedMobs.listener.AxeSkillListener;
+import DIV.enhancedMobs.listener.FireChargeListener;
 import DIV.enhancedMobs.listener.FlyingAxeListener;
+import DIV.enhancedMobs.listener.MaceSkillListener;
 import DIV.enhancedMobs.listener.GateListener;
 import DIV.enhancedMobs.listener.HealListener;
 import DIV.enhancedMobs.listener.ItemBreakGuardListener;
 import DIV.enhancedMobs.listener.ItemXpListener;
 import DIV.enhancedMobs.listener.MiningSkillListener;
+import DIV.enhancedMobs.listener.ShieldSkillListener;
+import DIV.enhancedMobs.listener.TractionListener;
 import DIV.enhancedMobs.listener.MobListener;
 import DIV.enhancedMobs.listener.PickaxeSkillListener;
 import DIV.enhancedMobs.listener.PlayerListener;
@@ -89,6 +93,9 @@ public final class EnhancedMobs extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
+        // 表示テキストの一元管理 / 多言語対応（GlobalTranslator へ辞書を登録）。
+        DIV.enhancedMobs.i18n.Lang.init(this);
+
         // attributelib への適用条件の登録（特性 initialize より先に必要）。
         TraitConditions.init(this);
 
@@ -124,11 +131,17 @@ public final class EnhancedMobs extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new ItemXpListener(), this);
             getServer().getPluginManager().registerEvents(new AnvilListener(), this);
             getServer().getPluginManager().registerEvents(new ItemBreakGuardListener(), this);
+            // 破壊寸前の自動撤回スイープ（10秒周期。金床GUI/砥石/合成など独自経路外の修理を救済）。
+            ItemBreakGuardListener.startBrokenSweep(this);
             getServer().getPluginManager().registerEvents(new FlyingAxeListener(this), this);
             getServer().getPluginManager().registerEvents(new AutoMaceListener(this), this);
             getServer().getPluginManager().registerEvents(new SwordSkillListener(this), this);
+            getServer().getPluginManager().registerEvents(new FireChargeListener(this), this);
+            getServer().getPluginManager().registerEvents(new MaceSkillListener(this), this);
+            getServer().getPluginManager().registerEvents(new ShieldSkillListener(this), this);
             getServer().getPluginManager().registerEvents(new SpearSkillListener(), this);
             getServer().getPluginManager().registerEvents(new SpearThrowListener(this), this);
+            getServer().getPluginManager().registerEvents(new TractionListener(this), this);
             getServer().getPluginManager().registerEvents(new PickaxeSkillListener(this), this);
             getServer().getPluginManager().registerEvents(new AxeSkillListener(), this);
             getServer().getPluginManager().registerEvents(new ArmorSkillListener(this), this);
@@ -155,6 +168,8 @@ public final class EnhancedMobs extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, new MobTickTask(this), tickInterval, tickInterval);
         // 高頻度特性（誘導・吸引等）用の1tickレーン。登録が無ければ即returnで負荷ゼロ。
         getServer().getScheduler().runTaskTimer(this, new FastTick(), 1, 1);
+        // デスホライゾーン: 凋落の道の管理・効果適用タスクを起動。
+        DIV.enhancedMobs.trait.gtsolo.DeathHorizonTrait.init(this);
 
         getLogger().info("EnhancedMobs enabled with " + traitService.registry().all().size() + " traits.");
     }

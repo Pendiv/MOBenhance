@@ -36,6 +36,7 @@ public final class GTsoloTraits {
         // --- バッチ1: オーラ系 ---
         r.register(new DamageAuraTrait(100, 50, 3, 200));
         r.register(new DeathAuraTrait(400, 30, 5, 500));
+        r.register(new DeathHorizonTrait(150, 75, 3, 150));
         r.register(new FamineTrait(50, 75, 5, 150));
 
         // --- バッチ1: スケルトン矢系 ---

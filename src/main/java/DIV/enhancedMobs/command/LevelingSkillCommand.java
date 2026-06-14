@@ -1,9 +1,9 @@
 package DIV.enhancedMobs.command;
 
+import DIV.enhancedMobs.i18n.Lang;
 import DIV.enhancedMobs.item.ItemEnhancer;
 import DIV.enhancedMobs.item.ItemSkills;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,14 +33,14 @@ public final class LevelingSkillCommand implements CommandExecutor, TabCompleter
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length < 3) {
-            msg(sender, "使い方: /" + label + " <セレクタ> <lvl|skill|skill_lvl> <値>", NamedTextColor.RED);
+            Lang.send(sender, "emob.skillcmd.usage", Component.text(label));
             return true;
         }
         List<Entity> targets;
         try {
             targets = Bukkit.selectEntities(sender, args[0]);
         } catch (IllegalArgumentException ex) {
-            msg(sender, "セレクタが不正です: " + args[0], NamedTextColor.RED);
+            Lang.send(sender, "emob.skillcmd.bad_selector", Component.text(args[0]));
             return true;
         }
         String mode = args[1].toLowerCase(Locale.ROOT);
@@ -52,7 +52,7 @@ public final class LevelingSkillCommand implements CommandExecutor, TabCompleter
             }
             ItemStack item = player.getInventory().getItemInMainHand();
             if (!ItemEnhancer.isEnhanceable(item)) {
-                msg(sender, player.getName() + ": 手持ちが強化対象ではありません", NamedTextColor.GRAY);
+                Lang.send(sender, "emob.skillcmd.not_enhanceable", Component.text(player.getName()));
                 continue;
             }
             boolean ok;
@@ -65,12 +65,12 @@ public final class LevelingSkillCommand implements CommandExecutor, TabCompleter
                         yield stage >= 0 && stage <= 3 && ItemEnhancer.setLevel(item, STAGE_LEVELS[stage]);
                     }
                     default -> {
-                        msg(sender, "不明なモード: " + mode + "（lvl / skill / skill_lvl）", NamedTextColor.RED);
+                        Lang.send(sender, "emob.skillcmd.unknown_mode", Component.text(mode));
                         yield false;
                     }
                 };
             } catch (NumberFormatException ex) {
-                msg(sender, "数値が不正です: " + value, NamedTextColor.RED);
+                Lang.send(sender, "emob.skillcmd.bad_number", Component.text(value));
                 return true;
             }
             if (ok) {
@@ -78,7 +78,8 @@ public final class LevelingSkillCommand implements CommandExecutor, TabCompleter
                 applied++;
             }
         }
-        msg(sender, applied + " 人に適用しました", applied > 0 ? NamedTextColor.GREEN : NamedTextColor.GRAY);
+        Lang.send(sender, applied > 0 ? "emob.skillcmd.applied" : "emob.skillcmd.applied_zero",
+                Component.text(applied));
         return true;
     }
 
@@ -110,9 +111,5 @@ public final class LevelingSkillCommand implements CommandExecutor, TabCompleter
     private static List<String> filter(List<String> options, String prefix) {
         String p = prefix.toLowerCase(Locale.ROOT);
         return options.stream().filter(o -> o.toLowerCase(Locale.ROOT).startsWith(p)).toList();
-    }
-
-    private static void msg(CommandSender sender, String text, NamedTextColor color) {
-        sender.sendMessage(Component.text(text, color));
     }
 }

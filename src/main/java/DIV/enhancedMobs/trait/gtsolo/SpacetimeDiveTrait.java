@@ -23,7 +23,11 @@ public final class SpacetimeDiveTrait extends Trait {
     public void onAttacked(LivingEntity mob, int rank, EntityDamageEvent event) {
         // 原典は forge:is_magic タグのホワイトリスト。魔術相当のみ通し、物理・矢・爆発・炎などは全無効。
         switch (event.getCause()) {
+            // 魔術相当: 通す。
             case MAGIC, WITHER, SONIC_BOOM, DRAGON_BREATH -> {
+            }
+            // 無効化不能（/kill・奈落・ワールド境界）は潜航でも常に通す（管理コマンド等を妨げない）。
+            case KILL, VOID, WORLD_BORDER -> {
             }
             default -> event.setCancelled(true);
         }

@@ -95,6 +95,7 @@ public final class FlyingAxeListener implements Listener {
         private final Location pos;
         private double traveled;
         private boolean returning;
+        private boolean armed;
         private float spin;
         private int age;
 
@@ -131,6 +132,13 @@ public final class FlyingAxeListener implements Listener {
             if (++age > TIMEOUT_TICKS || !thrower.isOnline() || thrower.isDead() || !display.isValid()) {
                 recover();
                 return;
+            }
+            // 投擲/発射中に shift で中断 → その場から即帰還（一度 shift を離してから有効）。
+            if (!thrower.isSneaking()) {
+                armed = true;
+            } else if (armed && !returning) {
+                returning = true;
+                thrower.getWorld().playSound(thrower.getLocation(), Sound.ITEM_TRIDENT_RETURN, 1f, 1.2f);
             }
             if (!returning) {
                 pos.add(direction.clone().multiply(SPEED_OUT));

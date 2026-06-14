@@ -5,6 +5,7 @@ import DIV.enhancedMobs.item.ItemSkills;
 import io.papermc.paper.event.entity.EntityLungeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +23,18 @@ public final class SpearSkillListener implements Listener {
 
     /** プレイヤー UUID → 落下無効の期限（エポックms）。 */
     private final Map<UUID, Long> fallImmune = new ConcurrentHashMap<>();
+
+    /**
+     * 槍エンチャントの突進（lunge）を無効化する。機動は牽引などのスキルへ集約する。
+     * LOWEST で先にキャンセルするため、以降の {@link #onLunge}（突進軽減）も発火しない。
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void disableSpearLunge(EntityLungeEvent event) {
+        if (event.getEntity() instanceof Player player
+                && player.getInventory().getItemInMainHand().getType().name().endsWith("SPEAR")) {
+            event.setCancelled(true);
+        }
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onLunge(EntityLungeEvent event) {

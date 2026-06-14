@@ -118,6 +118,15 @@ public final class MobListener implements Listener {
     // 被ダメ修飾・反撃を一切走らせない（パリィしたのに反撃が飛ぶ/ダメージが復活する事故を防ぐ）。
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
+        // 無効化不能ダメージ（/kill・奈落・ワールド境界）は特性に一切渡さず素通しする。
+        // どんな無敵系特性でも管理コマンドや奈落落下は妨げない（潜航・無垢の戦い等の事故防止）。
+        switch (event.getCause()) {
+            case KILL, VOID, WORLD_BORDER -> {
+                return;
+            }
+            default -> {
+            }
+        }
         // 悲哀の挽歌: 仮死中のエンティティは被弾不可（貫通死は状態を掃除して素通し）。
         if (SorrowElegyTrait.protectPseudoDead(event)) {
             return;

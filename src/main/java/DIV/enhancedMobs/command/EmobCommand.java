@@ -2,6 +2,7 @@ package DIV.enhancedMobs.command;
 
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.debug.DebugViewers;
+import DIV.enhancedMobs.i18n.Lang;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -53,12 +54,12 @@ public final class EmobCommand implements CommandExecutor, TabCompleter {
         String name = args[0].toLowerCase(Locale.ROOT);
         Sub sub = subs.get(name);
         if (sub == null) {
-            sender.sendMessage(Component.text("不明なサブコマンド: " + args[0], NamedTextColor.RED));
+            Lang.send(sender, "emob.cmd.unknown_sub", Component.text(args[0]));
             sendHelp(sender, label);
             return true;
         }
         if (sub.permission() != null && !sender.hasPermission(sub.permission())) {
-            sender.sendMessage(Component.text("権限がありません。", NamedTextColor.RED));
+            Lang.send(sender, "emob.common.no_perm");
             return true;
         }
         // 委譲時の label を "emob <サブ>" にして、各 Executor の使い方表示を正しくする。
@@ -90,7 +91,7 @@ public final class EmobCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender, String label) {
-        sender.sendMessage(Component.text("EnhancedMobs コマンド一覧:", NamedTextColor.GOLD));
+        Lang.send(sender, "emob.cmd.help_header");
         subs.forEach((name, sub) ->
                 sender.sendMessage(Component.text("  /" + label + " " + name + " " + sub.usage(), NamedTextColor.GRAY)));
     }

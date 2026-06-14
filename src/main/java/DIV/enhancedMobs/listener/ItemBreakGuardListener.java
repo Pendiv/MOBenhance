@@ -1,9 +1,8 @@
 package DIV.enhancedMobs.listener;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.i18n.Lang;
 import DIV.enhancedMobs.item.ItemEnhancer;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -51,7 +50,7 @@ public final class ItemBreakGuardListener implements Listener {
 
         int target = firstFreeStorageSlot(inv);
         if (target == -1) {
-            msg(player, "装備が破壊寸前です！性能を失っています（要修理）", NamedTextColor.RED);
+            Lang.actionbar(player, "emob.break.no_space");
             return;
         }
         int source = findSlot(inv, item);
@@ -60,7 +59,29 @@ public final class ItemBreakGuardListener implements Listener {
         }
         inv.setItem(target, item);
         inv.setItem(source, null);
-        msg(player, "装備が破壊寸前のためインベントリに戻しました（修理してください）", NamedTextColor.YELLOW);
+        Lang.actionbar(player, "emob.break.stowed");
+    }
+
+    /**
+     * 破壊寸前の自動撤回スイープ（A案）。{@link ItemEnhancer#clearBrokenIfRepaired} を呼ぶのは
+     * 独自金床修理とメンディングの2経路だけなので、それ以外の耐久回復（本物の金床GUI・砥石・
+     * 作業台合成・コマンド等）では破壊寸前フラグが残り続けてしまう。これを補うため、低頻度で
+     * オンラインプレイヤーの所持品を走査し、耐久が閾値（75%）以上まで戻っている破壊寸前の
+     * ツール/防具のフラグを解除する。
+     */
+    public static void startBrokenSweep(EnhancedMobs plugin) {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                for (ItemStack item : player.getInventory().getContents()) {
+                    if (item == null || item.isEmpty()) {
+                        continue;
+                    }
+                    if (ItemEnhancer.isBroken(item) && ItemEnhancer.clearBrokenIfRepaired(item)) {
+                        Lang.actionbar(player, "emob.break.cleared");
+                    }
+                }
+            }
+        }, 200L, 200L); // 10秒周期
     }
 
     /** メンディング等の経験値修理でも、75% 以上回復したら破壊寸前を自動解除する。 */
@@ -99,9 +120,5 @@ public final class ItemBreakGuardListener implements Listener {
             }
         }
         return -1;
-    }
-
-    private static void msg(Player player, String text, NamedTextColor color) {
-        player.sendActionBar(Component.text(text, color));
     }
 }

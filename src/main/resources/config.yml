@@ -60,8 +60,11 @@ skills:
   dash: true              # 突飛      (剣)
   energy_absorb: true     # エネルギー吸収 (剣)
   hero_hymn: true         # 朽ちた英雄の賛歌 (剣)
+  fire_charge: true       # ファイアチャージ (剣)
+  megaton_smash: true     # メガトンスマッシュ (メイス)
   charge_relief: true     # 突進軽減   (槍)
   spear_throw: true       # 投擲      (槍)
+  traction: true          # 牽引      (槍)
   fast_mining: true       # 高速採掘   (ピッケル)
   area_break: false       # 範囲破壊   (ピッケル) ← 既定でオフ
   great_luck: true        # 豪運      (ピッケル)
@@ -72,6 +75,9 @@ skills:
   past_gift: true         # 過去からの贈り物 (防具)
   lion_heart: true        # 獅子の心臓  (チェストプレート)
   set_bonus: true         # セット商法  (チェストプレート)
+  gun_shield_abolition: true  # ガン盾廃止令 (盾)
+  effective_counter: true     # 効果的な反撃 (盾)
+  abekobe: true               # あべこべ    (盾)
 
 logging:
   # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Spammy; testing only.

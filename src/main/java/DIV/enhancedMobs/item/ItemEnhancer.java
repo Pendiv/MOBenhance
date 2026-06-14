@@ -1,13 +1,13 @@
 package DIV.enhancedMobs.item;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.i18n.Lang;
 import com.google.common.collect.Multimap;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Repairable;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -58,18 +58,19 @@ public final class ItemEnhancer {
     private static final NamespacedKey M_SPD = k("ench_spd");
     private static final NamespacedKey M_ARM = k("ench_arm");
     private static final NamespacedKey M_TUF = k("ench_tuf");
+    private static final NamespacedKey M_KB = k("ench_kb");
     private static final NamespacedKey M_HP = k("skill_hp");
     private static final NamespacedKey M_MINE = k("ench_mine");
     /**
      * 採掘系のレベルあたり採掘効率（mining_efficiency 属性への加算）。即時化は 採掘速度 ≥ 硬度×30
      * （深層岩=90 / 深層岩鉱石=135）。採掘効率5(+26)＋採掘速度上昇II の想定。
      * Lv100 で深層岩鉱石(135)を確実に超えるよう、採掘速度上昇がボーナスに乗らない最悪ケースでも
-     * 足りる係数にしている（Lv100 で +90。実機の実速度を見て要微調整）。
+     * 足りる係数にしている（空論値。バランスなどを鑑みて修正の可能性あり）。
      */
     private static final double MINING_PER_LEVEL = 0.9;
 
     public enum Category {
-        WEAPON, ARMOR, TOOL
+        WEAPON, ARMOR, TOOL, SHIELD
     }
 
     public static Category category(ItemStack item) {
@@ -81,6 +82,9 @@ public final class ItemEnhancer {
         if (n.endsWith("_HELMET") || n.endsWith("_CHESTPLATE") || n.endsWith("_LEGGINGS")
                 || n.endsWith("_BOOTS") || n.equals("ELYTRA")) {
             return Category.ARMOR;
+        }
+        if (n.equals("SHIELD")) {
+            return Category.SHIELD;
         }
         // 道具はピッケル・シャベルがフル強化対象（採掘系）。他の耐久品は isRepairOnly（耐久回復のみ）。
         if (n.endsWith("_PICKAXE") || n.endsWith("_SHOVEL")) {
@@ -124,12 +128,17 @@ public final class ItemEnhancer {
     }
 
     public static int maxRefine(ItemStack item) {
+        // 盾は元ステータスが無いぶん精錬を多く要求（精錬25で Lv70 ゲート解除＝Lv100到達）。
+        if (item.getType() == Material.SHIELD) {
+            return 25;
+        }
         return isNetherite(item) ? 10 : 5;
     }
 
     public static int cap(ItemStack item) {
-        // メイスはネザライト同様 Lv100 まで（Lv70 ゲートは精錬5で解除）
-        return isNetherite(item) || item.getType() == Material.MACE ? 100 : 70;
+        // メイス・盾はネザライト同様 Lv100 まで（Lv70 ゲートはメイス精錬5 / 盾精錬25で解除）
+        return isNetherite(item) || item.getType() == Material.MACE || item.getType() == Material.SHIELD
+                ? 100 : 70;
     }
 
     static int requiredXp(ItemStack item) {
@@ -348,7 +357,10 @@ public final class ItemEnhancer {
             return;
         }
         EquipmentSlot slot = cat == Category.ARMOR ? armorSlot(item) : EquipmentSlot.HAND;
-        EquipmentSlotGroup group = cat == Category.ARMOR ? armorGroup(item) : EquipmentSlotGroup.MAINHAND;
+        // 盾は両手のどちらで持っても効くよう HAND グループ（メインハンド＋オフハンド）。
+        EquipmentSlotGroup group = cat == Category.ARMOR ? armorGroup(item)
+                : cat == Category.SHIELD ? EquipmentSlotGroup.HAND
+                : EquipmentSlotGroup.MAINHAND;
 
         Multimap<Attribute, AttributeModifier> defaults = item.getType().getDefaultAttributeModifiers(slot);
         Multimap<Attribute, AttributeModifier> currentMods = meta.getAttributeModifiers();
@@ -389,6 +401,17 @@ public final class ItemEnhancer {
             // 道具は耐久メイン + 控えめな攻撃力（武器の 0.25/Lv に対し 0.1/Lv）
             addBonus(meta, Attribute.ATTACK_DAMAGE, M_ATK,
                     level * 0.1 + r * baseStat(defaults, Attribute.ATTACK_DAMAGE, 1.0), group);
+        } else if (cat == Category.SHIELD) {
+            // 盾は元ステータスが無いため、精錬はレベル上昇分を 4%/精錬で増幅する（防具より低めの係数）。
+            double refMult = 1.0 + 0.04 * refine;
+            // ネザライトコーティング（付加スキル）: ネザライトレギンス相当の素性能を上乗せする。
+            boolean coated = ItemSkills.hasBonus(meta, ItemSkills.BONUS_NETHERITE_COATING);
+            double coatArmor = coated ? 6.0 : 0.0;
+            double coatTough = coated ? 3.0 : 0.0;
+            double coatKb = coated ? 0.1 : 0.0;
+            addBonus(meta, Attribute.ARMOR, M_ARM, level * 0.15 * refMult + coatArmor, group);
+            addBonus(meta, Attribute.KNOCKBACK_RESISTANCE, M_KB, level * 0.01 * refMult + coatKb, group);
+            addBonus(meta, Attribute.ARMOR_TOUGHNESS, M_TUF, coatTough, group);
         } else {
             // 防具性能上昇スキル: 素の防具性能の 20/40/60/120% を加算（無効時 0）
             double boost = ItemSkills.armorBoostPct(meta, level);
@@ -405,16 +428,16 @@ public final class ItemEnhancer {
         }
         // 最大体力増加スキル（防具のみ抽選されるが、判定はスキル有無で行う）
         addBonus(meta, Attribute.MAX_HEALTH, M_HP, ItemSkills.healthBonus(meta, level), group);
-        applyDurability(item, meta, cat, level, r);
+        applyDurability(item, meta, cat, level, refine);
         ItemSkills.applyUnbreaking(meta, level);
         ItemSkills.applyFortune(meta, level);
     }
 
     /**
      * 耐久上限 = (素 + レベル/精錬補正) × 耐久強化スキル倍率。
-     * 武器はレベル/精錬の耐久補正なし（スキル倍率のみ）。
+     * 武器はレベル/精錬の耐久補正なし（スキル倍率のみ）。盾はレベル上昇分を精錬4%/精錬で増幅。
      */
-    private static void applyDurability(ItemStack item, ItemMeta meta, Category cat, int level, double r) {
+    private static void applyDurability(ItemStack item, ItemMeta meta, Category cat, int level, int refine) {
         if (!(meta instanceof Damageable damageable)) {
             return;
         }
@@ -422,7 +445,18 @@ public final class ItemEnhancer {
         if (base <= 0) {
             return;
         }
-        double withLevel = cat == Category.WEAPON ? base : base + level * 5 + r * base;
+        double r = 0.2 * refine;
+        double withLevel;
+        if (cat == Category.WEAPON) {
+            withLevel = base;
+        } else if (cat == Category.SHIELD) {
+            // ネザライトコーティング時は素の耐久をネザライトレギンス(555)まで底上げ。
+            int shieldBase = ItemSkills.hasBonus(meta, ItemSkills.BONUS_NETHERITE_COATING)
+                    ? Math.max(base, 555) : base;
+            withLevel = shieldBase + level * 3 * (1.0 + 0.04 * refine); // 防具(+5/Lv)より低め、精錬で増幅
+        } else {
+            withLevel = base + level * 5 + r * base;
+        }
         double mult = ItemSkills.durabilityMultiplier(meta.getPersistentDataContainer(), level);
         int max = (int) Math.round(withLevel * mult);
         if (max != base || damageable.hasMaxDamage()) {
@@ -465,16 +499,17 @@ public final class ItemEnhancer {
     private static void updateLore(ItemStack item, ItemMeta meta, int level, int xp, int req, int refine, int forged) {
         List<Component> lore = new ArrayList<>();
         String progress = level >= cap(item) ? " (MAX)" : "  " + xp + "/" + req;
-        lore.add(Component.text("強化 Lv." + level + progress, NamedTextColor.AQUA));
+        lore.add(Lang.render("emob.item.lore.level", Component.text(level), Component.text(progress)));
         if (refine > 0) {
-            lore.add(Component.text("精錬 +" + refine + "/" + maxRefine(item), NamedTextColor.GOLD));
+            lore.add(Lang.render("emob.item.lore.refine",
+                    Component.text(refine), Component.text(maxRefine(item))));
         }
         if (forged >= GATE_FORGE) {
-            lore.add(Component.text("鍛造済", NamedTextColor.LIGHT_PURPLE));
+            lore.add(Lang.render("emob.item.lore.forged"));
         }
         lore.addAll(ItemSkills.loreLines(meta, level));
         if (meta.getPersistentDataContainer().has(BROKEN, PersistentDataType.BYTE)) {
-            lore.add(Component.text("破壊寸前（性能0・要修理）", NamedTextColor.RED));
+            lore.add(Lang.render("emob.item.lore.broken"));
         }
         meta.lore(lore);
     }

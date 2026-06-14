@@ -1,7 +1,9 @@
 package DIV.enhancedMobs.item;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.i18n.Lang;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -83,10 +85,17 @@ public final class ItemSkills {
     public static final String SKILL_FAST_MINING = "fast_mining";
     public static final String SKILL_AREA_BREAK = "area_break";
     public static final String SKILL_LUCK = "great_luck";
+    public static final String SKILL_MEGATON = "megaton_smash";
+    public static final String SKILL_FIRE_CHARGE = "fire_charge";
+    public static final String SKILL_GUN_SHIELD = "gun_shield_abolition";
+    public static final String SKILL_COUNTER = "effective_counter";
+    public static final String SKILL_ABEKOBE = "abekobe";
+    public static final String SKILL_TRACTION = "traction";
     private static final String BONUS_NIGHT_VISION = "night_vision";
     public static final String BONUS_AUTO_MACE = "auto_mace";
     public static final String BONUS_ATTACK_LINGER = "attack_linger";
     public static final String BONUS_BULK_BREAK = "bulk_break";
+    public static final String BONUS_NETHERITE_COATING = "netherite_coating";
 
     /** 設定可能なスキル id 一覧（コマンドのバリデーション・補完用）。 */
     public static final List<String> SKILL_IDS = List.of(
@@ -94,7 +103,9 @@ public final class ItemSkills {
             SKILL_ALL_IN, SKILL_JUST_BLOCK, SKILL_TAKENOKO, SKILL_ENERGY_ABSORB,
             SKILL_DEBUFF_IMMUNITY, SKILL_ARMOR_BOOST, SKILL_LION_HEART, SKILL_SET_BONUS,
             SKILL_PAST_GIFT, SKILL_HERO_HYMN, SKILL_ASAHI,
-            SKILL_THROW, SKILL_FAST_MINING, SKILL_AREA_BREAK, SKILL_LUCK);
+            SKILL_THROW, SKILL_FAST_MINING, SKILL_AREA_BREAK, SKILL_LUCK,
+            SKILL_MEGATON, SKILL_FIRE_CHARGE,
+            SKILL_GUN_SHIELD, SKILL_COUNTER, SKILL_ABEKOBE, SKILL_TRACTION);
 
     /** 強化段階ごとの耐久上限倍率（未強化/+1/+2/+3）。 */
     private static final double[] DURA_MULT = {1.2, 1.4, 1.6, 2.2};
@@ -172,6 +183,46 @@ public final class ItemSkills {
     public static final int[] BULK_RANGE = {1, 1, 2, 2};
     /** 一括破壊: 1回の発動で破壊できるブロック総数（起点含む）。 */
     public static final int BULK_MAX_BLOCKS = 48;
+    /** メガトンスマッシュ: 段階ごとのクールタイム（秒）。 */
+    public static final int[] MEGATON_COOLDOWN_SEC = {15, 14, 13, 9};
+    /** メガトンスマッシュ: 段階ごとのスタン時間（tick）。1.5/1.7/1.9/3.0 秒。 */
+    public static final int[] MEGATON_STUN_TICKS = {30, 34, 38, 60};
+    /** メガトンスマッシュ: ボスへのスタン時間倍率（効果減少）。 */
+    public static final double MEGATON_BOSS_MULT = 0.25;
+    /** メガトンスマッシュ: スマッシュ判定とみなす最低落下距離（ブロック）。 */
+    public static final float MEGATON_MIN_FALL = 1.5f;
+    /** ファイアチャージ: 段階ごとのクールタイム（tick）。12/10.8/8/5 秒。 */
+    public static final int[] FIRE_CHARGE_COOLDOWN_TICKS = {240, 216, 160, 100};
+    /** ファイアチャージ: 段階ごとの攻撃力に対するダメージ割合。 */
+    public static final double[] FIRE_CHARGE_DAMAGE_PCT = {0.8, 0.9, 1.0, 1.5};
+    /** ファイアチャージ: 飛翔速度（blocks/tick、中速）。 */
+    public static final double FIRE_CHARGE_SPEED = 0.95;
+    /** ガン盾廃止令: 段階ごとのガード成功時回復量（HP。3/4/5/8 ハート）。 */
+    public static final int[] GUN_SHIELD_HEAL = {6, 8, 10, 16};
+    /** ガン盾廃止令: この tick 以上連続で構え続けると強制クールタイムが発生（4秒）。 */
+    public static final int GUN_SHIELD_HOLD_TICKS = 80;
+    /** ガン盾廃止令: 段階ごとの強制クールタイム（tick）。4/3.5/3/1 秒。 */
+    public static final int[] GUN_SHIELD_FORCED_CD_TICKS = {80, 70, 60, 20};
+    /** 効果的な反撃: 段階ごとのクールタイム（tick）。3.5/3.3/3.1/2 秒。 */
+    public static final int[] COUNTER_COOLDOWN_TICKS = {70, 66, 62, 40};
+    /** 効果的な反撃: ノックバックの強さ。 */
+    public static final double COUNTER_KNOCKBACK = 0.85;
+    /** 効果的な反撃: 反撃ダメージ（メインハンド武器の攻撃力比）。 */
+    public static final double COUNTER_DAMAGE_PCT = 1.0;
+    /** あべこべ: クールタイム（秒、全段階共通）。 */
+    public static final int ABEKOBE_COOLDOWN_SEC = 30;
+    /** あべこべ: 段階ごとの効果時間（tick）。40/50/60/60 秒。 */
+    public static final int[] ABEKOBE_DURATION_TICKS = {800, 1000, 1200, 1200};
+    /** 牽引（槍）: クールタイム（tick、全段階固定 1.1 秒）。 */
+    public static final int TRACTION_COOLDOWN_TICKS = 22;
+    /** 牽引: 段階ごとの最大射程（ブロック）。 */
+    public static final int[] TRACTION_RANGE = {42, 44, 50, 62};
+    /** 牽引: 槍の飛行時間（tick、距離に関わらず固定 0.4 秒で目標へ補間）。 */
+    public static final int TRACTION_FLIGHT_TICKS = 8;
+    /** 牽引: 着弾から牽引開始までの待機（tick、0.1 秒。飛行0.4＋待機0.1＝0.5秒で牽引）。 */
+    public static final int TRACTION_STICK_WAIT_TICKS = 2;
+    /** 牽引: 段階ごとの牽引速度（blocks/tick、レベルでわずかに上昇。説明には非表示）。 */
+    public static final double[] TRACTION_PULL_SPEED = {1.6, 1.7, 1.8, 2.0};
 
     /** セット商法: プレイヤーへ付ける transient モディファイアのキー。 */
     private static final NamespacedKey SET_BONUS_HP_KEY = k("set_bonus_hp");
@@ -207,15 +258,25 @@ public final class ItemSkills {
             pool.add(SKILL_DASH);
             pool.add(SKILL_ENERGY_ABSORB);
             pool.add(SKILL_HERO_HYMN);
+            pool.add(SKILL_FIRE_CHARGE);
+        }
+        if (n.equals("MACE")) {
+            pool.add(SKILL_MEGATON); // メイス限定
         }
         if (n.endsWith("SPEAR")) {
             pool.add(SKILL_CHARGE); // 槍限定
             pool.add(SKILL_THROW);
+            pool.add(SKILL_TRACTION);
         }
         if (n.endsWith("_PICKAXE")) {
             pool.add(SKILL_FAST_MINING); // ピッケル限定
             pool.add(SKILL_AREA_BREAK);
             pool.add(SKILL_LUCK);
+        }
+        if (ItemEnhancer.category(item) == ItemEnhancer.Category.SHIELD) {
+            pool.add(SKILL_GUN_SHIELD); // 盾限定
+            pool.add(SKILL_COUNTER);
+            pool.add(SKILL_ABEKOBE);
         }
         if (ItemEnhancer.category(item) == ItemEnhancer.Category.ARMOR) {
             pool.add(SKILL_HEALTH); // 防具限定
@@ -315,24 +376,25 @@ public final class ItemSkills {
         String id = pdc.get(SKILL, PersistentDataType.STRING);
         if (id != null && !enabled(id)) {
             // config で無効化中。付与済みでも発動しないことを明示する。
-            lines.add(Component.text("スキル: " + skillName(id) + "（無効化中）", NamedTextColor.DARK_GRAY));
+            lines.add(Lang.render("emob.skill.lore.disabled", Component.text(skillName(id))));
             id = null; // 説明文は出さない
         }
         if (id != null) {
             int s = stage(pdc, level);
             if (s < 0) {
-                lines.add(Component.text("スキル: " + skillName(id) + "（Lv" + ACTIVE_LEVEL + "で有効化）",
-                        NamedTextColor.DARK_GRAY));
+                lines.add(Lang.render("emob.skill.lore.locked",
+                        Component.text(skillName(id)), Component.text(ACTIVE_LEVEL)));
             } else {
                 String suffix = s == 0 ? "" : " +" + s;
-                lines.add(Component.text("スキル: " + skillName(id) + suffix, NamedTextColor.GREEN));
+                lines.add(Lang.render("emob.skill.lore.active",
+                        Component.text(skillName(id)), Component.text(suffix)));
             }
             // 未有効化（Lv30未満）は初期段階の数値で説明する
             addDescription(lines, skillDescription(id, Math.max(s, 0)));
         }
         int bonusS = bonusStageOf(level);
         for (String bonus : bonusList(pdc)) {
-            lines.add(Component.text("付加: " + bonusName(bonus), NamedTextColor.LIGHT_PURPLE));
+            lines.add(Lang.render("emob.skill.lore.bonus", Component.text(bonusName(bonus))));
             addDescription(lines, bonusDescription(bonus, bonusS));
         }
         return lines;
@@ -344,91 +406,135 @@ public final class ItemSkills {
         }
     }
 
-    /** レベリングスキルの説明文（現在の強化段階の数値入り）。 */
+    /** レベリングスキルの説明文（現在の強化段階の数値入り）。辞書 emob.skill.&lt;id&gt;.dN を引く。 */
     private static List<String> skillDescription(String id, int s) {
         return switch (id) {
             case SKILL_DURABILITY -> List.of(
-                    String.format("耐久値の上限が ×%.1f になる", DURA_MULT[s]),
-                    "耐久エンチャントが付いていれば +" + UNBR_BONUS[s]);
+                    desc(id, 1, f1(DURA_MULT[s])),
+                    desc(id, 2, num(UNBR_BONUS[s])));
             case SKILL_FLYING -> List.of(
-                    "右クリックで斧を投げる（敵に当たるか着弾で戻る）",
-                    String.format("射程 %.0fブロック / CT %d秒", FLYING_RANGE[s], FLYING_COOLDOWN_SEC[s]));
+                    desc(id, 1),
+                    desc(id, 2, f0(FLYING_RANGE[s]), num(FLYING_COOLDOWN_SEC[s])));
             case SKILL_HEALTH -> List.of(
-                    String.format("装備中、最大体力 +%.0f", HEALTH_BONUS[s]));
+                    desc(id, 1, f0(HEALTH_BONUS[s])));
             case SKILL_CHARGE -> List.of(
-                    "突進すると満腹度 +" + CHARGE_HUNGER[s] + " 回復し、",
-                    "5秒間落下ダメージを受けない");
+                    desc(id, 1, num(CHARGE_HUNGER[s])),
+                    desc(id, 2));
             case SKILL_VALOR -> List.of(
-                    "攻撃するたび攻撃力上昇の効果を獲得・強化していく",
-                    String.format("上限レベル %d / 効果時間 %d秒", VALOR_CAP[s], VALOR_DURATION_SEC[s]));
+                    desc(id, 1),
+                    desc(id, 2, num(VALOR_CAP[s]), num(VALOR_DURATION_SEC[s])));
             case SKILL_DASH -> s >= 2
-                    ? List.of(
-                            String.format("右クリックで前方へ突進する（CT %.1f秒）", DASH_COOLDOWN_TICKS[s] / 20.0),
-                            "突進の道中、敵を攻撃力ぶん切りつける")
-                    : List.of(
-                            String.format("右クリックで前方へ突進する（CT %.1f秒）", DASH_COOLDOWN_TICKS[s] / 20.0));
+                    ? List.of(desc(id, 1, f1(DASH_COOLDOWN_TICKS[s] / 20.0)), desc(id, 2))
+                    : List.of(desc(id, 1, f1(DASH_COOLDOWN_TICKS[s] / 20.0)));
             case SKILL_ALL_IN -> List.of(
-                    String.format("攻撃速度が %.1f に固定される代わりに", ALL_IN_SPEED[s]),
-                    String.format("攻撃力 +%.0f", ALL_IN_ATK[s]));
+                    desc(id, 1, f1(ALL_IN_SPEED[s])),
+                    desc(id, 2, f0(ALL_IN_ATK[s])));
             case SKILL_JUST_BLOCK -> List.of(
-                    String.format("被弾時 %.0f%% で攻撃を完全にブロックする", JUST_BLOCK_CHANCE[s] * 100));
+                    desc(id, 1, f0(JUST_BLOCK_CHANCE[s] * 100)));
             case SKILL_TAKENOKO -> List.of(
-                    String.format("攻撃した敵を %.0fブロック打ち上げ、", TAKENOKO_HEIGHT[s]),
-                    "足元にたけのこを生やす");
+                    desc(id, 1, f0(TAKENOKO_HEIGHT[s])),
+                    desc(id, 2));
             case SKILL_ENERGY_ABSORB -> List.of(
-                    "接地して静止中に右クリックで",
-                    String.format("HPを %.0fハート回復（CT %d秒）", ENERGY_HEAL[s] / 2, ENERGY_COOLDOWN_SEC[s]));
+                    desc(id, 1),
+                    desc(id, 2, f0(ENERGY_HEAL[s] / 2), num(ENERGY_COOLDOWN_SEC[s])));
             case SKILL_DEBUFF_IMMUNITY -> List.of(
-                    String.format("デバフの付与を1つ自動で防ぐ（CT %d秒）", DEBUFF_COOLDOWN_SEC[s]));
+                    desc(id, 1, num(DEBUFF_COOLDOWN_SEC[s])));
             case SKILL_ARMOR_BOOST -> List.of(
-                    String.format("素の防具性能の %.0f%% を追加で獲得する", ARMOR_BOOST_PCT[s] * 100));
+                    desc(id, 1, f0(ARMOR_BOOST_PCT[s] * 100)));
             case SKILL_LION_HEART -> List.of(
-                    "HPが10%以下になる攻撃を半ハートで耐え、",
-                    String.format("トーテム効果と5秒間の耐性Vを得る（CT %d秒）", LION_COOLDOWN_SEC[s]));
+                    desc(id, 1),
+                    desc(id, 2, num(LION_COOLDOWN_SEC[s])));
             case SKILL_SET_BONUS -> List.of(
-                    "防具4部位の素材が共通なら",
-                    String.format("再生I・最大体力 +%.0f・攻撃力 +%.0f", SET_BONUS_HP_AMOUNT, SET_BONUS_ATK_AMOUNT));
+                    desc(id, 1),
+                    desc(id, 2, f0(SET_BONUS_HP_AMOUNT), f0(SET_BONUS_ATK_AMOUNT)));
             case SKILL_PAST_GIFT -> List.of(
-                    String.format("死亡時、防御力の%.0f%%を未来へ送る", PAST_GIFT_RATIO * 100),
-                    "次のリスポーンで防御力上昇として受け取る",
-                    "（受領中に死亡すると効果を失い、送らない）");
+                    desc(id, 1, f0(PAST_GIFT_RATIO * 100)),
+                    desc(id, 2),
+                    desc(id, 3));
             case SKILL_HERO_HYMN -> List.of(
-                    String.format("攻撃時、対象の回復を%.1f秒間封じ", HYMN_CURSE_TICKS / 20.0),
-                    String.format("雷とともに攻撃力の%.0f%%を追加で与える", HYMN_DAMAGE_PCT[s] * 100),
-                    "（回復封印中は不死の蘇生も失敗する）");
+                    desc(id, 1, f1(HYMN_CURSE_TICKS / 20.0)),
+                    desc(id, 2, f0(HYMN_DAMAGE_PCT[s] * 100)),
+                    desc(id, 3));
             case SKILL_ASAHI -> List.of(
-                    String.format("攻撃が火属性になる（%.0f秒着火）", ASAHI_IGNITE_TICKS / 20.0),
-                    String.format("燃えている対象は受ける炎ダメージ +%.0f%%、", ASAHI_FIRE_VULN[s] * 100),
-                    "回復効果を受けられない（不死の蘇生も失敗）");
+                    desc(id, 1, f0(ASAHI_IGNITE_TICKS / 20.0)),
+                    desc(id, 2, f0(ASAHI_FIRE_VULN[s] * 100)),
+                    desc(id, 3));
             case SKILL_THROW -> List.of(
-                    "右クリックで仮想の槍を前方へ投げる（魔法ダメージ）",
-                    String.format("速いほど高威力（初速 %.1f / CT %d秒）", THROW_SPEED[s], THROW_COOLDOWN_SEC[s]));
+                    desc(id, 1),
+                    desc(id, 2, f1(THROW_SPEED[s]), num(THROW_COOLDOWN_SEC[s])));
             case SKILL_FAST_MINING -> List.of(
-                    String.format("採掘速度（採掘効率）+%.1f", FAST_MINING_BONUS[s]));
+                    desc(id, 1, f1(FAST_MINING_BONUS[s])));
             case SKILL_AREA_BREAK -> List.of(
-                    String.format("右クリックで視線先を %dx%dx%d 一括破壊", AREA_BREAK_SIZE[s], AREA_BREAK_SIZE[s], AREA_BREAK_SIZE[s]),
-                    String.format("巨大ピッケルを振り下ろす（CT %d秒）", AREA_BREAK_COOLDOWN_SEC[s]));
+                    desc(id, 1, num(AREA_BREAK_SIZE[s]), num(AREA_BREAK_SIZE[s]), num(AREA_BREAK_SIZE[s])),
+                    desc(id, 2, num(AREA_BREAK_COOLDOWN_SEC[s])));
             case SKILL_LUCK -> List.of(
-                    "幸運エンチャント Lv" + LUCK_LEVELS[s] + " を付与する");
+                    desc(id, 1, num(LUCK_LEVELS[s])));
+            case SKILL_MEGATON -> List.of(
+                    desc(id, 1, f1(MEGATON_STUN_TICKS[s] / 20.0)),
+                    desc(id, 2, num(MEGATON_COOLDOWN_SEC[s])));
+            case SKILL_FIRE_CHARGE -> List.of(
+                    desc(id, 1),
+                    desc(id, 2, f0(FIRE_CHARGE_DAMAGE_PCT[s] * 100), f1(FIRE_CHARGE_COOLDOWN_TICKS[s] / 20.0)));
+            case SKILL_GUN_SHIELD -> List.of(
+                    desc(id, 1, num(GUN_SHIELD_HEAL[s] / 2)),
+                    desc(id, 2, f1(GUN_SHIELD_FORCED_CD_TICKS[s] / 20.0)));
+            case SKILL_COUNTER -> List.of(
+                    desc(id, 1),
+                    desc(id, 2, f0(COUNTER_DAMAGE_PCT * 100), f1(COUNTER_COOLDOWN_TICKS[s] / 20.0)));
+            case SKILL_ABEKOBE -> List.of(
+                    desc(id, 1),
+                    desc(id, 2, num(ABEKOBE_DURATION_TICKS[s] / 20), num(ABEKOBE_COOLDOWN_SEC)),
+                    desc(id, 3));
+            case SKILL_TRACTION -> List.of(
+                    desc(id, 1),
+                    desc(id, 2, num(TRACTION_RANGE[s])));
             default -> List.of();
         };
     }
 
-    /** 付加スキルの説明文（現在の段階の数値入り）。 */
+    /** 付加スキルの説明文（現在の段階の数値入り）。辞書 emob.bonus.&lt;id&gt;.dN を引く。 */
     private static List<String> bonusDescription(String id, int s) {
         return switch (id) {
-            case BONUS_NIGHT_VISION -> List.of("装備中、暗視効果を得る");
+            case BONUS_NIGHT_VISION -> List.of(bonusDesc(id, 1));
             case BONUS_AUTO_MACE -> List.of(
-                    "スニーク右クリックで狙った敵をメイスが自動攻撃",
-                    String.format("上昇 %.0fブロック / CT %d秒", AUTO_MACE_RISE[s], AUTO_MACE_COOLDOWN_SEC[s]));
+                    bonusDesc(id, 1),
+                    bonusDesc(id, 2, f0(AUTO_MACE_RISE[s]), num(AUTO_MACE_COOLDOWN_SEC[s])));
             case BONUS_ATTACK_LINGER -> List.of(
-                    String.format("攻撃時 %.0f%% でダメージを記憶した", LINGER_CHANCE[s] * 100),
-                    "滞留クラウドが発生する（1秒ごと×3回）");
+                    bonusDesc(id, 1, f0(LINGER_CHANCE[s] * 100)),
+                    bonusDesc(id, 2));
             case BONUS_BULK_BREAK -> List.of(
-                    "鉱石などの同系統ブロックをまとめて採掘",
-                    String.format("範囲 %d / 最大 %d個", BULK_RANGE[s], BULK_MAX_BLOCKS));
+                    bonusDesc(id, 1),
+                    bonusDesc(id, 2, num(BULK_RANGE[s]), num(BULK_MAX_BLOCKS)));
+            case BONUS_NETHERITE_COATING -> List.of(
+                    bonusDesc(id, 1),
+                    bonusDesc(id, 2));
             default -> List.of();
         };
+    }
+
+    // ---- 説明文の辞書引きヘルパ（数値は Java 側で整形して引数に渡す） ----
+
+    private static String desc(String id, int line, ComponentLike... args) {
+        return Lang.plain("emob.skill." + id + ".d" + line, args);
+    }
+
+    private static String bonusDesc(String id, int line, ComponentLike... args) {
+        return Lang.plain("emob.bonus." + id + ".d" + line, args);
+    }
+
+    /** 小数1桁の文字列引数。 */
+    private static ComponentLike f1(double v) {
+        return Component.text(String.format("%.1f", v));
+    }
+
+    /** 小数0桁（整数表示）の文字列引数。 */
+    private static ComponentLike f0(double v) {
+        return Component.text(String.format("%.0f", v));
+    }
+
+    /** 整数の引数。 */
+    private static ComponentLike num(int v) {
+        return Component.text(v);
     }
 
     /** スキルの表示名（サイドバー等の外部表示用）。 */
@@ -437,30 +543,10 @@ public final class ItemSkills {
     }
 
     private static String skillName(String id) {
-        return switch (id) {
-            case SKILL_DURABILITY -> "耐久強化";
-            case SKILL_FLYING -> "飛翔";
-            case SKILL_HEALTH -> "最大体力増加";
-            case SKILL_CHARGE -> "突進軽減";
-            case SKILL_VALOR -> "勇猛果敢";
-            case SKILL_DASH -> "突飛";
-            case SKILL_ALL_IN -> "オールイン";
-            case SKILL_JUST_BLOCK -> "ジャストブロック";
-            case SKILL_TAKENOKO -> "たけのこ魔法";
-            case SKILL_ENERGY_ABSORB -> "エネルギー吸収";
-            case SKILL_DEBUFF_IMMUNITY -> "デバフ免疫";
-            case SKILL_ARMOR_BOOST -> "防具性能上昇";
-            case SKILL_LION_HEART -> "獅子の心臓";
-            case SKILL_SET_BONUS -> "セット商法";
-            case SKILL_PAST_GIFT -> "過去からの贈り物";
-            case SKILL_HERO_HYMN -> "朽ちた英雄の賛歌";
-            case SKILL_ASAHI -> "旭の弔い";
-            case SKILL_THROW -> "投擲";
-            case SKILL_FAST_MINING -> "高速採掘";
-            case SKILL_AREA_BREAK -> "範囲破壊";
-            case SKILL_LUCK -> "豪運";
-            default -> id;
-        };
+        if (!SKILL_IDS.contains(id)) {
+            return id;
+        }
+        return Lang.plain("emob.skill." + id + ".name");
     }
 
     /** 指定スキルが有効な場合の強化段階（ItemMeta 版）。不一致・無効なら -1。 */
@@ -588,10 +674,8 @@ public final class ItemSkills {
 
     private static String bonusName(String id) {
         return switch (id) {
-            case BONUS_NIGHT_VISION -> "暗視";
-            case BONUS_AUTO_MACE -> "オートメイス";
-            case BONUS_ATTACK_LINGER -> "攻撃滞留";
-            case BONUS_BULK_BREAK -> "一括破壊";
+            case BONUS_NIGHT_VISION, BONUS_AUTO_MACE, BONUS_ATTACK_LINGER, BONUS_BULK_BREAK,
+                 BONUS_NETHERITE_COATING -> Lang.plain("emob.bonus." + id + ".name");
             default -> id;
         };
     }
@@ -625,6 +709,9 @@ public final class ItemSkills {
         }
         if (held.getType() == Material.DRAGON_BREATH) {
             return BONUS_ATTACK_LINGER;
+        }
+        if (held.getType() == Material.NETHERITE_INGOT) {
+            return BONUS_NETHERITE_COATING; // 盾限定（appliesTo で検証）。ネザライト装備の修理は先に分岐するため衝突しない
         }
         if (BULK_BREAK_ITEMS.contains(held.getType())) {
             return BONUS_BULK_BREAK;
@@ -690,6 +777,7 @@ public final class ItemSkills {
             case BONUS_AUTO_MACE -> item.getType() == Material.MACE;
             case BONUS_ATTACK_LINGER -> item.getType().name().endsWith("_SWORD");
             case BONUS_BULK_BREAK -> item.getType().name().endsWith("_PICKAXE");
+            case BONUS_NETHERITE_COATING -> item.getType() == Material.SHIELD;
             default -> false;
         };
     }
@@ -705,6 +793,11 @@ public final class ItemSkills {
     /** アイテムが指定の付加スキルを持つか。 */
     public static boolean hasBonus(ItemStack item, String id) {
         ItemMeta meta = item.getItemMeta();
+        return meta != null && bonusList(meta.getPersistentDataContainer()).contains(id);
+    }
+
+    /** ItemMeta から付加スキルの有無を判定する（applyStats など meta しか持たない箇所用）。 */
+    public static boolean hasBonus(ItemMeta meta, String id) {
         return meta != null && bonusList(meta.getPersistentDataContainer()).contains(id);
     }
 

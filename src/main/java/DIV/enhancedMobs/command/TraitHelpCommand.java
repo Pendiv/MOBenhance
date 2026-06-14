@@ -1,6 +1,7 @@
 package DIV.enhancedMobs.command;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.i18n.Lang;
 import DIV.enhancedMobs.trait.Trait;
 import DIV.enhancedMobs.trait.TraitLang;
 import net.kyori.adventure.text.Component;
@@ -39,7 +40,7 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission(PERM)) {
-            sender.sendMessage(Component.text("You don't have permission to do that.", NamedTextColor.RED));
+            Lang.send(sender, "emob.common.no_perm");
             return true;
         }
         if (args.length == 0) {
@@ -72,7 +73,7 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
                         max = value;
                     }
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(Component.text(token + " の値が数値ではありません: " + args[i], NamedTextColor.RED));
+                    Lang.send(sender, "emob.trait.bad_number", Component.text(token), Component.text(args[i]));
                     return;
                 }
             }
@@ -126,7 +127,7 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (partial.size() > 1) {
-            Component msg = Component.text("「" + query + "」に一致する特性が複数あります:", NamedTextColor.YELLOW);
+            Component msg = Lang.of("emob.trait.multi_match", Component.text(query));
             for (Trait trait : partial) {
                 msg = msg.append(Component.newline())
                         .append(Component.text("  " + lang.name(trait), NamedTextColor.AQUA))
@@ -135,16 +136,14 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(msg);
             return;
         }
-        sender.sendMessage(Component.text("特性が見つかりません: " + query, NamedTextColor.RED)
-                .append(Component.newline())
-                .append(Component.text("一覧は /traithelp で確認できます。", NamedTextColor.GRAY)));
+        Lang.send(sender, "emob.trait.not_found", Component.text(query));
     }
 
     private void sendDetail(CommandSender sender, Trait trait, TraitLang lang) {
         Component msg = Component.text("【" + lang.name(trait) + "】", NamedTextColor.GOLD)
                 .append(Component.text(" (" + trait.id() + ")", NamedTextColor.DARK_GRAY))
                 .append(Component.newline())
-                .append(Component.text("出現Lv: " + trait.minLevel(), NamedTextColor.YELLOW))
+                .append(Lang.of("emob.trait.min_level", Component.text(trait.minLevel())))
                 .append(Component.newline())
                 .append(Component.text(lang.desc(trait), NamedTextColor.WHITE));
         sender.sendMessage(msg);
@@ -156,12 +155,12 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
         TraitLang lang = plugin.traits().lang();
         Component header;
         if (min == Integer.MIN_VALUE && max == Integer.MAX_VALUE) {
-            header = Component.text("特性一覧 (" + traits.size() + "件)", NamedTextColor.GOLD);
+            header = Lang.of("emob.trait.list_header", Component.text(traits.size()));
         } else {
             String lo = min == Integer.MIN_VALUE ? "0" : Integer.toString(min);
             String hi = max == Integer.MAX_VALUE ? "∞" : Integer.toString(max);
-            header = Component.text("特性一覧 出現Lv " + lo + "〜" + hi
-                    + " (" + traits.size() + "件)", NamedTextColor.GOLD);
+            header = Lang.of("emob.trait.list_header_range",
+                    Component.text(lo), Component.text(hi), Component.text(traits.size()));
         }
         Component msg = header;
         for (Trait trait : traits) {
@@ -171,7 +170,7 @@ public final class TraitHelpCommand implements CommandExecutor, TabCompleter {
         }
         if (traits.isEmpty()) {
             msg = msg.append(Component.newline())
-                    .append(Component.text("該当する特性はありません。", NamedTextColor.GRAY));
+                    .append(Lang.of("emob.trait.list_empty"));
         }
         sender.sendMessage(msg);
     }

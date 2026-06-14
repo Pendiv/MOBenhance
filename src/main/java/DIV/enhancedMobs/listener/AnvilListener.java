@@ -1,10 +1,10 @@
 package DIV.enhancedMobs.listener;
 
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.i18n.Lang;
 import DIV.enhancedMobs.item.ItemEnhancer;
 import DIV.enhancedMobs.item.ItemSkills;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -99,62 +99,62 @@ public final class AnvilListener implements Listener {
                 display.setItemStack(placed);
                 consumeOne(player);
                 if (ItemEnhancer.isBroken(placed)) {
-                    msg(player, "耐久値を回復しました（75%以上で破壊寸前が解除されます）", NamedTextColor.GREEN);
+                    Lang.actionbar(player, "emob.anvil.repaired_broken");
                 } else {
-                    msg(player, "耐久値を回復しました", NamedTextColor.GREEN);
+                    Lang.actionbar(player, "emob.anvil.repaired");
                 }
             } else {
-                msg(player, "耐久値は満タンです", NamedTextColor.GRAY);
+                Lang.actionbar(player, "emob.anvil.repair_full");
             }
         } else if (ItemSkills.isBonusItem(held)) {
             switch (ItemSkills.grantBonus(placed, held)) {
                 case GRANTED -> {
                     display.setItemStack(placed);
                     consumeOne(player);
-                    msg(player, "付加スキル【" + ItemSkills.bonusDisplayName(held) + "】を付与しました",
-                            NamedTextColor.LIGHT_PURPLE);
+                    Lang.actionbar(player, "emob.anvil.bonus_granted",
+                            Component.text(ItemSkills.bonusDisplayName(held)));
                 }
-                case ALREADY -> msg(player, "既に付与済みです", NamedTextColor.RED);
-                case NOT_APPLICABLE -> msg(player, "このアイテムには付与できません", NamedTextColor.RED);
+                case ALREADY -> Lang.actionbar(player, "emob.anvil.bonus_already");
+                case NOT_APPLICABLE -> Lang.actionbar(player, "emob.anvil.bonus_not_applicable");
             }
         } else if (held.getType() == Material.WITHER_SKELETON_SKULL) {
             if (ItemSkills.rerollSkill(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
-                msg(player, "スキルを再抽選しました：" + ItemSkills.skillDisplayName(ItemSkills.skillId(placed)),
-                        NamedTextColor.GOLD);
+                Lang.actionbar(player, "emob.anvil.skill_rerolled",
+                        Component.text(ItemSkills.skillDisplayName(ItemSkills.skillId(placed))));
             } else {
-                msg(player, "再抽選できるスキルがありません（Lv10以上で抽選済みの装備が必要）", NamedTextColor.RED);
+                Lang.actionbar(player, "emob.anvil.reroll_none");
             }
         } else if (held.getType() == Material.DRAGON_HEAD) {
             // ドラゴンの頭: ツール限定で即座にレベル・精錬MAX。
             if (ItemEnhancer.category(placed) == ItemEnhancer.Category.TOOL && ItemEnhancer.maxOut(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
-                msg(player, "ツールをレベル・精錬MAXにしました", NamedTextColor.LIGHT_PURPLE);
+                Lang.actionbar(player, "emob.anvil.dragon_maxed");
             } else {
-                msg(player, "ドラゴンの頭はツール（ツルハシ/シャベル/斧）にのみ使えます", NamedTextColor.RED);
+                Lang.actionbar(player, "emob.anvil.dragon_tool_only");
             }
         } else if (repairOnly) {
-            msg(player, "このアイテムは耐久回復のみ対応です（修理素材を持って右クリック）", NamedTextColor.RED);
+            Lang.actionbar(player, "emob.anvil.repair_only");
         } else if (held.getType() == Material.MACE
                 && !(placed.getType() == Material.MACE && player.isSneaking())) {
             // 鍛造を精錬より優先（メイス×メイスの誤消費防止）。メイス同士の精錬はスニーククリックで行う。
             if (ItemEnhancer.forge(placed)) {
                 display.setItemStack(placed);
-                msg(player, "鍛造しました", NamedTextColor.LIGHT_PURPLE);
+                Lang.actionbar(player, "emob.anvil.forged");
             } else if (placed.getType() == Material.MACE) {
-                msg(player, "既に鍛造済みです（精錬する場合はスニーク右クリック）", NamedTextColor.YELLOW);
+                Lang.actionbar(player, "emob.anvil.forge_already_mace");
             } else {
-                msg(player, "既に鍛造済みです", NamedTextColor.RED);
+                Lang.actionbar(player, "emob.anvil.forge_already");
             }
         } else if (held.getType() == placed.getType()) {
             if (ItemEnhancer.refine(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
-                msg(player, "精錬しました", NamedTextColor.GOLD);
+                Lang.actionbar(player, "emob.anvil.refined");
             } else {
-                msg(player, "これ以上精錬できません", NamedTextColor.RED);
+                Lang.actionbar(player, "emob.anvil.refine_max");
             }
         }
     }
@@ -209,10 +209,6 @@ public final class AnvilListener implements Listener {
         for (ItemStack leftover : player.getInventory().addItem(item).values()) {
             player.getWorld().dropItemNaturally(player.getLocation(), leftover);
         }
-    }
-
-    private void msg(Player player, String text, NamedTextColor color) {
-        player.sendActionBar(Component.text(text, color));
     }
 
     private boolean isAnvil(Material material) {
