@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
@@ -32,12 +34,17 @@ public final class EndlessTaleTrait extends Trait {
         if (mob.getHealth() - event.getFinalDamage() > 0) {
             return;
         }
+        // 蘇生 = 全回復。回復倍率0（封印・呪い）なら蘇生不可でそのまま死ぬ（ロールも消費しない）。
+        double revive = Mobs.maxHealth(mob) * Attributes.get(mob, StandardAttributes.HEAL_MULTIPLIER);
+        if (revive <= 0) {
+            return;
+        }
         double chance = EntityState.getDouble(mob, "et_chance", 0.50 + 0.2215 * rank);
         if (chance <= 0 || ThreadLocalRandom.current().nextDouble() >= chance) {
             return;
         }
         event.setCancelled(true);
-        mob.setHealth(Mobs.maxHealth(mob));
+        mob.setHealth(Math.min(Mobs.maxHealth(mob), revive));
         EntityState.setFlag(mob, "revive_cd", REVIVE_CD);
         Mobs.playRevivalEffect(mob);
         // 減衰は成功時のみ（原典: currentChance = c×0.8 − 0.05）

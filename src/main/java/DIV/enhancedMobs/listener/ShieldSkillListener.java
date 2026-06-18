@@ -113,7 +113,7 @@ public final class ShieldSkillListener implements Listener {
             return;
         }
         int stage = ItemSkills.activeStage(shield, skill);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         if (skill.equals(ItemSkills.SKILL_GUN_SHIELD)) {
@@ -174,8 +174,8 @@ public final class ShieldSkillListener implements Listener {
             return;
         }
         int stage = ItemSkills.activeStage(main, ItemSkills.SKILL_ABEKOBE);
-        if (stage < 0) {
-            return; // メインハンドがあべこべ盾でなければ無関係
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
+            return; // メインハンドがあべこべ盾でない / 封印中は無関係
         }
         event.setCancelled(true);
         if (ItemEnhancer.isBroken(main)) {
@@ -310,6 +310,9 @@ public final class ShieldSkillListener implements Listener {
 
     /** ガン盾廃止令スキルが有効な盾を構えていればその強化段階、無ければ null。 */
     private Integer gunShieldStage(Player player) {
+        if (ItemSkills.weaponSkillsLocked(player)) {
+            return null; // 武器スキル封印中はガン盾廃止令も無効
+        }
         EquipmentSlot slot = shieldSlot(player);
         if (slot == null) {
             return null;

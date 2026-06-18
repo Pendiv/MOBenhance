@@ -1,7 +1,6 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
 import DIV.enhancedMobs.EnhancedMobs;
-import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.Location;
@@ -52,14 +51,11 @@ public final class BushidoSpiritTrait extends Trait {
     public void tick(LivingEntity mob, int rank) {
         // 一騎打ちの結界を魂の炎リングで可視化（tick ごとに本体位置へ追従）。
         emitSoulRing(mob);
-        // 一騎打ち空間: 2 秒（40t）ごとに周囲32の他 Mob を消去。
+        // 一騎打ち空間: 周囲32の他 Mob（ボス除く）を毎tick消去し続ける。
+        // 以前は 40t のスロットルで初回しか除去されない取りこぼしがあったため撤去。
         // 原典の MASTER minion 除外は相当概念が無いためボス除外のみ（残差）。
-        if (EntityState.hasFlag(mob, "bushido_purge")) {
-            return;
-        }
-        EntityState.setFlag(mob, "bushido_purge", 40);
         for (Entity entity : mob.getNearbyEntities(32, 32, 32)) {
-            if (entity instanceof Mob other && !Mobs.isBoss(other.getType())) {
+            if (entity instanceof Mob other && other != mob && !Mobs.isBoss(other.getType())) {
                 other.remove();
             }
         }

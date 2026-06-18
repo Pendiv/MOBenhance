@@ -93,12 +93,20 @@ public final class Mobs {
     /**
      * 回復倍率（attributelib heal_multiplier、呪い等）を尊重した直接回復。
      * EntityRegainHealthEvent を発火しない setHealth 経路の回復はこれを使うこと。
+     *
+     * @return 実際に回復した HP 量（回復阻害中＝倍率0なら 0）。蘇生・全回復系が
+     *         「阻害されたか」を判定して CD 消費等を分岐するのに使える。
      */
-    public static void heal(LivingEntity entity, double amount) {
+    public static double heal(LivingEntity entity, double amount) {
         double healed = amount * Attributes.get(entity, StandardAttributes.HEAL_MULTIPLIER);
-        if (healed > 0) {
-            entity.setHealth(Math.min(maxHealth(entity), entity.getHealth() + healed));
+        if (healed <= 0) {
+            return 0.0;
         }
+        double max = maxHealth(entity);
+        double before = entity.getHealth();
+        double after = Math.min(max, before + healed);
+        entity.setHealth(after);
+        return after - before;
     }
 
     /**

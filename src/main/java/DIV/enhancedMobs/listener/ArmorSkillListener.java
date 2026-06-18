@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -124,7 +125,7 @@ public final class ArmorSkillListener implements Listener {
             return;
         }
         int stage = ItemSkills.activeStage(chest, ItemSkills.SKILL_LION_HEART);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.armorSkillsLocked(player)) {
             return;
         }
         double health = player.getHealth();
@@ -145,7 +146,7 @@ public final class ArmorSkillListener implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 900, 1));
         player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 100, 1));
         player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 800, 0));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 4));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, ItemSkills.LION_RESIST_TICKS[stage], 4));
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TOTEM_USE, 1f, 1f);
         player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING,
                 player.getLocation().add(0, 1, 0), 60, 0.5, 0.8, 0.5, 0.3);
@@ -206,6 +207,14 @@ public final class ArmorSkillListener implements Listener {
         }
     }
 
+    /** 退出したプレイヤーの CT 記録を残さない（メモリリーク防止）。CT は再ログイン時にどうせ切れている。 */
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        UUID id = event.getPlayer().getUniqueId();
+        debuffCooldown.remove(id);
+        lionCooldown.remove(id);
+    }
+
     private void applyPastGiftModifier(Player player, double amount) {
         AttributeInstance armor = player.getAttribute(Attribute.ARMOR);
         if (armor == null) {
@@ -233,6 +242,9 @@ public final class ArmorSkillListener implements Listener {
 
     /** 装備4部位を走査し、指定スキルの最大段階を返す（破壊寸前は除外、無ければ -1）。 */
     private int bestArmorStage(Player player, String skillId) {
+        if (ItemSkills.armorSkillsLocked(player)) {
+            return -1; // 防具スキル封印中（決死の特攻など）は無効
+        }
         int best = -1;
         for (ItemStack piece : player.getInventory().getArmorContents()) {
             if (piece == null) {

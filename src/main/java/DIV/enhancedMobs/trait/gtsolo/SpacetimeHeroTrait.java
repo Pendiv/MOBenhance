@@ -91,7 +91,7 @@ public final class SpacetimeHeroTrait extends Trait {
     /** 覚醒: 全快 + 攻撃力 +(125+25N)%（MULTIPLY_BASE = ADD_SCALAR）を10秒間。 */
     private static void enable(LivingEntity hero, int rank) {
         EntityState.setInt(hero, "hero_on", 1);
-        hero.setHealth(Mobs.maxHealth(hero));
+        Mobs.heal(hero, Mobs.maxHealth(hero)); // 回復倍率（封印・呪い）を尊重。バフ自体は阻害下でも付与。
         Mobs.addModifier(hero, Attribute.ATTACK_DAMAGE, ATK_KEY,
                 1.25 + 0.25 * rank, AttributeModifier.Operation.ADD_SCALAR);
         EntityState.setFlag(hero, "hero_buff", BUFF_TICKS);

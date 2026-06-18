@@ -1,6 +1,10 @@
 package DIV.enhancedMobs.item;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
+import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.i18n.Lang;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -12,6 +16,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -60,9 +65,15 @@ public final class ItemSkills {
     /** 付加スキル id のカンマ区切りリスト。 */
     public static final NamespacedKey BONUS = k("item_bonus_skills");
 
+    /** スキル封印（決死の特攻など）: 武器スキルが使えない期限 tick（プレイヤー PDC）。 */
+    private static final NamespacedKey WEAPON_LOCK = k("skill_lock_weapon");
+    /** スキル封印: 防具スキルが使えない期限 tick（プレイヤー PDC）。 */
+    private static final NamespacedKey ARMOR_LOCK = k("skill_lock_armor");
+
     public static final int ROLL_LEVEL = 10;
     public static final int ACTIVE_LEVEL = 30;
-    private static final int[] UPGRADE_LEVELS = {50, 70, 100};
+    // 段階解放レベル。stage は超えた数（0〜4）。5段目(stage4)は Lv120＝神格化到達でのみ解放。
+    private static final int[] UPGRADE_LEVELS = {50, 70, 100, 120};
 
     public static final String SKILL_DURABILITY = "durability";
     public static final String SKILL_FLYING = "flying";
@@ -91,6 +102,18 @@ public final class ItemSkills {
     public static final String SKILL_COUNTER = "effective_counter";
     public static final String SKILL_ABEKOBE = "abekobe";
     public static final String SKILL_TRACTION = "traction";
+    public static final String SKILL_BULLSEYE = "bullseye";
+    public static final String SKILL_ADAPTIVE = "adaptive";
+    public static final String SKILL_EMBER = "lingering_ember";
+    public static final String SKILL_FLEETING = "fleeting_dream";
+    public static final String SKILL_THUNDERBOLT = "thunderbolt";
+    public static final String SKILL_HOLLOWING = "hollowing";
+    public static final String SKILL_GAMBLER = "gambler";
+    public static final String SKILL_CRIT_RATE = "crit_rate";
+    public static final String SKILL_CRIT_POWER = "crit_power";
+    public static final String SKILL_CRIT_MASTERY = "crit_mastery";
+    public static final String SKILL_AUTO_INTERCEPT = "auto_intercept";
+    public static final String SKILL_SPELL_REFACTOR = "spell_refactor";
     private static final String BONUS_NIGHT_VISION = "night_vision";
     public static final String BONUS_AUTO_MACE = "auto_mace";
     public static final String BONUS_ATTACK_LINGER = "attack_linger";
@@ -105,54 +128,61 @@ public final class ItemSkills {
             SKILL_PAST_GIFT, SKILL_HERO_HYMN, SKILL_ASAHI,
             SKILL_THROW, SKILL_FAST_MINING, SKILL_AREA_BREAK, SKILL_LUCK,
             SKILL_MEGATON, SKILL_FIRE_CHARGE,
-            SKILL_GUN_SHIELD, SKILL_COUNTER, SKILL_ABEKOBE, SKILL_TRACTION);
+            SKILL_GUN_SHIELD, SKILL_COUNTER, SKILL_ABEKOBE, SKILL_TRACTION, SKILL_BULLSEYE,
+            SKILL_ADAPTIVE, SKILL_EMBER, SKILL_FLEETING, SKILL_THUNDERBOLT,
+            SKILL_HOLLOWING, SKILL_GAMBLER, SKILL_CRIT_RATE, SKILL_CRIT_POWER, SKILL_CRIT_MASTERY,
+            SKILL_AUTO_INTERCEPT, SKILL_SPELL_REFACTOR);
 
-    /** 強化段階ごとの耐久上限倍率（未強化/+1/+2/+3）。 */
-    private static final double[] DURA_MULT = {1.2, 1.4, 1.6, 2.2};
-    /** 強化段階ごとの耐久エンチャ加算（未強化/+1/+2/+3）。 */
-    private static final int[] UNBR_BONUS = {1, 1, 2, 3};
+    // ※ 各配列の5要素目(index4)は Lv120(神格化)で解放される第5段階。
+    //    仕様txtに5値目があるものは実装済み、無いものは暫定で4段目を複製（伸び値はユーザー指定待ち）。
+    /** 強化段階ごとの耐久上限倍率（未強化/+1/+2/+3/神格）。 */
+    private static final double[] DURA_MULT = {1.2, 1.4, 1.6, 2.2, 2.8};
+    /** 強化段階ごとの耐久エンチャ加算（未強化/+1/+2/+3/神格）。 */
+    private static final int[] UNBR_BONUS = {1, 1, 2, 3, 5};
     /** 飛翔: 強化段階ごとのクールタイム（秒）。 */
-    public static final int[] FLYING_COOLDOWN_SEC = {9, 8, 7, 3};
+    public static final double[] FLYING_COOLDOWN_SEC = {9, 8, 7, 3, 2.2};
     /** 飛翔: 強化段階ごとの飛翔可能範囲（ブロック）。 */
-    public static final double[] FLYING_RANGE = {12, 14, 16, 99};
+    public static final double[] FLYING_RANGE = {12, 14, 16, 99, 99};
     /** オートメイス: 強化段階ごとのクールタイム（秒）。 */
-    public static final int[] AUTO_MACE_COOLDOWN_SEC = {10, 9, 8, 2};
+    public static final double[] AUTO_MACE_COOLDOWN_SEC = {10, 9, 8, 2, 1.5};
     /** オートメイス: 強化段階ごとの上昇ブロック数。 */
-    public static final double[] AUTO_MACE_RISE = {10, 12, 14, 25};
-    /** 最大体力増加: 段階ごとの体力加算。 */
-    static final double[] HEALTH_BONUS = {2, 3, 4, 8};
+    public static final double[] AUTO_MACE_RISE = {10, 12, 14, 25, 35};
+    /** 最大体力増加: 段階ごとの体力加算（attribute単位、2=1ハート）。 */
+    static final double[] HEALTH_BONUS = {2, 3, 4, 8, 16};
     /** 突進軽減: 段階ごとの満腹度回復量。 */
-    public static final int[] CHARGE_HUNGER = {2, 4, 6, 20};
+    public static final int[] CHARGE_HUNGER = {2, 4, 6, 20, 25};
     /** 突進軽減: 突進後の落下ダメージ無効時間（tick）。 */
     public static final int CHARGE_FALL_IMMUNE_TICKS = 100;
     /** 勇猛果敢: 段階ごとの効果レベル上限。 */
-    public static final int[] VALOR_CAP = {5, 10, 20, 99};
+    public static final int[] VALOR_CAP = {5, 10, 20, 99, 255};
     /** 勇猛果敢: 段階ごとの効果時間（秒）。 */
-    public static final int[] VALOR_DURATION_SEC = {5, 5, 6, 10};
-    /** 突飛: 段階ごとのクールタイム（tick）。CT 5 / 4.5 / 4 / 1.5 秒。 */
-    public static final int[] DASH_COOLDOWN_TICKS = {100, 90, 80, 30};
+    public static final int[] VALOR_DURATION_SEC = {5, 5, 6, 10, 15};
+    /** 突飛: 段階ごとのクールタイム（tick）。CT 5 / 4.5 / 4 / 1.5 / 1.3 秒。 */
+    public static final int[] DASH_COOLDOWN_TICKS = {100, 90, 80, 30, 26};
     /** 突飛: 段階ごとの突進初速（飛距離が段階で伸びる）。 */
-    public static final double[] DASH_POWER = {1.8, 2.2, 2.6, 3.5};
+    public static final double[] DASH_POWER = {1.8, 2.2, 2.6, 3.5, 4.2};
     /** オールイン: 段階ごとの固定攻撃速度。 */
-    static final double[] ALL_IN_SPEED = {0.6, 0.6, 0.7, 0.9};
+    static final double[] ALL_IN_SPEED = {0.6, 0.6, 0.7, 0.9, 1.0};
     /** オールイン: 段階ごとの攻撃力加算。 */
-    static final double[] ALL_IN_ATK = {7, 10, 13, 25};
+    static final double[] ALL_IN_ATK = {7, 10, 13, 25, 30};
     /** ジャストブロック: 段階ごとのブロック確率。複数部位でも最大段階のみ有効（非累積）。 */
-    public static final double[] JUST_BLOCK_CHANCE = {0.25, 0.30, 0.35, 0.50};
+    public static final double[] JUST_BLOCK_CHANCE = {0.25, 0.30, 0.35, 0.50, 0.63};
     /** たけのこ魔法: 段階ごとの打ち上げ高さ（ブロック）。 */
-    public static final double[] TAKENOKO_HEIGHT = {6, 8, 10, 16};
+    public static final double[] TAKENOKO_HEIGHT = {6, 8, 10, 16, 35};
     /** 攻撃滞留: 段階ごとの発生確率（「稀に」）。 */
-    public static final double[] LINGER_CHANCE = {0.10, 0.15, 0.20, 0.30};
+    public static final double[] LINGER_CHANCE = {0.10, 0.15, 0.20, 0.30, 0.35};
     /** エネルギー吸収: 段階ごとのクールタイム（秒）。 */
-    public static final int[] ENERGY_COOLDOWN_SEC = {13, 12, 10, 5};
-    /** エネルギー吸収: 段階ごとの回復量（HP。3/4/5/10 ハート）。 */
-    public static final double[] ENERGY_HEAL = {6, 8, 10, 20};
+    public static final int[] ENERGY_COOLDOWN_SEC = {13, 12, 10, 5, 4};
+    /** エネルギー吸収: 段階ごとの回復量（HP。3/4/5/10/14 ハート）。 */
+    public static final double[] ENERGY_HEAL = {6, 8, 10, 20, 28};
     /** デバフ免疫: 段階ごとのクールタイム（秒）。 */
-    public static final int[] DEBUFF_COOLDOWN_SEC = {30, 28, 26, 15};
+    public static final int[] DEBUFF_COOLDOWN_SEC = {30, 28, 26, 15, 10};
     /** 防具性能上昇: 段階ごとの素防具性能（ARMOR/ARMOR_TOUGHNESS）に対する加算割合。 */
-    static final double[] ARMOR_BOOST_PCT = {0.2, 0.4, 0.6, 1.2};
+    static final double[] ARMOR_BOOST_PCT = {0.2, 0.4, 0.6, 1.2, 1.8};
     /** 獅子の心臓: 段階ごとのクールタイム（秒）。 */
-    public static final int[] LION_COOLDOWN_SEC = {150, 140, 130, 100};
+    public static final int[] LION_COOLDOWN_SEC = {150, 140, 130, 100, 65};
+    /** 獅子の心臓: 段階ごとの耐性V（無敵相当）持続（tick）。5値目=7秒。 */
+    public static final int[] LION_RESIST_TICKS = {100, 100, 100, 100, 140};
     /** セット商法: 最大体力加算。 */
     private static final double SET_BONUS_HP_AMOUNT = 10;
     /** セット商法: 攻撃力加算。 */
@@ -160,69 +190,133 @@ public final class ItemSkills {
     /** 過去からの贈り物: 死亡時に未来へ送る防御力の割合。 */
     public static final double PAST_GIFT_RATIO = 0.25;
     /** 朽ちた英雄の賛歌: 雷の追加ダメージ（攻撃力比）。仕様 50/70/150% を補間（段階2=100%）。 */
-    public static final double[] HYMN_DAMAGE_PCT = {0.5, 0.7, 1.0, 1.5};
+    public static final double[] HYMN_DAMAGE_PCT = {0.5, 0.7, 1.0, 1.5, 3.0};
     /** 朽ちた英雄の賛歌: 回復封印の持続（tick）。 */
     public static final int HYMN_CURSE_TICKS = 10;
     /** 旭の弔い: 燃焼中の対象が受ける炎ダメージ増加。仕様 20/30/70% を補間（段階2=50%）。 */
-    public static final double[] ASAHI_FIRE_VULN = {0.20, 0.30, 0.50, 0.70};
+    public static final double[] ASAHI_FIRE_VULN = {0.20, 0.30, 0.50, 0.70, 1.50};
     /** 旭の弔い: 攻撃時の着火時間（tick、火属性化）。 */
     public static final int ASAHI_IGNITE_TICKS = 80;
     /** 投擲（槍）: 段階ごとのクールタイム（秒）。 */
-    public static final int[] THROW_COOLDOWN_SEC = {10, 9, 8, 3};
+    public static final int[] THROW_COOLDOWN_SEC = {10, 9, 8, 3, 3};
     /** 投擲（槍）: 段階ごとの飛翔初速（blocks/tick）。速いほどダメージも上がる。 */
-    public static final double[] THROW_SPEED = {1.6, 2.0, 2.5, 3.5};
-    /** 高速採掘: 段階ごとの採掘効率加算（mining_efficiency）。 */
-    static final double[] FAST_MINING_BONUS = {4.5, 9, 13.5, 90};
+    public static final double[] THROW_SPEED = {1.6, 2.0, 2.5, 3.5, 5.5};
+    /** 高速採掘: 段階ごとの採掘効率加算（mining_efficiency）。仕様5値目=120。 */
+    static final double[] FAST_MINING_BONUS = {4.5, 9, 13.5, 90, 120};
     /** 範囲破壊: 段階ごとのクールタイム（秒）。 */
-    public static final int[] AREA_BREAK_COOLDOWN_SEC = {6, 7, 8, 12};
+    public static final int[] AREA_BREAK_COOLDOWN_SEC = {6, 7, 8, 12, 8};
     /** 範囲破壊: 段階ごとの立方体の一辺（ブロック）。 */
-    public static final int[] AREA_BREAK_SIZE = {3, 5, 7, 13};
-    /** 豪運: 段階ごとの幸運エンチャレベル。 */
-    private static final int[] LUCK_LEVELS = {2, 3, 4, 8};
+    public static final int[] AREA_BREAK_SIZE = {3, 5, 7, 13, 13};
+    /** 豪運: 段階ごとの幸運エンチャレベル。仕様5値目=10。 */
+    private static final int[] LUCK_LEVELS = {2, 3, 4, 8, 10};
     /** 一括破壊: 段階ごとの連鎖範囲（起点からのチェビシェフ距離）。 */
-    public static final int[] BULK_RANGE = {1, 1, 2, 2};
+    public static final int[] BULK_RANGE = {1, 1, 2, 2, 5};
     /** 一括破壊: 1回の発動で破壊できるブロック総数（起点含む）。 */
     public static final int BULK_MAX_BLOCKS = 48;
-    /** メガトンスマッシュ: 段階ごとのクールタイム（秒）。 */
-    public static final int[] MEGATON_COOLDOWN_SEC = {15, 14, 13, 9};
-    /** メガトンスマッシュ: 段階ごとのスタン時間（tick）。1.5/1.7/1.9/3.0 秒。 */
-    public static final int[] MEGATON_STUN_TICKS = {30, 34, 38, 60};
+    /** メガトンスマッシュ: 段階ごとのクールタイム（秒）。仕様5値目=7。 */
+    public static final int[] MEGATON_COOLDOWN_SEC = {15, 14, 13, 9, 7};
+    /** メガトンスマッシュ: 段階ごとのスタン時間（tick）。1.5/1.7/1.9/3.0/3.2 秒。 */
+    public static final int[] MEGATON_STUN_TICKS = {30, 34, 38, 60, 64};
     /** メガトンスマッシュ: ボスへのスタン時間倍率（効果減少）。 */
     public static final double MEGATON_BOSS_MULT = 0.25;
     /** メガトンスマッシュ: スマッシュ判定とみなす最低落下距離（ブロック）。 */
     public static final float MEGATON_MIN_FALL = 1.5f;
-    /** ファイアチャージ: 段階ごとのクールタイム（tick）。12/10.8/8/5 秒。 */
-    public static final int[] FIRE_CHARGE_COOLDOWN_TICKS = {240, 216, 160, 100};
-    /** ファイアチャージ: 段階ごとの攻撃力に対するダメージ割合。 */
-    public static final double[] FIRE_CHARGE_DAMAGE_PCT = {0.8, 0.9, 1.0, 1.5};
+    /** ファイアチャージ: 段階ごとのクールタイム（tick）。12/10.8/8/5 秒。5値目は暫定（CT指定待ち）。 */
+    public static final int[] FIRE_CHARGE_COOLDOWN_TICKS = {240, 216, 160, 100, 60};
+    /** ファイアチャージ: 段階ごとの攻撃力に対するダメージ割合。仕様5値目=200%。 */
+    public static final double[] FIRE_CHARGE_DAMAGE_PCT = {0.8, 0.9, 1.0, 1.5, 2.0};
     /** ファイアチャージ: 飛翔速度（blocks/tick、中速）。 */
     public static final double FIRE_CHARGE_SPEED = 0.95;
-    /** ガン盾廃止令: 段階ごとのガード成功時回復量（HP。3/4/5/8 ハート）。 */
-    public static final int[] GUN_SHIELD_HEAL = {6, 8, 10, 16};
+    /** 正鵠を射る: この tick 以上ためて引くと次の射撃が強化される（3秒）。 */
+    public static final int BULLSEYE_DRAW_TICKS = 60;
+    /** 正鵠を射る: 段階ごとの射撃ダメージ増加割合（40/50/60/100/150%）。仕様5値目=150%。 */
+    public static final double[] BULLSEYE_DAMAGE_PCT = {0.4, 0.5, 0.6, 1.0, 1.5};
+    /** 弓: レベルあたりの射撃ダメージ増加（Lv100 で +100%）。 */
+    public static final double BOW_DAMAGE_PER_LEVEL = 0.01;
+    /** アダプティブ: 段階ごとの完全適応までの被弾回数（少ないほど速い）。 */
+    public static final int[] ADAPTIVE_HITS = {25, 22, 20, 16, 12};
+    /** アダプティブ: 完全適応時の最大ダメージ軽減率。 */
+    public static final double ADAPTIVE_MAX_REDUCTION = 0.90;
+    /** 往昔の余燼: 段階ごとの常時ダメージ軽減率。 */
+    public static final double[] EMBER_DR = {0.18, 0.20, 0.23, 0.27, 0.33};
+    /** 往昔の余燼: 段階ごとの致死分割無効化クールタイム（秒）。 */
+    public static final int[] EMBER_NULLIFY_CT_SEC = {30, 28, 26, 22, 20};
+    /** 往昔の余燼: 1秒あたりに受ける被ダメ上限（最大HP比）。超過分は翌秒以降へ繰り越す。 */
+    public static final double EMBER_CAP_PCT = 0.25;
+    /** 須臾の夢: 段階ごとの回復量（防御力に対する割合）。 */
+    public static final double[] FLEETING_HEAL_PCT = {0.14, 0.16, 0.18, 0.22, 0.24};
+    /** 須臾の夢: 段階ごとのクールタイム（秒）。累積回復が最大HPに達するとCT開始。 */
+    public static final int[] FLEETING_CT_SEC = {20, 19, 18, 17, 16};
+    /** サンダーボルト: 段階ごとのクールタイム（秒）。 */
+    public static final int[] THUNDER_COOLDOWN_SEC = {15, 13, 11, 7, 5};
+    /** サンダーボルト: 段階ごとの攻撃力に対するダメージ割合。 */
+    public static final double[] THUNDER_DAMAGE_PCT = {1.5, 1.75, 2.0, 2.5, 4.0};
+    /** サンダーボルト: 段階ごとの固定加算ダメージ。 */
+    public static final double[] THUNDER_FLAT = {10, 15, 20, 35, 50};
+    /** サンダーボルト: 水中時の範囲攻撃半径（ブロック）。 */
+    public static final double THUNDER_RANGE = 18.0;
+    /** ガン盾廃止令: 段階ごとのガード成功時回復量（HP。3/4/5/8 ハート）。5値目は暫定（回復指定待ち）。 */
+    public static final int[] GUN_SHIELD_HEAL = {6, 8, 10, 16, 18};
     /** ガン盾廃止令: この tick 以上連続で構え続けると強制クールタイムが発生（4秒）。 */
     public static final int GUN_SHIELD_HOLD_TICKS = 80;
-    /** ガン盾廃止令: 段階ごとの強制クールタイム（tick）。4/3.5/3/1 秒。 */
-    public static final int[] GUN_SHIELD_FORCED_CD_TICKS = {80, 70, 60, 20};
-    /** 効果的な反撃: 段階ごとのクールタイム（tick）。3.5/3.3/3.1/2 秒。 */
-    public static final int[] COUNTER_COOLDOWN_TICKS = {70, 66, 62, 40};
+    /** ガン盾廃止令: 段階ごとの強制クールタイム（tick）。4/3.5/3/1/0.05 秒。仕様5値目=0.05秒(1tick)。 */
+    public static final int[] GUN_SHIELD_FORCED_CD_TICKS = {80, 70, 60, 20, 1};
+    /** 効果的な反撃: 段階ごとのクールタイム（tick）。3.5/3.3/3.1/2/1.5 秒。仕様5値目=1.5秒。 */
+    public static final int[] COUNTER_COOLDOWN_TICKS = {70, 66, 62, 40, 30};
     /** 効果的な反撃: ノックバックの強さ。 */
     public static final double COUNTER_KNOCKBACK = 0.85;
     /** 効果的な反撃: 反撃ダメージ（メインハンド武器の攻撃力比）。 */
     public static final double COUNTER_DAMAGE_PCT = 1.0;
     /** あべこべ: クールタイム（秒、全段階共通）。 */
     public static final int ABEKOBE_COOLDOWN_SEC = 30;
-    /** あべこべ: 段階ごとの効果時間（tick）。40/50/60/60 秒。 */
-    public static final int[] ABEKOBE_DURATION_TICKS = {800, 1000, 1200, 1200};
+    /** あべこべ: 段階ごとの効果時間（tick）。40/50/60/60/60 秒。仕様5値目=60秒。 */
+    public static final int[] ABEKOBE_DURATION_TICKS = {800, 1000, 1200, 1200, 1200};
     /** 牽引（槍）: クールタイム（tick、全段階固定 1.1 秒）。 */
     public static final int TRACTION_COOLDOWN_TICKS = 22;
     /** 牽引: 段階ごとの最大射程（ブロック）。 */
-    public static final int[] TRACTION_RANGE = {42, 44, 50, 62};
+    public static final int[] TRACTION_RANGE = {42, 44, 50, 62, 80};
+    /** 牽引: モブ命中時の攻撃力に対するダメージ割合。 */
+    public static final double TRACTION_DAMAGE_PCT = 2.0;
+    /** 牽引: 壁にも敵にも当たらず空振りした時のCT短縮（tick、0.8秒）。 */
+    public static final int TRACTION_WHIFF_REFUND_TICKS = 16;
+    /** 牽引: 一連の動作終了後も落下ダメージを無効化し続ける猶予（tick）。とくに牽引後の落下を救済。 */
+    public static final int TRACTION_FALL_GRACE_TICKS = 60;
     /** 牽引: 槍の飛行時間（tick、距離に関わらず固定 0.4 秒で目標へ補間）。 */
     public static final int TRACTION_FLIGHT_TICKS = 8;
     /** 牽引: 着弾から牽引開始までの待機（tick、0.1 秒。飛行0.4＋待機0.1＝0.5秒で牽引）。 */
     public static final int TRACTION_STICK_WAIT_TICKS = 2;
     /** 牽引: 段階ごとの牽引速度（blocks/tick、レベルでわずかに上昇。説明には非表示）。 */
-    public static final double[] TRACTION_PULL_SPEED = {1.6, 1.7, 1.8, 2.0};
+    public static final double[] TRACTION_PULL_SPEED = {1.6, 1.7, 1.8, 2.0, 2.0};
+
+    // ---- 会心（クリティカル）系・新規スキル ----
+    /** 伽藍洞: クリのたび相手の回復倍率を恒久的に減算する量／自分の会心率増加量（同値）。 */
+    public static final double[] HOLLOW_VALUE = {0.07, 0.08, 0.09, 0.10, 0.13};
+    /** 伽藍洞: 自分の会心率バフの持続（tick、7秒）。 */
+    public static final int HOLLOW_CRIT_DURATION = 140;
+    /** 博打打ち: 実効会心率のハードキャップ。 */
+    public static final double GAMBLE_CAP = 0.5;
+    /** 博打打ち: 超過会心率を会心ダメージへ変換する比率（1:3）。 */
+    public static final double GAMBLE_RATIO = 3.0;
+    /** 博打打ち: 変換対象にできる会心率の上限（これを超える分は捨てる）。 */
+    public static final double GAMBLE_MAX_CC = 1.0;
+    /** 会心率増加: 段階ごとの会心率上昇。 */
+    public static final double[] CRIT_RATE_UP = {0.15, 0.18, 0.22, 0.30, 0.40};
+    /** 会心ダメージ増加: 段階ごとの会心ダメージ上昇。 */
+    public static final double[] CRIT_POWER_UP = {0.25, 0.35, 0.45, 0.60, 0.90};
+    /** 会心システム強化: 段階ごとの会心率上昇。 */
+    public static final double[] CRIT_MASTERY_RATE = {0.07, 0.09, 0.11, 0.15, 0.20};
+    /** 会心システム強化: 段階ごとの会心ダメージ上昇。 */
+    public static final double[] CRIT_MASTERY_POWER = {0.12, 0.20, 0.25, 0.30, 0.50};
+    /** オート迎撃: 段階ごとの本来ダメージに対する倍率。 */
+    public static final double[] INTERCEPT_DAMAGE_PCT = {1.10, 1.15, 1.25, 1.40, 2.00};
+    /** オート迎撃: 段階ごとのクールタイム（秒）。 */
+    public static final int[] INTERCEPT_COOLDOWN_SEC = {12, 11, 10, 5, 3};
+    /** オート迎撃: 範囲攻撃の半径。 */
+    public static final double INTERCEPT_RADIUS = 3.0;
+    /** オート迎撃: 発動に必要な最低落下距離（ブロック）。 */
+    public static final float INTERCEPT_MIN_FALL = 3.0f;
+    /** スペルリファクター: 段階ごとの魔法ダメージ増加率（攻撃を魔法・防具貫通に変換した上で加算）。 */
+    public static final double[] SPELL_REFACTOR_PCT = {0.20, 0.30, 0.40, 0.70, 1.40};
 
     /** セット商法: プレイヤーへ付ける transient モディファイアのキー。 */
     private static final NamespacedKey SET_BONUS_HP_KEY = k("set_bonus_hp");
@@ -246,12 +340,18 @@ public final class ItemSkills {
     private static List<String> skillPool(ItemStack item) {
         List<String> pool = new ArrayList<>();
         pool.add(SKILL_DURABILITY);
+        // 会心系は全アイテム共通（会心はプレイヤー側に乗るため防具・道具・弓でも有効）。
+        pool.add(SKILL_CRIT_RATE);
+        pool.add(SKILL_CRIT_POWER);
+        pool.add(SKILL_CRIT_MASTERY);
         String n = item.getType().name();
         if (n.endsWith("_AXE")) {
             pool.add(SKILL_FLYING); // 斧限定
             pool.add(SKILL_ALL_IN);
             pool.add(SKILL_TAKENOKO);
             pool.add(SKILL_ASAHI);
+            pool.add(SKILL_HOLLOWING);
+            pool.add(SKILL_GAMBLER);
         }
         if (n.endsWith("_SWORD")) {
             pool.add(SKILL_VALOR); // 剣限定
@@ -259,9 +359,12 @@ public final class ItemSkills {
             pool.add(SKILL_ENERGY_ABSORB);
             pool.add(SKILL_HERO_HYMN);
             pool.add(SKILL_FIRE_CHARGE);
+            pool.add(SKILL_THUNDERBOLT);
+            pool.add(SKILL_SPELL_REFACTOR);
         }
         if (n.equals("MACE")) {
             pool.add(SKILL_MEGATON); // メイス限定
+            pool.add(SKILL_AUTO_INTERCEPT);
         }
         if (n.endsWith("SPEAR")) {
             pool.add(SKILL_CHARGE); // 槍限定
@@ -278,6 +381,9 @@ public final class ItemSkills {
             pool.add(SKILL_COUNTER);
             pool.add(SKILL_ABEKOBE);
         }
+        if (ItemEnhancer.category(item) == ItemEnhancer.Category.BOW) {
+            pool.add(SKILL_BULLSEYE); // 弓限定
+        }
         if (ItemEnhancer.category(item) == ItemEnhancer.Category.ARMOR) {
             pool.add(SKILL_HEALTH); // 防具限定
             pool.add(SKILL_JUST_BLOCK);
@@ -288,6 +394,9 @@ public final class ItemSkills {
         if (n.endsWith("_CHESTPLATE")) {
             pool.add(SKILL_LION_HEART); // チェストプレート限定
             pool.add(SKILL_SET_BONUS);
+            pool.add(SKILL_ADAPTIVE);
+            pool.add(SKILL_EMBER);
+            pool.add(SKILL_FLEETING);
         }
         pool.removeIf(id -> !enabled(id)); // config で無効化されたスキルは抽選対象外
         return pool;
@@ -324,7 +433,7 @@ public final class ItemSkills {
         return true;
     }
 
-    /** 強化段階: -1=未抽選/Lv30未満/config無効（いずれも無効）、0=有効（未強化）、1〜3=強化回数。 */
+    /** 強化段階: -1=未抽選/Lv30未満/config無効（いずれも無効）、0=有効（未強化）、1〜4=強化回数（4=Lv120神格化）。 */
     static int stage(PersistentDataContainer pdc, int level) {
         String id = pdc.get(SKILL, PersistentDataType.STRING);
         if (id == null || level < ACTIVE_LEVEL || !enabled(id)) {
@@ -414,7 +523,7 @@ public final class ItemSkills {
                     desc(id, 2, num(UNBR_BONUS[s])));
             case SKILL_FLYING -> List.of(
                     desc(id, 1),
-                    desc(id, 2, f0(FLYING_RANGE[s]), num(FLYING_COOLDOWN_SEC[s])));
+                    desc(id, 2, f0(FLYING_RANGE[s]), f1(FLYING_COOLDOWN_SEC[s])));
             case SKILL_HEALTH -> List.of(
                     desc(id, 1, f0(HEALTH_BONUS[s])));
             case SKILL_CHARGE -> List.of(
@@ -449,16 +558,13 @@ public final class ItemSkills {
                     desc(id, 2, f0(SET_BONUS_HP_AMOUNT), f0(SET_BONUS_ATK_AMOUNT)));
             case SKILL_PAST_GIFT -> List.of(
                     desc(id, 1, f0(PAST_GIFT_RATIO * 100)),
-                    desc(id, 2),
-                    desc(id, 3));
+                    desc(id, 2));
             case SKILL_HERO_HYMN -> List.of(
                     desc(id, 1, f1(HYMN_CURSE_TICKS / 20.0)),
-                    desc(id, 2, f0(HYMN_DAMAGE_PCT[s] * 100)),
-                    desc(id, 3));
+                    desc(id, 2, f0(HYMN_DAMAGE_PCT[s] * 100)));
             case SKILL_ASAHI -> List.of(
                     desc(id, 1, f0(ASAHI_IGNITE_TICKS / 20.0)),
-                    desc(id, 2, f0(ASAHI_FIRE_VULN[s] * 100)),
-                    desc(id, 3));
+                    desc(id, 2, f0(ASAHI_FIRE_VULN[s] * 100)));
             case SKILL_THROW -> List.of(
                     desc(id, 1),
                     desc(id, 2, f1(THROW_SPEED[s]), num(THROW_COOLDOWN_SEC[s])));
@@ -488,6 +594,36 @@ public final class ItemSkills {
             case SKILL_TRACTION -> List.of(
                     desc(id, 1),
                     desc(id, 2, num(TRACTION_RANGE[s])));
+            case SKILL_BULLSEYE -> List.of(
+                    desc(id, 1, f0(BULLSEYE_DAMAGE_PCT[s] * 100)));
+            case SKILL_ADAPTIVE -> List.of(
+                    desc(id, 1, num(ADAPTIVE_HITS[s]), f0(ADAPTIVE_MAX_REDUCTION * 100)),
+                    desc(id, 2));
+            case SKILL_EMBER -> List.of(
+                    desc(id, 1, f0(EMBER_DR[s] * 100)),
+                    desc(id, 2, num(EMBER_NULLIFY_CT_SEC[s])));
+            case SKILL_FLEETING -> List.of(
+                    desc(id, 1, f0(FLEETING_HEAL_PCT[s] * 100), num(FLEETING_CT_SEC[s])));
+            case SKILL_THUNDERBOLT -> List.of(
+                    desc(id, 1),
+                    desc(id, 2, f0(THUNDER_DAMAGE_PCT[s] * 100), f0(THUNDER_FLAT[s]), num(THUNDER_COOLDOWN_SEC[s])));
+            case SKILL_HOLLOWING -> List.of(
+                    desc(id, 1, f0(HOLLOW_VALUE[s] * 100)),
+                    desc(id, 2, f0(HOLLOW_VALUE[s] * 100)));
+            case SKILL_GAMBLER -> List.of(
+                    desc(id, 1, f0(GAMBLE_CAP * 100)),
+                    desc(id, 2));
+            case SKILL_CRIT_RATE -> List.of(
+                    desc(id, 1, f0(CRIT_RATE_UP[s] * 100)));
+            case SKILL_CRIT_POWER -> List.of(
+                    desc(id, 1, f0(CRIT_POWER_UP[s] * 100)));
+            case SKILL_CRIT_MASTERY -> List.of(
+                    desc(id, 1, f0(CRIT_MASTERY_RATE[s] * 100), f0(CRIT_MASTERY_POWER[s] * 100)));
+            case SKILL_AUTO_INTERCEPT -> List.of(
+                    desc(id, 1, f0(INTERCEPT_DAMAGE_PCT[s] * 100)),
+                    desc(id, 2, num(INTERCEPT_COOLDOWN_SEC[s])));
+            case SKILL_SPELL_REFACTOR -> List.of(
+                    desc(id, 1, f0(SPELL_REFACTOR_PCT[s] * 100)));
             default -> List.of();
         };
     }
@@ -498,13 +634,12 @@ public final class ItemSkills {
             case BONUS_NIGHT_VISION -> List.of(bonusDesc(id, 1));
             case BONUS_AUTO_MACE -> List.of(
                     bonusDesc(id, 1),
-                    bonusDesc(id, 2, f0(AUTO_MACE_RISE[s]), num(AUTO_MACE_COOLDOWN_SEC[s])));
+                    bonusDesc(id, 2, f0(AUTO_MACE_RISE[s]), f1(AUTO_MACE_COOLDOWN_SEC[s])));
             case BONUS_ATTACK_LINGER -> List.of(
                     bonusDesc(id, 1, f0(LINGER_CHANCE[s] * 100)),
                     bonusDesc(id, 2));
             case BONUS_BULK_BREAK -> List.of(
-                    bonusDesc(id, 1),
-                    bonusDesc(id, 2, num(BULK_RANGE[s]), num(BULK_MAX_BLOCKS)));
+                    bonusDesc(id, 1));
             case BONUS_NETHERITE_COATING -> List.of(
                     bonusDesc(id, 1),
                     bonusDesc(id, 2));
@@ -626,14 +761,47 @@ public final class ItemSkills {
 
     // ---- 外部 API（リスナー・コマンド用） ----
 
+    // ---- スキル封印（決死の特攻などが一時的にプレイヤーのスキル使用を止める） ----
+
+    // 期限はワールド gameTime 基準（保存され単調増加）なので再起動を跨いでも正しく失効する。
+    /** 武器（手持ち）スキルを ticks の間封印する。 */
+    public static void lockWeaponSkills(Player player, int ticks) {
+        player.getPersistentDataContainer().set(WEAPON_LOCK, PersistentDataType.LONG,
+                EntityState.gameTime() + ticks);
+    }
+
+    /** 防具スキルを ticks の間封印する。 */
+    public static void lockArmorSkills(Player player, int ticks) {
+        player.getPersistentDataContainer().set(ARMOR_LOCK, PersistentDataType.LONG,
+                EntityState.gameTime() + ticks);
+    }
+
+    /** 武器（手持ち）スキルが封印中か。 */
+    public static boolean weaponSkillsLocked(Player player) {
+        Long until = player.getPersistentDataContainer().get(WEAPON_LOCK, PersistentDataType.LONG);
+        return until != null && EntityState.gameTime() < until;
+    }
+
+    /** 防具スキルが封印中か。 */
+    public static boolean armorSkillsLocked(Player player) {
+        Long until = player.getPersistentDataContainer().get(ARMOR_LOCK, PersistentDataType.LONG);
+        return until != null && EntityState.gameTime() < until;
+    }
+
     /** アイテムのレベリングスキル id（未抽選なら null）。 */
     public static String skillId(ItemStack item) {
+        if (item == null) {
+            return null;
+        }
         ItemMeta meta = item.getItemMeta();
         return meta == null ? null : meta.getPersistentDataContainer().get(SKILL, PersistentDataType.STRING);
     }
 
     /** 指定スキルが有効な場合の強化段階（0〜3）。スキル不一致・無効（Lv30未満）なら -1。 */
     public static int activeStage(ItemStack item, String id) {
+        if (item == null) {
+            return -1; // 防具スロット未装備（getChestplate() 等が null）でも安全に弾く
+        }
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             return -1;
@@ -834,13 +1002,136 @@ public final class ItemSkills {
      */
     public static void tickBonusEffects() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ItemStack helmet = player.getInventory().getHelmet();
-            if (helmet != null && hasBonus(helmet, BONUS_NIGHT_VISION) && !ItemEnhancer.isBroken(helmet)) {
-                player.addPotionEffect(new PotionEffect(
-                        PotionEffectType.NIGHT_VISION, 200, 0, true, false, true));
+            try {
+                ItemStack helmet = player.getInventory().getHelmet();
+                if (helmet != null && hasBonus(helmet, BONUS_NIGHT_VISION) && !ItemEnhancer.isBroken(helmet)) {
+                    player.addPotionEffect(new PotionEffect(
+                            PotionEffectType.NIGHT_VISION, 200, 0, true, false, true));
+                }
+                tickSetBonus(player);
+            } catch (Exception e) {
+                // 1人分の処理が落ちても残りのプレイヤーを巻き添えにしない。
+                EnhancedMobs.get().getLogger().warning(
+                        "tickBonusEffects error for " + player.getName() + ": " + e);
             }
-            tickSetBonus(player);
         }
+    }
+
+    // ---- 会心系スキルの player 反映（会心率/ダメージ増加・会心システム強化・博打打ち変換・伽藍洞バフ） ----
+    private static final String SRC_CRIT_RATE = "enhancedmobs:skill/crit_rate";
+    private static final String SRC_CRIT_POWER = "enhancedmobs:skill/crit_power";
+    private static final String SRC_HOLLOW = "enhancedmobs:skill/hollowing_crit";
+    private static final String SRC_GAMBLE_CC = "enhancedmobs:skill/gamble_cc";
+    private static final String SRC_GAMBLE_CD = "enhancedmobs:skill/gamble_cd";
+    private static final String HOLLOW_HEAL_SOURCE = "enhancedmobs:curse/hollowing_heal";
+
+    /** 会心系スキルの反映タスク（応答性のため tickBonusEffects より短い周期で回す）。 */
+    public static void tickCritSkills() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            try {
+                syncCritSkills(player);
+            } catch (Exception e) {
+                EnhancedMobs.get().getLogger().warning(
+                        "tickCritSkills error for " + player.getName() + ": " + e);
+            }
+        }
+    }
+
+    /** 装備中の会心系スキル・博打打ち変換・伽藍洞の自己バフをプレイヤー属性へ同期する。 */
+    private static void syncCritSkills(Player player) {
+        Attributes.removeAll(player, SRC_CRIT_RATE);
+        Attributes.removeAll(player, SRC_CRIT_POWER);
+        Attributes.removeAll(player, SRC_HOLLOW);
+        Attributes.removeAll(player, SRC_GAMBLE_CC);
+        Attributes.removeAll(player, SRC_GAMBLE_CD);
+
+        ItemStack main = player.getInventory().getItemInMainHand();
+        double cc = critRateFrom(main);
+        double cd = critPowerFrom(main);
+        for (ItemStack armor : player.getInventory().getArmorContents()) {
+            cc += critRateFrom(armor);
+            cd += critPowerFrom(armor);
+        }
+        if (cc != 0) {
+            Attributes.addTransient(player, StandardAttributes.CRIT_CHANCE, SRC_CRIT_RATE, Operation.ADD, cc);
+        }
+        if (cd != 0) {
+            Attributes.addTransient(player, StandardAttributes.CRIT_DAMAGE, SRC_CRIT_POWER, Operation.ADD, cd);
+        }
+
+        // 伽藍洞: クリのたびに溜まった自己会心率バフ（7秒で失効）。
+        long now = EntityState.gameTime();
+        if (now <= (long) EntityState.getDouble(player, "hollow_crit_expiry", 0)) {
+            double buff = EntityState.getInt(player, "hollow_crit_stacks", 0)
+                    * EntityState.getDouble(player, "hollow_crit_per", 0);
+            if (buff > 0) {
+                Attributes.addTransient(player, StandardAttributes.CRIT_CHANCE, SRC_HOLLOW, Operation.ADD, buff);
+            }
+        } else {
+            EntityState.setInt(player, "hollow_crit_stacks", 0);
+        }
+
+        // 博打打ち（メインハンド・有効・非破壊）: 会心率を50%で頭打ちし、超過分(〜100%)を1:3で会心ダメージへ。
+        if (activeStage(main, SKILL_GAMBLER) >= 0 && !ItemEnhancer.isBroken(main)) {
+            double total = Attributes.get(player, StandardAttributes.CRIT_CHANCE);
+            if (total > GAMBLE_CAP) {
+                double convertible = Math.min(total, GAMBLE_MAX_CC) - GAMBLE_CAP;
+                Attributes.addTransient(player, StandardAttributes.CRIT_CHANCE, SRC_GAMBLE_CC,
+                        Operation.ADD, -(total - GAMBLE_CAP));
+                Attributes.addTransient(player, StandardAttributes.CRIT_DAMAGE, SRC_GAMBLE_CD,
+                        Operation.ADD, convertible * GAMBLE_RATIO);
+            }
+        }
+    }
+
+    private static double critRateFrom(ItemStack item) {
+        if (item == null || ItemEnhancer.isBroken(item)) {
+            return 0;
+        }
+        double v = 0;
+        int s1 = activeStage(item, SKILL_CRIT_RATE);
+        if (s1 >= 0) {
+            v += CRIT_RATE_UP[s1];
+        }
+        int s2 = activeStage(item, SKILL_CRIT_MASTERY);
+        if (s2 >= 0) {
+            v += CRIT_MASTERY_RATE[s2];
+        }
+        return v;
+    }
+
+    private static double critPowerFrom(ItemStack item) {
+        if (item == null || ItemEnhancer.isBroken(item)) {
+            return 0;
+        }
+        double v = 0;
+        int s1 = activeStage(item, SKILL_CRIT_POWER);
+        if (s1 >= 0) {
+            v += CRIT_POWER_UP[s1];
+        }
+        int s2 = activeStage(item, SKILL_CRIT_MASTERY);
+        if (s2 >= 0) {
+            v += CRIT_MASTERY_POWER[s2];
+        }
+        return v;
+    }
+
+    /** 伽藍洞: 殴った相手の回復倍率を amount ぶん恒久的に減算する（加算スタック、attribute側で0クランプ）。 */
+    public static void hollowingHealSeal(LivingEntity victim, double amount) {
+        double cur = EntityState.getDouble(victim, "hollow_heal_cut", 0.0) + amount;
+        EntityState.setDouble(victim, "hollow_heal_cut", cur);
+        Attributes.removeAll(victim, HOLLOW_HEAL_SOURCE);
+        Attributes.add(victim, StandardAttributes.HEAL_MULTIPLIER, HOLLOW_HEAL_SOURCE, Operation.ADD, -cur);
+    }
+
+    /** 伽藍洞: 自分の会心率を perStack ぶん増やすスタックを1つ追加する（7秒で失効、syncCritSkills が反映）。 */
+    public static void hollowingCritStack(Player player, double perStack) {
+        long now = EntityState.gameTime();
+        int stacks = now <= (long) EntityState.getDouble(player, "hollow_crit_expiry", 0)
+                ? EntityState.getInt(player, "hollow_crit_stacks", 0) : 0;
+        EntityState.setInt(player, "hollow_crit_stacks", stacks + 1);
+        EntityState.setDouble(player, "hollow_crit_per", perStack);
+        EntityState.setDouble(player, "hollow_crit_expiry", now + HOLLOW_CRIT_DURATION);
     }
 
     /**

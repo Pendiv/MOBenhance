@@ -128,8 +128,7 @@ public final class DragonicHeartTrait extends Trait {
         }
         // クリスタル残存中: 毎秒 最大体力×0.5% を回復（tick間隔換算）
         double scale = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval) / 20.0;
-        mob.setHealth(Math.min(Mobs.maxHealth(mob),
-                mob.getHealth() + Mobs.maxHealth(mob) * 0.005 * scale));
+        Mobs.heal(mob, Mobs.maxHealth(mob) * 0.005 * scale); // 回復倍率を尊重
         // 300t ごとに生存クリスタルを再配置
         if (!EntityState.hasFlag(mob, "dragonic_repos")) {
             EntityState.setFlag(mob, "dragonic_repos", REPOSITION_INTERVAL_TICKS);

@@ -43,10 +43,7 @@ public final class DiurnalTrait extends Trait {
                     AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             Mobs.addModifier(mob, Attribute.MOVEMENT_SPEED, key("diurnal_spd"), 0.25,
                     AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-            double max = Mobs.maxHealth(mob);
-            if (mob.getHealth() < max) {
-                mob.setHealth(Math.min(max, mob.getHealth() + rank)); // 原典: 毎秒 rank HP 回復
-            }
+            Mobs.heal(mob, rank); // 原典: 毎秒 rank HP 回復（回復倍率を尊重）
         } else {
             removeModifier(mob, Attribute.ATTACK_DAMAGE, key("diurnal_atk"));
             removeModifier(mob, Attribute.MOVEMENT_SPEED, key("diurnal_spd"));

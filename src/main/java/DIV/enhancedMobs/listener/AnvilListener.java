@@ -127,13 +127,13 @@ public final class AnvilListener implements Listener {
                 Lang.actionbar(player, "emob.anvil.reroll_none");
             }
         } else if (held.getType() == Material.DRAGON_HEAD) {
-            // ドラゴンの頭: ツール限定で即座にレベル・精錬MAX。
-            if (ItemEnhancer.category(placed) == ItemEnhancer.Category.TOOL && ItemEnhancer.maxOut(placed)) {
+            // ドラゴンの頭: レベリング対象なら種別を問わず即座にレベル・精錬・鍛造・鋳造MAX。
+            if (ItemEnhancer.maxOut(placed)) {
                 display.setItemStack(placed);
                 consumeOne(player);
                 Lang.actionbar(player, "emob.anvil.dragon_maxed");
             } else {
-                Lang.actionbar(player, "emob.anvil.dragon_tool_only");
+                Lang.actionbar(player, "emob.anvil.dragon_fail");
             }
         } else if (repairOnly) {
             Lang.actionbar(player, "emob.anvil.repair_only");

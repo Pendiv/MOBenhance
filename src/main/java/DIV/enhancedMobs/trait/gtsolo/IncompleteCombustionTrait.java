@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
@@ -34,8 +36,13 @@ public final class IncompleteCombustionTrait extends Trait {
         // 原典は防具計算前の amount ≥ HP 判定（BASE ダメージで近似）
         boolean lethal = event.getDamage() >= mob.getHealth();
         if (wasFull && lethal) {
+            // 蘇生 = 全回復。回復倍率0（封印・呪い）なら蘇生量0でそのまま死ぬ（Undying と同方式）。
+            double revive = maxHealth * Attributes.get(mob, StandardAttributes.HEAL_MULTIPLIER);
+            if (revive <= 0) {
+                return;
+            }
             event.setCancelled(true);
-            mob.setHealth(maxHealth);
+            mob.setHealth(Math.min(maxHealth, revive));
             EntityState.setFlag(mob, "revive_cd", REVIVE_CD);
             Mobs.playRevivalEffect(mob);
         }

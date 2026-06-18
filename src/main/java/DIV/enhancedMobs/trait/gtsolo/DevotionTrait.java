@@ -28,7 +28,7 @@ public final class DevotionTrait extends Trait {
         double heal = Mobs.maxHealth(mob) * (0.25 + 0.125 * rank);
         for (Entity entity : mob.getNearbyEntities(radius, radius, radius)) {
             if (entity instanceof LivingEntity other && !(other instanceof Player) && !other.isDead()) {
-                other.setHealth(Math.min(Mobs.maxHealth(other), other.getHealth() + heal));
+                Mobs.heal(other, heal); // 各仲間の回復倍率を尊重
             }
         }
     }

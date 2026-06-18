@@ -1,6 +1,10 @@
 # Location-based difficulty multipliers, applied on top of the dimension scaling.
 # Final level = (dimension-scaled level) * biome multiplier * depth multiplier.
 
+# Schema generation. Do not edit — auto-migrated on startup, keeping your changes
+# (previous file saved as location.yml.bak).
+config-version: 1
+
 # Biome -> multiplier. Mobs spawning in these biomes get their level multiplied.
 biomes:
   "minecraft:deep_dark": 1.5          # ancient city

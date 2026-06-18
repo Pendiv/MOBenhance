@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -43,7 +44,7 @@ public final class SpearSkillListener implements Listener {
         }
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_CHARGE);
-        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         fallImmune.put(player.getUniqueId(),
@@ -66,5 +67,11 @@ public final class SpearSkillListener implements Listener {
         } else {
             fallImmune.remove(player.getUniqueId());
         }
+    }
+
+    /** 突進後に落下せず抜けたプレイヤーの記録を残さない（メモリリーク防止）。 */
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        fallImmune.remove(event.getPlayer().getUniqueId());
     }
 }

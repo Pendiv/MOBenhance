@@ -59,6 +59,18 @@ public final class LevelScaler {
         }
     }
 
+    /** レベリングで加算された近接攻撃力ボーナス（{@code enh_attack} モディファイア量）。無ければ 0。 */
+    public double meleeAttackBonus(LivingEntity mob) {
+        AttributeInstance inst = mob.getAttribute(Attribute.ATTACK_DAMAGE);
+        if (inst == null) {
+            return 0.0;
+        }
+        return inst.getModifiers().stream()
+                .filter(m -> attackKey.equals(m.getKey()))
+                .mapToDouble(AttributeModifier::getAmount)
+                .sum();
+    }
+
     private int[] allocate(int level) {
         int[] counts = new int[4];
         int ones = level % 10;

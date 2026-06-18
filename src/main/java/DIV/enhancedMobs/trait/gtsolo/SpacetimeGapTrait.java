@@ -37,8 +37,10 @@ public final class SpacetimeGapTrait extends Trait {
             return;
         }
         if (mob.getHealth() < Mobs.maxHealth(mob)) {
-            mob.setHealth(Mobs.maxHealth(mob));
-            EntityState.setFlag(mob, "gap_cd", HEAL_COOLDOWN);
+            // 回復倍率（封印・呪い）を尊重。阻害中は回復できず CD にも入らない（阻害明けに再挑戦）。
+            if (Mobs.heal(mob, Mobs.maxHealth(mob)) > 0) {
+                EntityState.setFlag(mob, "gap_cd", HEAL_COOLDOWN);
+            }
         }
     }
 }

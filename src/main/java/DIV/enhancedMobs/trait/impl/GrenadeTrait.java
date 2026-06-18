@@ -18,8 +18,17 @@ public final class GrenadeTrait extends RangedTrait {
         this.basePower = basePower;
     }
 
+    /** これを超える数のシュルカー弾が周囲に飛んでいる間は発射しない（弾幕の飽和を防ぐ）。 */
+    private static final int MAX_NEARBY_BULLETS = 10;
+
     @Override
     protected Projectile launch(Mob mob, LivingEntity target, int rank) {
+        long nearby = mob.getNearbyEntities(24, 24, 24).stream()
+                .filter(e -> e instanceof ShulkerBullet)
+                .count();
+        if (nearby > MAX_NEARBY_BULLETS) {
+            return null; // 周囲のシュルカー弾が10を超えていたら発射不可
+        }
         return mob.getWorld().spawn(mob.getEyeLocation(), ShulkerBullet.class, bullet -> bullet.setTarget(target));
     }
 

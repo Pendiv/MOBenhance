@@ -59,6 +59,7 @@ public final class DifficultyCalculator {
         level = dimensions.scaleLevel(loc.getWorld(), level);
         level = (int) Math.round(level * locations.multiplier(loc));
         level = (int) Math.round(level * config.finalMultiplier);
+        level = (int) Math.round(applyAccidentRelief(level, reference)); // 連続死亡による事故救済
         if (level < 0) {
             level = 0;
         }
@@ -74,7 +75,22 @@ public final class DifficultyCalculator {
         value = dimensions.scaleLevel(player.getWorld(), value);
         value = (int) Math.round(value * locations.multiplier(player.getLocation()));
         value = (int) Math.round(value * config.finalMultiplier);
+        value = (int) Math.round(applyAccidentRelief(value, player)); // 連続死亡による事故救済（本人）
         return Math.max(0, value);
+    }
+
+    /**
+     * 事故救済: 基準プレイヤーの連続死亡に応じて危険度を下げる。
+     * {@code value × (1 - 永続軽減) × (1 - 臨時軽減) − 臨時実数軽減}。臨時分は MC1日で失効する。
+     */
+    private double applyAccidentRelief(double value, Player reference) {
+        if (reference == null) {
+            return value;
+        }
+        PlayerData pd = PlayerData.of(reference);
+        long day = Bukkit.getWorlds().get(0).getGameTime() / 24000L;
+        double mult = (1.0 - pd.reliefPermanentPct()) * (1.0 - pd.reliefTempPct(day));
+        return value * mult - pd.reliefTempFlat(day);
     }
 
     private double rawDanger(Location loc, Player reference, boolean wobble) {

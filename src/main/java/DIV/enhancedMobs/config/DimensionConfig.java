@@ -4,10 +4,12 @@ import DIV.enhancedMobs.EnhancedMobs;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +30,10 @@ public final class DimensionConfig {
     private final Set<String> disabledTraits = new HashSet<>();
     private Rule defaultRule = new Rule(true, 0.0, 1.0);
 
+    /** レベル付与無効ディメンションでも常にレベル付与するモブの例外枠。 */
+    private boolean levelingExceptionEnabled = true;
+    private final Set<String> levelingExceptionMobs = new HashSet<>(List.of("wither", "warden"));
+
     public DimensionConfig(EnhancedMobs plugin) {
         plugin.saveResource("dimensions.yml", false);
         File file = new File(plugin.getDataFolder(), "dimensions.yml");
@@ -47,6 +53,18 @@ public final class DimensionConfig {
             }
         }
         disabledTraits.addAll(yaml.getStringList("disabled-traits"));
+
+        // 例外枠（既定: 有効・wither/warden）。dimensions.yml に節があれば上書き。
+        ConfigurationSection ex = yaml.getConfigurationSection("leveling-exceptions");
+        if (ex != null) {
+            levelingExceptionEnabled = ex.getBoolean("enabled", true);
+            if (ex.isList("mobs")) {
+                levelingExceptionMobs.clear();
+                for (String mob : ex.getStringList("mobs")) {
+                    levelingExceptionMobs.add(mob.toLowerCase(Locale.ROOT));
+                }
+            }
+        }
     }
 
     private Rule readRule(ConfigurationSection section, Rule fallback) {
@@ -72,5 +90,13 @@ public final class DimensionConfig {
 
     public boolean isTraitDisabled(String traitId) {
         return disabledTraits.contains(traitId);
+    }
+
+    /**
+     * このモブ種別が例外枠か（レベル付与無効ディメンションでも常にレベルを付与する）。
+     * 例外機能が無効なら常に false。
+     */
+    public boolean isLevelingException(EntityType type) {
+        return levelingExceptionEnabled && levelingExceptionMobs.contains(type.getKey().getKey());
     }
 }

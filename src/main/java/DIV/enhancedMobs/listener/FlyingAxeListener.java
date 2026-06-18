@@ -52,7 +52,7 @@ public final class FlyingAxeListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_FLYING);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         event.setCancelled(true); // 樹皮剥ぎ等、斧の通常右クリック動作を抑止
@@ -67,7 +67,7 @@ public final class FlyingAxeListener implements Listener {
         AttributeInstance atk = player.getAttribute(Attribute.ATTACK_DAMAGE);
         double damage = atk != null ? atk.getValue() : 1.0;
 
-        player.setCooldown(held.getType(), ItemSkills.FLYING_COOLDOWN_SEC[stage] * 20);
+        player.setCooldown(held.getType(), (int) Math.round(ItemSkills.FLYING_COOLDOWN_SEC[stage] * 20));
         ItemStack axe = held.clone();
         player.getInventory().setItemInMainHand(null);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);

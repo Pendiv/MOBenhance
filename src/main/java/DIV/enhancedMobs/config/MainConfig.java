@@ -14,6 +14,7 @@ public final class MainConfig {
     public final int maxMobLevel;
     public final double distanceFactor;
     public final double finalMultiplier;
+    public final double rangedDamageFactor;
 
     public final boolean enhancementEnabled;
     public final double itemXpMultiplier;
@@ -43,6 +44,19 @@ public final class MainConfig {
     public final boolean headEnabled;
     public final double headViewDistance;
 
+    public final boolean graveEnabled;
+    public final Set<String> graveDisabledWorlds;
+    public final double graveExpiryDays;
+    public final double graveRange;
+    public final int graveSearchRadius;
+    public final boolean graveCommandEnabled;
+    /** 墓へ回収される割合（0.0〜1.0）。残りは死亡地点に散らばる。 */
+    public final double graveRecoveryRate;
+    /** 墓入りする耐久ありアイテムが失う耐久の最大割合（%）。0=off。 */
+    public final double graveDurabilityLossMax;
+    /** 墓入りする強化品が失う総経験値の割合（%）。0=off。 */
+    public final double graveXpLoss;
+
     /** config の skills.* で無効化されたレベリングスキル id。抽選も発動も行われない。 */
     private final Set<String> disabledSkills;
 
@@ -52,6 +66,7 @@ public final class MainConfig {
         this.maxMobLevel = c.getInt("leveling.max-mob-level", 500);
         this.distanceFactor = c.getDouble("leveling.distance-factor", 0.02);
         this.finalMultiplier = c.getDouble("leveling.final-multiplier", 0.72);
+        this.rangedDamageFactor = c.getDouble("leveling.ranged-damage-factor", 0.4);
         this.enhancementEnabled = c.getBoolean("enhancement.enabled", true);
         this.itemXpMultiplier = c.getDouble("enhancement.xp-multiplier", 1.0);
         this.coarseDraws = c.getInt("enhancement.coarse-draws", 10);
@@ -76,6 +91,15 @@ public final class MainConfig {
         this.glowStrongLevel = c.getInt("display.glow.strong-level", 100);
         this.headEnabled = c.getBoolean("display.head.enabled", true);
         this.headViewDistance = c.getDouble("display.head.view-distance", 32.0);
+        this.graveEnabled = c.getBoolean("grave.enabled", true);
+        this.graveDisabledWorlds = Set.copyOf(c.getStringList("grave.disabled-worlds"));
+        this.graveExpiryDays = c.getDouble("grave.expiry-days", 7.0);
+        this.graveRange = c.getDouble("grave.range", 32.0);
+        this.graveSearchRadius = c.getInt("grave.search-radius", 196);
+        this.graveCommandEnabled = c.getBoolean("grave.command-enabled", true);
+        this.graveRecoveryRate = Math.clamp(c.getDouble("grave.recovery-rate", 100.0) / 100.0, 0.0, 1.0);
+        this.graveDurabilityLossMax = Math.max(0.0, c.getDouble("grave.durability-loss-max", 0.0));
+        this.graveXpLoss = Math.max(0.0, c.getDouble("grave.xp-loss", 0.0));
         this.disabledSkills = loadDisabledSkills(c);
     }
 

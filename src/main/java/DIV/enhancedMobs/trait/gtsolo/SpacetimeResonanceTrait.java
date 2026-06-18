@@ -51,9 +51,6 @@ public final class SpacetimeResonanceTrait extends AuraTrait {
         }
         Mobs.addModifier(target, Attribute.ATTACK_DAMAGE, ATK_KEY,
                 atkPct, AttributeModifier.Operation.ADD_SCALAR);
-        double max = Mobs.maxHealth(target);
-        if (target.getHealth() < max) {
-            target.setHealth(Math.min(max, target.getHealth() + heal));
-        }
+        Mobs.heal(target, heal); // 回復倍率（封印・呪い）を尊重
     }
 }

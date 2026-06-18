@@ -31,9 +31,11 @@ tasks {
         // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("26.1.2")
         jvmArgs("-Xms2G", "-Xmx2G")
-        // attributelib もテストサーバーへ自動配置する(composite build で先にビルドされる)
+        // attributelib もテストサーバーへ自動配置する(composite build で先にビルドされる)。
+        // バージョンが変わっても拾えるよう attributelib-*.jar をパターンで配置する
+        // (旧: 1.0-SNAPSHOT 固定参照で jar 名変更時にロード失敗していた)。
         dependsOn(gradle.includedBuild("attributelib").task(":jar"))
-        pluginJars.from(file("../attributelib/build/libs/attributelib-1.0-SNAPSHOT.jar"))
+        pluginJars.from(fileTree("../attributelib/build/libs") { include("attributelib-*.jar") })
     }
 
     processResources {

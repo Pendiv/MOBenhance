@@ -92,7 +92,7 @@ public final class TraitRegistry {
         register(new SoulBurnerTrait(50, 50, 3, 70, 3, 60));
         register(new AdaptiveTrait(80, 50, 5, 100, 0.1, 0.8));
         register(new DementorTrait(120, 50, 1, 150, 0.3, 3.0));
-        register(new GrenadeTrait(100, 100, 5, 100, 40, 1.5f));
+        register(new GrenadeTrait(100, 100, 5, 100, 80, 1.5f));
         register(new DrainTrait(80, 100, 3, 100));
         register(new GrowthTrait(60, 300, 3, 100));
     }

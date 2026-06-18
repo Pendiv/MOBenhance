@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.DamageElements;
+import DIV.attributelib.api.DamageLib;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
@@ -60,11 +62,8 @@ public final class LightningUserTrait extends Trait {
         }
         double bonus = attack.getValue() * (0.3 + 0.2 * rank);
         if (bonus > 0) {
-            if (shooter != null) {
-                hit.damage(bonus, shooter);
-            } else {
-                hit.damage(bonus);
-            }
+            // 追加ダメージは雷属性（雷耐性・雷与ダメ倍率が乗る）。shooter が null でも可。
+            DamageLib.deal(DamageElements.LIGHTNING, shooter, hit, bonus);
         }
     }
 }

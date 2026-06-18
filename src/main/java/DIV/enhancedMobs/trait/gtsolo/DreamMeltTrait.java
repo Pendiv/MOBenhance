@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
@@ -30,6 +32,10 @@ public final class DreamMeltTrait extends Trait {
         }
         if (EntityState.hasFlag(mob, "dream_until")) {
             return; // 偽死中の死は素通し（原典の絶対殺害貫通に相当）。
+        }
+        // 偽死→復活も「全回復による死の回避」。回復倍率0（封印・呪い）なら偽死せずそのまま死ぬ。
+        if (Attributes.get(mob, StandardAttributes.HEAL_MULTIPLIER) <= 0) {
+            return;
         }
         event.setCancelled(true);
         mob.setHealth(1.0);
@@ -69,7 +75,7 @@ public final class DreamMeltTrait extends Trait {
                 bonus, AttributeModifier.Operation.ADD_SCALAR);
         Mobs.addModifier(mob, Attribute.MAX_HEALTH, new NamespacedKey(plugin, "trait_dream_hp"),
                 bonus, AttributeModifier.Operation.ADD_SCALAR);
-        mob.setHealth(Mobs.maxHealth(mob));
+        Mobs.heal(mob, Mobs.maxHealth(mob)); // 復活時もなお回復阻害が残っていれば割合復活（倍率尊重）。
         Mobs.playRevivalEffect(mob);
     }
 }

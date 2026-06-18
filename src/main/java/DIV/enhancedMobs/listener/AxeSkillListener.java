@@ -2,6 +2,7 @@ package DIV.enhancedMobs.listener;
 
 import DIV.attributelib.api.Attributes;
 import DIV.attributelib.api.Conditions;
+import DIV.attributelib.api.DamageLib;
 import DIV.attributelib.api.Operation;
 import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.item.ItemEnhancer;
@@ -43,7 +44,7 @@ public final class AxeSkillListener implements Listener {
         }
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_TAKENOKO);
-        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         // 高さ h まで打ち上がる初速 v ≈ √(0.16h)（MC の重力 0.08/tick² 近似）
@@ -74,7 +75,7 @@ public final class AxeSkillListener implements Listener {
         }
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_ASAHI);
-        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         // 火属性化: フレイム相当の着火（既により長く燃えていれば維持）
@@ -88,5 +89,32 @@ public final class AxeSkillListener implements Listener {
         Attributes.addTransient(victim, StandardAttributes.HEAL_MULTIPLIER, ASAHI_SOURCE,
                 Operation.MULTIPLY, 0.0,
                 ItemSkills.ASAHI_IGNITE_TICKS, Conditions.BURNING);
+    }
+
+    // ---- 伽藍洞 ----
+
+    /**
+     * 伽藍洞: クリティカル攻撃のたびに、相手の回復倍率を恒久的に減算（不死蘇生も封じる）し、
+     * 自分の会心率を同値ぶん 7 秒間（クリのたびにスタック）上昇させる。
+     * 会心判定後に読むため MONITOR。
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onHollowingCrit(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)
+                || !(event.getEntity() instanceof LivingEntity victim)
+                || victim instanceof ArmorStand) {
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_HOLLOWING);
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
+            return;
+        }
+        if (!event.isCritical() && !DamageLib.wasCritical(event)) {
+            return; // クリティカル時のみ発動
+        }
+        double amount = ItemSkills.HOLLOW_VALUE[stage];
+        ItemSkills.hollowingHealSeal(victim, amount);
+        ItemSkills.hollowingCritStack(player, amount);
     }
 }

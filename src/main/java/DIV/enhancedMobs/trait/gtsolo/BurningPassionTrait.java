@@ -51,8 +51,7 @@ public final class BurningPassionTrait extends Trait {
         // 毎秒 最大HP×0.35n% 回復（原典は setHealth 直書き。tick 間隔換算）
         if (!mob.isDead()) {
             int interval = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval);
-            double max = Mobs.maxHealth(mob);
-            mob.setHealth(Math.min(max, mob.getHealth() + max * 0.0035 * rank * interval / 20.0));
+            Mobs.heal(mob, Mobs.maxHealth(mob) * 0.0035 * rank * interval / 20.0); // 回復倍率を尊重
         }
         // ATK バフの付け直し保証（チャンク再ロード保険。冪等）
         applyAtkBuff(mob, rank);

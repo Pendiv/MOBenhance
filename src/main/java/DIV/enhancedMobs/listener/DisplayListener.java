@@ -2,6 +2,7 @@ package DIV.enhancedMobs.listener;
 
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.MobData;
+import DIV.enhancedMobs.trait.gtsolo.SorrowElegyTrait;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -31,7 +32,13 @@ public final class DisplayListener implements Listener {
     @EventHandler
     public void onLoad(EntitiesLoadEvent event) {
         for (Entity entity : event.getEntities()) {
-            if (!(entity instanceof LivingEntity mob) || !MobData.of(mob).isProcessed()) {
+            if (!(entity instanceof LivingEntity mob)) {
+                continue;
+            }
+            // 悲哀の挽歌の仮死監視を復帰（再起動・再ロードで消えた FastTick ウォッチャーの再登録）。
+            // 仮死中の被害者は未処理モブのこともあるため isProcessed 判定より前に行う。
+            SorrowElegyTrait.rehydrateWatcher(mob);
+            if (!MobData.of(mob).isProcessed()) {
                 continue;
             }
             plugin.getServer().getScheduler().runTask(plugin, () -> {

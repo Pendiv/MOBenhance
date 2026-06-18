@@ -8,11 +8,14 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -45,9 +48,62 @@ public final class MaceSkillListener implements Listener {
     private final EnhancedMobs plugin;
     /** Mob ごとの AI 復帰タスク。スタンの掛け直しで前のタスクを取り消し、早期復帰を防ぐ。 */
     private final Map<UUID, BukkitTask> aiRestores = new HashMap<>();
+    /** オート迎撃の自前範囲攻撃による再入を抑止するガード。 */
+    private boolean intercepting;
 
     public MaceSkillListener(EnhancedMobs plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * オート迎撃: 3 ブロック以上の落下中にメイス攻撃が当たると、その単体スマッシュをキャンセルし、
+     * 着弾点 半径{@link ItemSkills#INTERCEPT_RADIUS} の敵全員へ本来ダメージの
+     * {@link ItemSkills#INTERCEPT_DAMAGE_PCT} 倍で範囲攻撃する。CT 中は通常のメイス攻撃が出る。
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onAutoIntercept(EntityDamageByEntityEvent event) {
+        if (intercepting) {
+            return; // 自前の範囲攻撃による再入は無視
+        }
+        if (event.getCause() != DamageCause.ENTITY_ATTACK
+                || !(event.getDamager() instanceof Player player)
+                || !(event.getEntity() instanceof LivingEntity hit)
+                || hit instanceof ArmorStand) {
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (held.getType() != Material.MACE) {
+            return;
+        }
+        int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_AUTO_INTERCEPT);
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
+            return;
+        }
+        if (player.getFallDistance() < ItemSkills.INTERCEPT_MIN_FALL
+                || player.getCooldown(Material.MACE) > 0) {
+            return; // 3ブロック以上の落下中のみ。CT中は通常のメイス攻撃を通す。
+        }
+        double dmg = event.getDamage() * ItemSkills.INTERCEPT_DAMAGE_PCT[stage];
+        event.setCancelled(true); // 本来の単体スマッシュをこちらの範囲攻撃で置換
+        player.setCooldown(Material.MACE, ItemSkills.INTERCEPT_COOLDOWN_SEC[stage] * 20);
+
+        World world = hit.getWorld();
+        double r = ItemSkills.INTERCEPT_RADIUS;
+        intercepting = true;
+        try {
+            hit.damage(dmg, player); // 直接の対象には必ず命中
+            for (Entity e : world.getNearbyEntities(hit.getLocation(), r, r, r)) {
+                if (e != hit && e instanceof LivingEntity le && e instanceof Enemy
+                        && !(e instanceof ArmorStand) && le != player
+                        && e.getLocation().distanceSquared(hit.getLocation()) <= r * r) {
+                    le.damage(dmg, player);
+                }
+            }
+        } finally {
+            intercepting = false;
+        }
+        world.playSound(hit.getLocation(), Sound.ITEM_MACE_SMASH_GROUND, 1f, 0.9f);
+        world.spawnParticle(Particle.EXPLOSION, hit.getLocation().add(0, 0.5, 0), 1);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -63,7 +119,7 @@ public final class MaceSkillListener implements Listener {
             return;
         }
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_MEGATON);
-        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         // 叩きつけ（落下しながらの攻撃）のみ対象。クールタイム中は発動しない（通常攻撃は通す）。

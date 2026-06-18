@@ -1,6 +1,8 @@
 package DIV.enhancedMobs.listener;
 
 import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.DamageElements;
+import DIV.attributelib.api.DamageLib;
 import DIV.attributelib.api.Operation;
 import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
@@ -23,6 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -77,6 +80,36 @@ public final class SwordSkillListener implements Listener {
      * 特性処理（NORMAL の MobListener ディスパッチ）より先に回復封印を入れるため LOWEST。
      * これにより、この一撃が致死なら不死特性の蘇生（=全回復）もそのまま失敗する。
      */
+    /**
+     * スペルリファクター: 近接攻撃を魔法ダメージ（防具貫通）に変換し、ダメージ +20/30/40/70/140%。
+     * 物理の素ダメージを早めに読み、元の物理ヒットはキャンセルして {@code dealPiercing(MAGIC)} で与え直す。
+     * 魔法耐性・与ダメ倍率・会心は再発射側で通常どおり乗る（会心はバニラ分を剥がし attributelib に一本化）。
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onSpellRefactor(EntityDamageByEntityEvent event) {
+        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                || !(event.getDamager() instanceof Player player)
+                || !(event.getEntity() instanceof LivingEntity victim)
+                || victim instanceof ArmorStand) {
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_SPELL_REFACTOR);
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
+            return;
+        }
+        double base = event.getDamage();
+        if (base <= 0) {
+            return;
+        }
+        if (event.isCritical()) {
+            base /= 1.5; // バニラ会心は剥がし、魔法側の attributelib 会心へ一本化（二重会心防止）
+        }
+        double magic = base * (1.0 + ItemSkills.SPELL_REFACTOR_PCT[stage]);
+        event.setCancelled(true); // 物理ヒットを止め、魔法（防具貫通）で与え直す
+        DamageLib.dealPiercing(DamageElements.MAGIC, player, victim, magic);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onHeroHymn(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)
@@ -86,7 +119,7 @@ public final class SwordSkillListener implements Listener {
         }
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_HERO_HYMN);
-        if (stage < 0 || ItemEnhancer.isBroken(held)) {
+        if (stage < 0 || ItemEnhancer.isBroken(held) || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         // 回復封印（10tick、付け直しでリフレッシュ）
@@ -120,7 +153,7 @@ public final class SwordSkillListener implements Listener {
     /** 勇猛果敢: 効果中の攻撃でレベル+1（上限あり）、切れていればレベル1から。 */
     private void valor(Player player, ItemStack held) {
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_VALOR);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         PotionEffect current = player.getPotionEffect(PotionEffectType.STRENGTH);
@@ -195,7 +228,7 @@ public final class SwordSkillListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_ENERGY_ABSORB);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         event.setCancelled(true);
@@ -233,7 +266,7 @@ public final class SwordSkillListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_DASH);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         event.setCancelled(true);

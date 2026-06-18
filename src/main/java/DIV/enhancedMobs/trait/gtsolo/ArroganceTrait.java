@@ -23,7 +23,7 @@ public final class ArroganceTrait extends Trait {
         // 原典: 20tickごとに maxHP×7% 回復（rank 非依存）。tick間隔コンフィグに比例配分し毎秒7%を維持。
         int interval = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval);
         double heal = Mobs.maxHealth(mob) * 0.07 * interval / 20.0;
-        mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + heal));
+        Mobs.heal(mob, heal); // 回復倍率（封印・呪い）を尊重。阻害中はパッシブ回復も止まる。
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.entity.Player;
@@ -61,6 +62,12 @@ public final class GateListener implements Listener {
         } else {
             AmeijiaGate.toAmeijia(player);
         }
+    }
+
+    /** 退出したプレイヤーのアメイジア入場元記録を破棄する（メモリリーク防止）。 */
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        AmeijiaGate.forgetOrigin(event.getPlayer().getUniqueId());
     }
 
     private static boolean movedBlock(Location from, Location to) {

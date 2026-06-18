@@ -1,11 +1,12 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Operation;
+import DIV.attributelib.api.StandardAttributes;
+import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
-/** 近似実装: 強力な耐性効果で全ダメージを軽減する防護マント。 */
+/** 全ダメージを軽減する防護マント（attributelib の被ダメ倍率で常時適用。剥がれない）。 */
 public final class PhantomMantleTrait extends Trait {
 
     public PhantomMantleTrait(int cost, int weight, int maxRank, int minLevel) {
@@ -14,6 +15,9 @@ public final class PhantomMantleTrait extends Trait {
 
     @Override
     public void initialize(LivingEntity mob, int rank) {
-        mob.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 1_000_000, Math.min(3, rank), true, false, false));
+        // 旧: RESISTANCE ポーション(amp=min(3,rank))。被ダメ倍率 = 1 − (min(3,rank)+1)×20% に置換。
+        double reduction = (Math.min(3, rank) + 1) * 0.2;
+        Mobs.setTraitAttribute(mob, id(), StandardAttributes.DAMAGE_TAKEN,
+                Operation.MULTIPLY, 1.0 - reduction);
     }
 }

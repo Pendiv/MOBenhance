@@ -23,7 +23,7 @@ public final class DistantDeathTrait extends Trait {
         }
         // 回復は防具適用前のダメージ量基準（原典 getAmount 相当）
         double heal = event.getDamage() * (0.15 + 0.06 * rank);
-        mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + heal));
+        Mobs.heal(mob, heal); // 回復倍率（封印・呪い）を尊重したライフスティール
         if (EntityState.addInt(mob, "dd_hits", 1) % 5 == 0) {
             // 自身の攻撃力 × (0.70 + 0.15N) で反撃。無敵時間を消して必中にする（属性なしの種は反撃なし）
             AttributeInstance atk = mob.getAttribute(Attribute.ATTACK_DAMAGE);

@@ -48,12 +48,9 @@ public final class NocturnalTrait extends Trait {
                     AttributeModifier.Operation.ADD_SCALAR);
             // 夜間に強化中であることを示す青いポーションエフェクト（暗視＝紺色の渦）。
             mob.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 100, 0, true, true, false));
-            double max = Mobs.maxHealth(mob);
-            if (mob.getHealth() < max) {
-                // 原典: 毎秒 rank HP 回復（tick間隔換算）。
-                int interval = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval);
-                mob.setHealth(Math.min(max, mob.getHealth() + rank * interval / 20.0));
-            }
+            // 原典: 毎秒 rank HP 回復（tick間隔換算）。回復倍率を尊重。
+            int interval = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval);
+            Mobs.heal(mob, rank * interval / 20.0);
         } else {
             removeModifier(mob, Attribute.ATTACK_DAMAGE, key("nocturnal_atk"));
             removeModifier(mob, Attribute.MOVEMENT_SPEED, key("nocturnal_spd"));

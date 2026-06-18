@@ -55,7 +55,7 @@ public final class SpearThrowListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_THROW);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         event.setCancelled(true);

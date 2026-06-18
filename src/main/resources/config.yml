@@ -1,6 +1,11 @@
 # EnhancedMobs — configuration
 # All values are read once on server start / reload.
 
+# Schema generation. Do not edit. On startup, if this differs from the plugin's bundled
+# version, the file is auto-migrated to the new format while keeping your changes
+# (the previous file is saved as config.yml.bak).
+config-version: 3
+
 leveling:
   # Master switch for the mob leveling system.
   # false = monsters spawn vanilla (no level, no stat scaling, no traits).
@@ -12,6 +17,9 @@ leveling:
   # Final coefficient applied to the fully-computed level (after dimension/location scaling).
   # Tunes the overall ceiling; <1 lowers every mob's level uniformly.
   final-multiplier: 0.72
+  # Leveled mobs' projectile (arrow/trident etc.) damage gains this fraction of their melee
+  # leveling bonus on top. 0.4 = ranged scales at 40% of melee (ranged is already strong).
+  ranged-damage-factor: 0.4
 
 enhancement:
   # Master switch for the player weapon/armor enhancement system
@@ -65,6 +73,7 @@ skills:
   charge_relief: true     # 突進軽減   (槍)
   spear_throw: true       # 投擲      (槍)
   traction: true          # 牽引      (槍)
+  bullseye: true          # 正鵠を射る (弓)
   fast_mining: true       # 高速採掘   (ピッケル)
   area_break: false       # 範囲破壊   (ピッケル) ← 既定でオフ
   great_luck: true        # 豪運      (ピッケル)
@@ -75,9 +84,49 @@ skills:
   past_gift: true         # 過去からの贈り物 (防具)
   lion_heart: true        # 獅子の心臓  (チェストプレート)
   set_bonus: true         # セット商法  (チェストプレート)
+  adaptive: true          # Adaptive    (チェストプレート)
+  lingering_ember: true   # 往昔の余燼   (チェストプレート)
+  fleeting_dream: true    # 須臾の夢     (チェストプレート)
+  thunderbolt: true       # サンダーボルト (剣)
   gun_shield_abolition: true  # ガン盾廃止令 (盾)
   effective_counter: true     # 効果的な反撃 (盾)
   abekobe: true               # あべこべ    (盾)
+  hollowing: true             # 伽藍洞      (斧)
+  gambler: true               # 博打打ち    (斧)
+  auto_intercept: true        # オート迎撃   (メイス)
+  crit_rate: true             # 会心率増加   (全)
+  crit_power: true            # 会心ダメージ増加 (全)
+  crit_mastery: true          # 会心システム強化 (全)
+  spell_refactor: true        # スペルリファクター (剣)
+
+# Death graves. On death (unless keepInventory or empty), items are stored in a grave that
+# only physically appears (a double chest + floating "<name>の墓" label) when the owner is
+# within range. While away/offline the grave does not exist, so no one can touch it.
+grave:
+  enabled: true
+  # Worlds where graves are never created (mob/items drop vanilla-style instead).
+  disabled-worlds: []
+  # Real-world days before a grave expires and drops its contents in place.
+  # Lowering this (e.g. ~0.007 = 10 min) makes the grave just a short "items last a bit longer" buffer.
+  expiry-days: 7.0
+  # Owner proximity (blocks) that materializes the grave and enables /grave recover.
+  range: 32.0
+  # Max radius (blocks) of the placement search for a good grave spot. Lower = more likely to
+  # fall back farther (effective penalty).
+  search-radius: 196
+  # Enable the /grave command (list + recover).
+  command-enabled: true
+  # --- Death penalty knobs ---
+  # Percent of dropped items that are RECOVERED into the grave. The rest scatter at the death
+  # spot (an "abandonment" rate: not deleted, but left where you died — may burn in lava etc.).
+  # 100 = no loss.
+  recovery-rate: 100.0
+  # Each damageable item stored in the grave loses a random 0..N percent of its durability.
+  # 0 = off.
+  durability-loss-max: 0.0
+  # Each enhanced item stored in the grave loses N percent of its total invested XP (level is
+  # re-derived lower). 0 = off.
+  xp-loss: 0.0
 
 logging:
   # Log each mob that spawns WITH traits, as "<type> Lv<n> [TRAITS]". Spammy; testing only.

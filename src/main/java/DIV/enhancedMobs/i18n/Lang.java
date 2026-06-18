@@ -11,7 +11,13 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * 表示テキストの一元管理 / 多言語対応。
@@ -50,16 +56,43 @@ public final class Lang {
 
     private static void load(EnhancedMobs plugin, String resourcePath, Locale locale) {
         plugin.saveResource(resourcePath, false); // データフォルダへ展開（既存は上書きしない=管理者編集を尊重）
-        File file = new File(plugin.getDataFolder(), resourcePath);
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        // 同梱既定（jar 内）を土台に、ディスク版（管理者編集）で上書きする。
+        // こうすると新しく追加したキーは常に同梱既定から解決でき、既存キーの編集も尊重される
+        // （saveResource(false) は既存を上書きしないため、追加キーがディスクに無い問題への対処）。
+        YamlConfiguration bundled = bundledDefaults(plugin, resourcePath);
+        YamlConfiguration disk = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), resourcePath));
+        Set<String> keys = new LinkedHashSet<>();
+        if (bundled != null) {
+            keys.addAll(bundled.getKeys(true));
+        }
+        keys.addAll(disk.getKeys(true));
         int count = 0;
-        for (String key : yaml.getKeys(true)) {
-            if (yaml.isString(key)) {
-                store.register(key, locale, yaml.getString(key));
+        int filled = 0;
+        for (String key : keys) {
+            String value = disk.isString(key) ? disk.getString(key)
+                    : (bundled != null && bundled.isString(key) ? bundled.getString(key) : null);
+            if (value != null) {
+                store.register(key, locale, value);
                 count++;
+                if (!disk.isString(key)) {
+                    filled++; // ディスクに無く同梱既定で補完したキー
+                }
             }
         }
-        plugin.getLogger().info("言語ファイル " + resourcePath + " を読み込み（" + count + " キー）");
+        plugin.getLogger().info("言語ファイル " + resourcePath + " を読み込み（" + count + " キー"
+                + (filled > 0 ? "、うち " + filled + " 件は同梱既定で補完" : "") + "）");
+    }
+
+    /** jar 同梱の既定言語ファイル（全キーの土台）。取得不可なら null。 */
+    private static YamlConfiguration bundledDefaults(EnhancedMobs plugin, String resourcePath) {
+        try (InputStream in = plugin.getResource(resourcePath)) {
+            if (in == null) {
+                return null;
+            }
+            return YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     // ---- キー → Component ----

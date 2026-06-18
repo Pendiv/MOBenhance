@@ -4,8 +4,10 @@ import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.i18n.Lang;
 import DIV.enhancedMobs.item.ItemEnhancer;
 import DIV.enhancedMobs.item.ItemSkills;
+import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -21,6 +23,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,7 +33,7 @@ import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,20 +42,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * その手前を錨として先に確定する。槍は距離に関わらず固定 0.4 秒で錨へ補間飛行し、着弾後 0.1 秒で
  * （計 0.5 秒）プレイヤー自身をその位置へ一気に引き寄せる（ワイヤーアクション）。
  * <ul>
- *   <li>飛行中にモブへ当たると攻撃力の100%の物理ダメージを与えてその場で終了（牽引なし）。</li>
- *   <li>壁が射程内に無ければ最大射程まで飛んで霧散（牽引なし）。</li>
+ *   <li>飛行中にモブへ当たると攻撃力の200%の物理ダメージを与えてその場で終了（牽引なし）。</li>
+ *   <li>壁が射程内に無ければ最大射程まで飛んで霧散（牽引なし）。この空振り時は CT を 0.8 秒短縮する。</li>
  *   <li>錨は投擲時に確定するため、槍が物理的に刺さっていなくても牽引は進行する。</li>
  *   <li>着弾した槍は牽引が終わるまで表示され、骨粉エフェクト（HAPPY_VILLAGER）を放つ。牽引ルートは
  *       蝋燭の炎（SMALL_FLAME）で表示。</li>
  *   <li>飛行中・牽引中いつでも shift で中断でき、その瞬間の速度ベクトルは維持される。</li>
- *   <li>一連の動作中は落下ダメージを無効化する。</li>
+ *   <li>牽引中に錨へ近づけない（突っかかり）状態が続くとルート演出を減らし、さらに続けば牽引を諦める。
+ *       刺さった場所の近くで詰まった場合は、終了に加えて踏み込みジャンプも起こす。</li>
+ *   <li>一連の動作中、および終了後しばらく（{@link ItemSkills#TRACTION_FALL_GRACE_TICKS}）落下ダメージを無効化する。</li>
  * </ul>
  * CT 固定 1.1 秒、射程 42/44/50/62（強化段階 0〜3）。
  */
 public final class TractionListener implements Listener {
 
-    /** 牽引の一連の動作中（飛行〜待機〜牽引）のプレイヤー。落下ダメージを無効化する。 */
-    private static final Set<UUID> inAction = ConcurrentHashMap.newKeySet();
+    /**
+     * プレイヤーごとの落下ダメージ無効の有効期限（tick）。動作中は遠い未来、終了時は
+     * {@link ItemSkills#TRACTION_FALL_GRACE_TICKS} ぶんの猶予に設定する（牽引後の落下を救済）。
+     */
+    private static final Map<UUID, Long> fallImmuneUntil = new ConcurrentHashMap<>();
 
     private final EnhancedMobs plugin;
 
@@ -60,14 +68,20 @@ public final class TractionListener implements Listener {
         this.plugin = plugin;
     }
 
-    /** 牽引動作中のプレイヤーの落下ダメージを無効化する。 */
+    /** 牽引動作中〜終了後の猶予内のプレイヤーの落下ダメージを無効化する。 */
     @EventHandler(ignoreCancelled = true)
     public void onFall(EntityDamageEvent event) {
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL
                 && event.getEntity() instanceof Player player
-                && inAction.contains(player.getUniqueId())) {
+                && fallImmuneUntil.getOrDefault(player.getUniqueId(), 0L) > Bukkit.getCurrentTick()) {
             event.setCancelled(true);
         }
+    }
+
+    /** 退出したプレイヤーの落下無効記録を残さない（static マップのメモリリーク防止）。 */
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        fallImmuneUntil.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -79,7 +93,7 @@ public final class TractionListener implements Listener {
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItemInMainHand();
         int stage = ItemSkills.activeStage(held, ItemSkills.SKILL_TRACTION);
-        if (stage < 0) {
+        if (stage < 0 || ItemSkills.weaponSkillsLocked(player)) {
             return;
         }
         event.setCancelled(true);
@@ -91,7 +105,7 @@ public final class TractionListener implements Listener {
             return;
         }
         AttributeInstance atk = player.getAttribute(Attribute.ATTACK_DAMAGE);
-        double damage = atk != null ? atk.getValue() : 1.0; // モブ命中時 100% 物理
+        double damage = (atk != null ? atk.getValue() : 1.0) * ItemSkills.TRACTION_DAMAGE_PCT; // モブ命中時 200% 物理
         player.setCooldown(held.getType(), ItemSkills.TRACTION_COOLDOWN_TICKS);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 0.9f);
         new TractionTask(plugin, player, held.clone(), ItemSkills.TRACTION_RANGE[stage],
@@ -103,6 +117,20 @@ public final class TractionListener implements Listener {
 
         private static final int PULL_TIMEOUT_TICKS = 40;
         private static final double ARRIVE_DISTANCE = 1.8;
+        /** 1tickあたりこの距離以上 錨へ近づかなければ「突っかかり」とみなす。 */
+        private static final double PROGRESS_EPSILON = 0.05;
+        /** 突っかかりがこの tick 続いたらルート演出を削減する。 */
+        private static final int STUCK_FX_TICKS = 5;
+        /** 突っかかりがこの tick 続いたら牽引を諦めて終了する。 */
+        private static final int STUCK_GIVEUP_TICKS = 12;
+        /** 諦め時、錨までこの距離以内（刺さった場所の近く）なら踏み込みジャンプも起こす。 */
+        private static final double STUCK_HOP_NEAR_DISTANCE = 4.0;
+        /** 発射時の足元と錨の高低差がこの値以内なら、到達時に前方ジャンプする（ほぼ水平な牽引）。 */
+        private static final double HOP_HEIGHT_THRESHOLD = 3.0;
+        /** 到達時の前方ジャンプ: 前方へ加算する初速（既存の勢いに上乗せ）。 */
+        private static final double HOP_FORWARD = 0.9;
+        /** 到達時の前方ジャンプ: 上方へ加算する初速（既存の勢いに上乗せ）。 */
+        private static final double HOP_UP = 0.7;
 
         private enum Phase { FLYING, STICK_WAIT, PULLING }
 
@@ -116,12 +144,18 @@ public final class TractionListener implements Listener {
         private final Location target;
         /** 牽引先（壁が無ければ null＝牽引しない）。 */
         private final Location anchor;
+        /** 発射時のプレイヤー足元の高さ（到達時の前方ジャンプ判定用）。 */
+        private final double launchFeetY;
+        /** CT 短縮用のクールダウン対象マテリアル（槍）。 */
+        private final Material cooldownMaterial;
         private final ItemDisplay spear;
         private final Location pos;
         private Phase phase = Phase.FLYING;
         private int flightTicks;
         private int waitTicks;
         private int pullTicks;
+        private double prevDist = Double.MAX_VALUE;
+        private int stuckTicks;
         private boolean armed;
         private boolean finished;
 
@@ -131,7 +165,10 @@ public final class TractionListener implements Listener {
             this.player = player;
             this.pullSpeed = pullSpeed;
             this.damage = damage;
-            inAction.add(player.getUniqueId()); // 動作中は落下ダメージ無効
+            this.launchFeetY = player.getLocation().getY();
+            this.cooldownMaterial = spearItem.getType();
+            // 動作中は落下ダメージ無効（十分長い期限。終了時に cleanup で猶予へ縮める）。
+            fallImmuneUntil.put(player.getUniqueId(), Bukkit.getCurrentTick() + 100L);
 
             Location eye = player.getEyeLocation();
             this.world = eye.getWorld();
@@ -221,6 +258,7 @@ public final class TractionListener implements Listener {
                     world.spawnParticle(Particle.CRIT, anchor, 14, 0.2, 0.2, 0.2, 0.1);
                 } else {
                     world.playSound(pos, Sound.ITEM_TRIDENT_RETURN, 0.8f, 1.2f); // 壁なし → 霧散
+                    refundWhiffCooldown(); // 空振り（敵にも壁にも当たらず）→ CT 短縮
                     cleanup();
                 }
             }
@@ -247,15 +285,64 @@ public final class TractionListener implements Listener {
                 player.setFallDistance(0f);
                 world.playSound(anchor, Sound.ENTITY_WIND_CHARGE_WIND_BURST, 1f, 1.3f);
                 world.spawnParticle(Particle.GUST, anchor, 1);
+                arriveHop();
                 cleanup();
+                return;
+            }
+            // 突っかかり判定: 前 tick から十分近づけていなければカウント。
+            if (dist >= prevDist - PROGRESS_EPSILON) {
+                stuckTicks++;
+            } else {
+                stuckTicks = 0;
+            }
+            prevDist = dist;
+            if (stuckTicks >= STUCK_GIVEUP_TICKS) {
+                // 刺さった場所の近くで詰まったら、キャンセルに加えて踏み込みジャンプも起こす。
+                if (dist <= STUCK_HOP_NEAR_DISTANCE) {
+                    arriveHop();
+                }
+                cleanup(); // 突っかかって牽引できない → 諦めて終了（落下猶予は継続）
                 return;
             }
             Vector velocity = toAnchor.normalize().multiply(pullSpeed);
             velocity.setY(velocity.getY() + 0.15); // 引っかかり防止に少し浮かせる
             player.setVelocity(velocity);
             player.setFallDistance(0f);
-            candleRoute(from, anchor); // 牽引ルートを蝋燭の炎で表示
-            player.getWorld().spawnParticle(Particle.GUST, player.getLocation().add(0, 1, 0), 1);
+            // 突っかかっている間はルート演出を削減（蝋燭の炎・GUST を出さない）。
+            if (stuckTicks < STUCK_FX_TICKS) {
+                candleRoute(from, anchor); // 牽引ルートを蝋燭の炎で表示
+                player.getWorld().spawnParticle(Particle.GUST, player.getLocation().add(0, 1, 0), 1);
+            }
+        }
+
+        /**
+         * 発射時の足元と錨の高さが近い（ほぼ水平な牽引）なら、到達時に前方＋上へ軽くジャンプする。
+         * 落下は cleanup の猶予で無効化されるため着地ダメージは出ない。
+         */
+        private void arriveHop() {
+            if (Math.abs(anchor.getY() - launchFeetY) > HOP_HEIGHT_THRESHOLD) {
+                return;
+            }
+            Vector fwd = new Vector(direction.getX(), 0, direction.getZ());
+            if (fwd.lengthSquared() < 1.0e-6) {
+                return;
+            }
+            fwd.normalize().multiply(HOP_FORWARD).setY(HOP_UP);
+            // もともとの勢い（牽引で得た速度）に前方＋上のベクトルを加算する。
+            player.setVelocity(player.getVelocity().add(fwd));
+            player.setFallDistance(0f);
+            world.playSound(player.getLocation(), Sound.ENTITY_WIND_CHARGE_WIND_BURST, 0.8f, 1.6f);
+            world.spawnParticle(Particle.GUST, player.getLocation().add(0, 1, 0), 1);
+        }
+
+        /** 空振り（壁にも敵にも当たらず霧散）した時、CT を {@link ItemSkills#TRACTION_WHIFF_REFUND_TICKS} 短縮する。 */
+        private void refundWhiffCooldown() {
+            if (!player.isOnline()) {
+                return;
+            }
+            int current = player.getCooldown(cooldownMaterial);
+            player.setCooldown(cooldownMaterial,
+                    Math.max(0, current - ItemSkills.TRACTION_WHIFF_REFUND_TICKS));
         }
 
         /** 着弾した槍の演出: 骨粉を作物に使ったときのエフェクト（HAPPY_VILLAGER）。 */
@@ -293,7 +380,9 @@ public final class TractionListener implements Listener {
 
         private void cleanup() {
             finished = true;
-            inAction.remove(player.getUniqueId());
+            // 終了後も猶予ぶんは落下ダメージ無効を継続（とくに牽引後の落下を救済）。
+            fallImmuneUntil.put(player.getUniqueId(),
+                    (long) Bukkit.getCurrentTick() + ItemSkills.TRACTION_FALL_GRACE_TICKS);
             if (spear.isValid()) {
                 spear.remove();
             }

@@ -4,6 +4,7 @@ import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.MobTags;
+import DIV.enhancedMobs.trait.gtsolo.BomberDispatchTrait;
 import DIV.enhancedMobs.trait.gtsolo.SorrowElegyTrait;
 import DIV.enhancedMobs.trait.gtsolo.SpacetimeBonePickerTrait;
 import DIV.enhancedMobs.trait.gtsolo.SpacetimeChainOfCausalityTrait;
@@ -23,9 +24,11 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,15 +67,17 @@ public final class MobListener implements Listener {
             return;
         }
         LivingEntity entity = event.getEntity();
+        // 例外枠（ボス系など）はディメンション無効・種別ゲートを問わず常にレベル付与する。
+        boolean exception = plugin.dimensions().isLevelingException(entity.getType());
         // Monster は既定で処理対象。非 Monster のボス（エンダードラゴンなど）は
         // per-mob ボーナスが設定されている場合にのみ対象となる。
-        if (!(entity instanceof Monster) && !plugin.mobBonus().has(entity.getType())) {
+        if (!exception && !(entity instanceof Monster) && !plugin.mobBonus().has(entity.getType())) {
             return;
         }
         if (MobData.of(entity).isProcessed()) {
             return;
         }
-        if (!plugin.dimensions().isEnabled(entity.getWorld())) {
+        if (!exception && !plugin.dimensions().isEnabled(entity.getWorld())) {
             return;
         }
         int level = plugin.difficulty().compute(entity.getLocation());
@@ -80,6 +85,24 @@ public final class MobListener implements Listener {
         plugin.initializeMob(entity, level);
         // 時空の敷衍: 新規スポーンへ確率で時空特性を抽選付与（初期化後に判定）。
         SpacetimeDiffusionTrait.onMobSpawn(entity);
+    }
+
+    /**
+     * レベル付与済みモブの投射物（矢・三叉槍など）に、近接レベリングボーナスの一定割合
+     * （{@link DIV.enhancedMobs.config.MainConfig#rangedDamageFactor}）を上乗せする。
+     * 矢のダメージは ATTACK_DAMAGE 属性を参照しないため、素では遠距離が強化されないことへの補正。
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void rangedLevelDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Projectile projectile)
+                || !(projectile.getShooter() instanceof LivingEntity shooter)
+                || !MobData.of(shooter).isProcessed()) {
+            return;
+        }
+        double bonus = plugin.levelScaler().meleeAttackBonus(shooter) * plugin.mainConfig().rangedDamageFactor;
+        if (bonus > 0) {
+            event.setDamage(event.getDamage() + bonus);
+        }
     }
 
     /**
@@ -199,6 +222,15 @@ public final class MobListener implements Listener {
     public void onExplosionPrime(ExplosionPrimeEvent event) {
         if (event.getEntity() instanceof LivingEntity mob && MobData.of(mob).isProcessed()) {
             plugin.traits().onExplosionPrime(mob, event);
+        }
+    }
+
+    /** 爆弾魔派遣業が投げたクリーパーの爆発は地形を破壊しない（対象へのダメージは残す）。 */
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.getEntity().getPersistentDataContainer()
+                .has(BomberDispatchTrait.THROWN_KEY, PersistentDataType.BYTE)) {
+            event.blockList().clear();
         }
     }
 

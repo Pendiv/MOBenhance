@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
@@ -27,8 +29,13 @@ public final class SecondSleepTrait extends Trait {
         if (EntityState.hasFlag(mob, "ss_used") || mob.getHealth() - event.getFinalDamage() > 0) {
             return;
         }
+        // 蘇生 = 全回復。回復倍率0（封印・呪い）なら蘇生不可でそのまま死ぬ（Undying と同方式）。
+        double revive = Mobs.maxHealth(mob) * Attributes.get(mob, StandardAttributes.HEAL_MULTIPLIER);
+        if (revive <= 0) {
+            return;
+        }
         event.setCancelled(true);
-        mob.setHealth(Mobs.maxHealth(mob));
+        mob.setHealth(Math.min(Mobs.maxHealth(mob), revive));
         Mobs.playRevivalEffect(mob);
         int delay = DELAY_MIN + ThreadLocalRandom.current().nextInt(DELAY_MAX - DELAY_MIN + 1);
         mob.setInvulnerable(true);

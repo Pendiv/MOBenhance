@@ -3,7 +3,7 @@ package DIV.enhancedMobs.task;
 import DIV.enhancedMobs.EnhancedMobs;
 import org.bukkit.entity.Entity;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,9 +45,8 @@ public final class FastTick implements Runnable {
         if (HANDLERS.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<String, Handler>> it = HANDLERS.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Handler> entry = it.next();
+        // ハンドラの tick() 内から register/unregister が呼ばれてもよいよう、スナップショットを反復する。
+        for (Map.Entry<String, Handler> entry : new ArrayList<>(HANDLERS.entrySet())) {
             boolean keep;
             try {
                 keep = entry.getValue().tick();
@@ -56,7 +55,8 @@ public final class FastTick implements Runnable {
                 keep = false;
             }
             if (!keep) {
-                it.remove();
+                // tick() 中に同キーが新ハンドラへ差し替わっていれば消さない（最新を尊重）。
+                HANDLERS.remove(entry.getKey(), entry.getValue());
             }
         }
     }

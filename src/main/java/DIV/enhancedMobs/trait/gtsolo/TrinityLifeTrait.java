@@ -93,13 +93,14 @@ public final class TrinityLifeTrait extends Trait {
         EntityState.setInt(mob, "trinity_mode", next);
         EntityState.setFlag(mob, "trinity_until", MODE_DURATION_TICKS);
         if (next == 2 && !hasTrait(mob, "magical_creatures")) {
-            // 原典: MAGICAL_CREATURES を level で内部獲得（移植側は maxRank に丸められる）
-            if (plugin.traits().addTrait(mob, "magical_creatures", rank)) {
+            // 原典: MAGICAL_CREATURES を level で内部獲得（移植側は maxRank に丸められる）。
+            // 内部モードなので生成ゲート（appliesTo/entityConfig/disabled）を無視して確実に付与する。
+            if (plugin.traits().addTrait(mob, "magical_creatures", rank, true)) {
                 EntityState.setInt(mob, "trinity_granted_mc", 1);
             }
         } else if (next == 3 && !hasTrait(mob, "undying")) {
             // 不死は回数無制限なので、モード3の間付与するだけでよい（消費フラグ管理は不要）。
-            if (plugin.traits().addTrait(mob, "undying", 1)) {
+            if (plugin.traits().addTrait(mob, "undying", 1, true)) {
                 EntityState.setInt(mob, "trinity_granted_undying", 1);
             }
         }
@@ -141,7 +142,7 @@ public final class TrinityLifeTrait extends Trait {
         if (resonating) {
             // 毎秒 1.0 回復（tick間隔換算）＋ 再生V 60t
             double scale = Math.max(1, EnhancedMobs.get().mainConfig().traitTickInterval) / 20.0;
-            mob.setHealth(Math.min(Mobs.maxHealth(mob), mob.getHealth() + 1.0 * scale));
+            Mobs.heal(mob, 1.0 * scale); // 共鳴の継続回復も回復倍率を尊重
             mob.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 4, true, false, false));
         }
     }

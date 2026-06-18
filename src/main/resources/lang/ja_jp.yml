@@ -10,29 +10,47 @@ emob:
       level: "<aqua>強化 Lv.<argument:0><argument:1>"
       refine: "<gold>精錬 +<argument:0>/<argument:1>"
       forged: "<light_purple>鍛造済"
+      cast: "<aqua>鋳造 <argument:0>/<argument:1>"
+      deified: "<gradient:#ffd700:#fff7c0>✦ 神格化(上限解放)</gradient>"
       broken: "<red>破壊寸前（性能0・要修理）"
   break:
-    no_space: "<red>装備が破壊寸前です！性能を失っています（要修理）"
-    stowed: "<yellow>装備が破壊寸前のためインベントリに戻しました（修理してください）"
+    no_space: "<red>装備が破壊寸前！性能を失っています"
+    stowed: "<yellow>装備が破壊寸前のためインベントリに戻しました"
     cleared: "<green>耐久が回復したため破壊寸前を解除しました"
   # 金床操作
   anvil:
-    repaired_broken: "<green>耐久値を回復しました（75%以上で破壊寸前が解除されます）"
+    repaired_broken: "<green>耐久値を回復しました"
     repaired: "<green>耐久値を回復しました"
     repair_full: "<gray>耐久値は満タンです"
     bonus_granted: "<light_purple>付加スキル【<argument:0>】を付与しました"
     bonus_already: "<red>既に付与済みです"
     bonus_not_applicable: "<red>このアイテムには付与できません"
     skill_rerolled: "<gold>スキルを再抽選しました：<argument:0>"
-    reroll_none: "<red>再抽選できるスキルがありません（Lv10以上で抽選済みの装備が必要）"
-    dragon_maxed: "<light_purple>ツールをレベル・精錬MAXにしました"
-    dragon_tool_only: "<red>ドラゴンの頭はツール（ツルハシ/シャベル/斧）にのみ使えます"
-    repair_only: "<red>このアイテムは耐久回復のみ対応です（修理素材を持って右クリック）"
+    reroll_none: "<red>再抽選できるスキルがありません"
+    dragon_maxed: "<light_purple>レベル・精錬・鍛造・鋳造をMAXにしました"
+    dragon_fail: "<red>このアイテムはレベリング対象ではありません"
+    repair_only: "<red>このアイテムは耐久回復のみ対応です"
     forged: "<light_purple>鍛造しました"
     forge_already_mace: "<yellow>既に鍛造済みです（精錬する場合はスニーク右クリック）"
     forge_already: "<red>既に鍛造済みです"
     refined: "<gold>精錬しました"
     refine_max: "<red>これ以上精錬できません"
+  # 神格化（最大段ビーコン）
+  deify:
+    deified: "<gradient:#ffd700:#fff7c0>✦ 神格化しました</gradient>"
+    already: "<yellow>既に神格化済みです"
+    need_max_beacon: "<red>4段のビーコンが必要です"
+  # 鋳造（満チャージのリスポーンアンカー）
+  cast:
+    need_full: "<red>満タンのリスポーンアンカーが必要です"
+    no_charge: "<red>チャージ切れです"
+    charge_full: "<yellow>既に満タンです"
+    progress: "<aqua>鋳造しました <argument:0>/<argument:1>"
+    ready_shard: "<gold>鋳造8回到達。残響の欠片で上限を16へ解放できます"
+    complete: "<green>鋳造完了"
+    extended: "<dark_aqua>残響の欠片で鋳造上限を16へ解放しました"
+    extend_need_casts: "<red>先に<argument:0>回鋳造してください"
+    extend_already: "<yellow>既に上限解放済みです"
   # コマンド共通
   common:
     no_perm: "<red>権限がありません"
@@ -80,11 +98,11 @@ emob:
       bonus: "<light_purple>付加: <argument:0>"
     durability:
       name: "耐久強化"
-      d1: "耐久値の上限が ×<argument:0> になる"
-      d2: "耐久エンチャントが付いていれば +<argument:0>"
+      d1: "耐久値の上限が ×<argument:0> に増加"
+      d2: "耐久エンチャントが付いているなら +<argument:0>"
     flying:
       name: "飛翔"
-      d1: "右クリックで斧を投げる（敵に当たるか着弾で戻る）"
+      d1: "右クリックで斧を投げる。shiftで呼び戻せる"
       d2: "射程 <argument:0>ブロック / CT <argument:1>秒"
     max_health:
       name: "最大体力増加"
@@ -95,19 +113,19 @@ emob:
       d2: "5秒間落下ダメージを受けない"
     valor:
       name: "勇猛果敢"
-      d1: "攻撃のたび攻撃力上昇を獲得・強化していく"
-      d2: "上限レベル <argument:0> / 効果時間 <argument:1>秒"
+      d1: "攻撃のたび攻撃力が上昇し、効果が都度強化され続ける"
+      d2: "上限<argument:0> / 効果時間 <argument:1>秒"
     dash:
       name: "突飛"
-      d1: "右クリックで前方へ突進する（CT <argument:0>秒）"
-      d2: "突進中に敵を切りつけ、攻撃力依存のダメージを与える"
+      d1: "右クリックで前方へ突進する、CTは <argument:0>秒"
+      d2: "突進中に敵を切りつけ、攻撃力を参照したダメージを与える"
     all_in:
       name: "オールイン"
       d1: "攻撃速度が <argument:0> に固定される代わりに"
       d2: "攻撃力 +<argument:0>"
     just_block:
       name: "ジャストブロック"
-      d1: "被弾時 <argument:0>% で攻撃を完全ブロック"
+      d1: "被弾時 <argument:0>% で攻撃を無効化"
     takenoko:
       name: "たけのこ魔法"
       d1: "攻撃した敵を <argument:0>ブロック打ち上げ、"
@@ -124,34 +142,31 @@ emob:
       d1: "素の防具性能の <argument:0>% を追加獲得"
     lion_heart:
       name: "獅子の心臓"
-      d1: "HP10%以下になる攻撃を半ハートで耐え、"
-      d2: "トーテム効果と耐性V5秒を得る（CT <argument:0>秒）"
+      d1: "HP10%以下になる攻撃を耐え、"
+      d2: "トーテム効果と無敵効果を得る（CT <argument:0>秒）"
     set_bonus:
       name: "セット商法"
-      d1: "防具4部位の素材が共通なら"
-      d2: "再生I・最大体力 +<argument:0>・攻撃力 +<argument:1>"
+      d1: "防具4部位の素材が共通であるなら"
+      d2: "再生I・最大体力と攻撃力が増加する"
     past_gift:
       name: "過去からの贈り物"
-      d1: "死亡時、防御力の<argument:0>%を未来へ送る"
-      d2: "次のリスポーンで防御力上昇として受け取る"
-      d3: "（受領中に死亡すると失い、送らない）"
+      d1: "死亡時、防御力の<argument:0>%を未来へ送信する"
+      d2: "復活時に防御力を受け取る"
     hero_hymn:
       name: "朽ちた英雄の賛歌"
-      d1: "攻撃時、対象の回復を<argument:0>秒封じ"
-      d2: "雷とともに攻撃力の<argument:0>%を追加で与える"
-      d3: "[特性の復活効果を阻害する]"
+      d1: "攻撃時、対象の回復を阻害し"
+      d2: "攻撃力を参照した雷撃を発生させる"
     asahi_mourning:
       name: "旭の弔い"
-      d1: "攻撃が火属性になる（<argument:0>秒着火）"
-      d2: "燃焼中の対象は炎ダメージ +<argument:0>%、"
-      d3: "回復を受けられず、復活効果も阻害"
+      d1: "攻撃が火属性になる"
+      d2: "対象が燃えている限り、受ける炎ダメージが増大し、回復効果を受けられない"
     spear_throw:
       name: "投擲"
-      d1: "右クリックで仮想の槍を前方へ投げる"
-      d2: "速いほど高威力（初速 <argument:0> / CT <argument:1>秒）"
+      d1: "右クリックで槍を前方へ投げる"
+      d2: "CTは<argument:1>秒"
     fast_mining:
       name: "高速採掘"
-      d1: "採掘速度（採掘効率）+<argument:0>"
+      d1: "採掘速度+<argument:0>"
     area_break:
       name: "範囲破壊"
       d1: "右クリックで視線先を <argument:0>x<argument:1>x<argument:2> 一括破壊"
@@ -161,29 +176,71 @@ emob:
       d1: "幸運エンチャント Lv<argument:0> を付与"
     megaton_smash:
       name: "メガトンスマッシュ"
-      d1: "メイスの叩きつけ命中で対象を<argument:0>秒スタン"
-      d2: "スタン中は行動不能（ボスは25%）/ CT <argument:0>秒"
+      d1: "メイス攻撃で対象を<argument:0>秒スタン"
+      d2: "スタン効果はボスには効果が薄い。CTは<argument:0>秒"
     fire_charge:
       name: "ファイアチャージ"
       d1: "右クリックでファイアチャージを前方へ放つ"
-      d2: "着弾で攻撃力<argument:0>%の物理ダメージ / CT <argument:1>秒"
+      d2: "CTは<argument:1>秒"
     gun_shield_abolition:
       name: "ガン盾廃止令"
-      d1: "ガード成功でHPを<argument:0>ハート回復"
-      d2: "4秒以上構え続けると強制CT <argument:0>秒"
+      d1: "ガードするとHPを<argument:0>ハート回復"
+      d2: "代わりに4秒以上盾を構え続けられない <argument:0>秒"
     effective_counter:
       name: "効果的な反撃"
       d1: "ガード成功で攻撃者をノックバックし反撃"
-      d2: "メインハンド武器で攻撃力<argument:0>%の物理 / CT <argument:1>秒"
+      d2: "CTは<argument:1>秒"
     abekobe:
       name: "あべこべ"
-      d1: "メインハンドに盾、右クリックでオフハンドの剣/斧を封印"
-      d2: "その武器の攻撃力等を盾に宿す（<argument:0>秒 / CT <argument:1>秒）"
-      d3: "封印アイテムをメインハンドで右クリックすると即終了"
+      d1: "メインハンドに盾、右クリックでオフハンドの武器を封印"
+      d2: "その武器の攻撃力等を盾に宿す。<argument:0>秒持続しCTは<argument:1>秒"
+      d3: "封印アイテムをメインハンドで右クリックすると効果は終了"
     traction:
       name: "牽引"
       d1: "右クリックで槍を放ち、刺さった壁へ一気に牽引する"
-      d2: "射程<argument:0>m / CT 1.1秒（shiftで中断・勢いは維持）"
+      d2: "射程は<argument:0>m。CTは1.1秒。shiftで中断可能"
+    bullseye:
+      name: "正鵠を射る"
+      d1: "3秒以上ためて引くと次の射撃ダメージ +<argument:0>%"
+    adaptive:
+      name: "Adaptive"
+      d1: "同じ敵から攻撃を受け続けると適応する。適応が進むほどダメージ軽減を獲得する"
+      d2: "適応対象は1体のみ。レベルが上がるほど適応は早くなる"
+    lingering_ember:
+      name: "往昔の余燼"
+      d1: "ダメージ軽減<argument:0>%を獲得し被ダメは最大でもHPの25%/秒に分割される"
+      d2: "<argument:0>秒ごとに致死性ダメージを無効化"
+    fleeting_dream:
+      name: "須臾の夢"
+      d1: "ダメージを受けたとき、防御力の<argument:0>%分回復する。この効果で体力100%分回復するたびにCT <argument:1>秒が発生する"
+    thunderbolt:
+      name: "サンダーボルト"
+      d1: "何の変哲もないサンダーボルト"
+      d2: "CTは<argument:2>秒。攻撃力と雷属性ダメージ上昇効果を受ける"
+    hollowing:
+      name: "伽藍洞"
+      d1: "クリティカル攻撃のたび相手の回復を<argument:0>%恒久的に減らす"
+      d2: "クリティカルのたび自分の会心率+<argument:0>%（7秒・累積）"
+    gambler:
+      name: "博打打ち"
+      d1: "会心率は<argument:0>%が上限になる"
+      d2: "超過分は1:3で会心ダメージへ変換（会心率100%ぶんまで）"
+    crit_rate:
+      name: "会心率増加"
+      d1: "会心率が<argument:0>%上昇する"
+    crit_power:
+      name: "会心ダメージ増加"
+      d1: "会心ダメージが<argument:0>%上昇する"
+    crit_mastery:
+      name: "会心システム強化"
+      d1: "会心率+<argument:0>%、会心ダメージ+<argument:1>%"
+    auto_intercept:
+      name: "オート迎撃"
+      d1: "3マス以上の落下メイス攻撃が周囲3マスの敵全員への範囲攻撃に変化（ダメージ<argument:0>%）"
+      d2: "CTは<argument:0>秒"
+    spell_refactor:
+      name: "スペルリファクター"
+      d1: "攻撃が魔法ダメージ（防具貫通）になり、ダメージ+<argument:0>%。魔法耐性・与ダメ倍率・会心が乗る"
     # 新規アクティブスキル共通メッセージ
     broken_use: "<red>破壊寸前のため使用できません"
     abekobe_active: "<yellow>すでにあべこべが発動中です"
@@ -198,17 +255,16 @@ emob:
       d1: "装備中、暗視効果を得る"
     auto_mace:
       name: "オートメイス"
-      d1: "Shift+右クリックで狙った敵をメイスが自動攻撃"
-      d2: "上昇 <argument:0>ブロック / CT <argument:1>秒"
+      d1: "Shift+右クリックで狙った敵をメイスが勝手に攻撃"
+      d2: "CTは<argument:1>秒"
     attack_linger:
       name: "攻撃滞留"
       d1: "攻撃時 <argument:0>% でダメージを記憶し"
-      d2: "滞留エフェクトが発生（1秒ごと×3回）"
+      d2: "滞留エフェクトが発生"
     bulk_break:
       name: "一括破壊"
       d1: "鉱石など同系統ブロックをまとめて採掘"
-      d2: "範囲 <argument:0> / 最大 <argument:1>個"
     netherite_coating:
       name: "ネザライトコーティング"
-      d1: "盾の性能をネザライトレギンス相当へ"
+      d1: "盾の性能をネザライト相当へ上昇"
       d2: "防御・防具強度・KB耐性・耐久が上昇"

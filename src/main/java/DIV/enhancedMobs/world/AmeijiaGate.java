@@ -144,6 +144,15 @@ public final class AmeijiaGate {
     }
 
     /**
+     * 退出したプレイヤーの入場元記録を破棄する（static マップのメモリリーク防止）。
+     * 帰還先はもともと再起動で消える簡易保持なので、失っても未登録時と同じく
+     * オーバーワールドのスポーンへフォールバックするだけで実害はない。
+     */
+    public static void forgetOrigin(UUID playerId) {
+        origins.remove(playerId);
+    }
+
+    /**
      * アメイジア側の到着足場を用意し、中央の立ち位置を返す。
      * 5x5 の黒曜石床＋頭上クリア、隅に帰還用ゲートを置く（自分で入って戻る）。
      */

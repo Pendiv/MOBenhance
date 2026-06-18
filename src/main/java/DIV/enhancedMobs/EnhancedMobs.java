@@ -1,6 +1,8 @@
 package DIV.enhancedMobs;
 
 import DIV.enhancedMobs.command.EmobCommand;
+import DIV.enhancedMobs.command.GraveCommand;
+import DIV.enhancedMobs.config.ConfigMigrator;
 import DIV.enhancedMobs.config.DimensionConfig;
 import DIV.enhancedMobs.config.EntityConfig;
 import DIV.enhancedMobs.config.LocationConfig;
@@ -9,11 +11,20 @@ import DIV.enhancedMobs.config.MobBonusConfig;
 import DIV.enhancedMobs.debug.DebugViewers;
 import DIV.enhancedMobs.display.SideboardIntegration;
 import DIV.enhancedMobs.display.TraitDisplay;
+import DIV.enhancedMobs.grave.GraveManager;
+import DIV.enhancedMobs.listener.GraveListener;
 import DIV.enhancedMobs.level.DifficultyCalculator;
 import DIV.enhancedMobs.level.LevelScaler;
 import DIV.enhancedMobs.listener.DebugListener;
 import DIV.enhancedMobs.listener.DisplayListener;
 import DIV.enhancedMobs.listener.AnvilListener;
+import DIV.enhancedMobs.listener.DeificationListener;
+import DIV.enhancedMobs.listener.CastingListener;
+import DIV.enhancedMobs.listener.BowSkillListener;
+import DIV.enhancedMobs.listener.AdaptiveListener;
+import DIV.enhancedMobs.listener.LingeringEmberListener;
+import DIV.enhancedMobs.listener.FleetingDreamListener;
+import DIV.enhancedMobs.listener.ThunderboltListener;
 import DIV.enhancedMobs.item.ItemSkills;
 import DIV.enhancedMobs.listener.ArmorSkillListener;
 import DIV.enhancedMobs.listener.AutoMaceListener;
@@ -35,6 +46,7 @@ import DIV.enhancedMobs.listener.ProjectileListener;
 import DIV.enhancedMobs.listener.ResurrectListener;
 import DIV.enhancedMobs.listener.SealListener;
 import DIV.enhancedMobs.listener.SpearSkillListener;
+import DIV.enhancedMobs.listener.SmithingUpgradeListener;
 import DIV.enhancedMobs.listener.SpearThrowListener;
 import DIV.enhancedMobs.listener.SwordSkillListener;
 import DIV.enhancedMobs.core.MobData;
@@ -73,6 +85,7 @@ public final class EnhancedMobs extends JavaPlugin {
     private TraitService traitService;
     private DimensionConfig dimensionConfig;
     private MobBonusConfig mobBonusConfig;
+    private GraveManager graveManager;
 
     /** NamespacedKey生成用のグローバルアクセサ。 */
     public static EnhancedMobs get() {
@@ -91,7 +104,14 @@ public final class EnhancedMobs extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        saveDefaultConfig();
+
+        // 意向尊重システム: 起動時に config 群のバージョン差・破損を点検し、ユーザーの変更を
+        // 引き継いだまま新フォーマットへ自動移行する（読み込み前に行うのでこの起動で反映）。
+        ConfigMigrator.migrate(this, "config.yml");
+        ConfigMigrator.migrate(this, "dimensions.yml");
+        ConfigMigrator.migrate(this, "entities.yml");
+        ConfigMigrator.migrate(this, "location.yml");
+        reloadConfig(); // 移行後の config.yml を getConfig() に反映
 
         // 表示テキストの一元管理 / 多言語対応（GlobalTranslator へ辞書を登録）。
         DIV.enhancedMobs.i18n.Lang.init(this);
@@ -127,10 +147,20 @@ public final class EnhancedMobs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProjectileListener(this), this);
         getServer().getPluginManager().registerEvents(new ResurrectListener(), this);
         getServer().getPluginManager().registerEvents(new DisplayListener(this), this);
+
+        // 墓システム（死亡時にアイテムを墓へ。所有者接近で顕現する Model B）。
+        this.graveManager = new GraveManager(this, mainConfig);
+        getServer().getPluginManager().registerEvents(new GraveListener(graveManager), this);
+        getServer().getScheduler().runTaskTimer(this, graveManager::tick, 20L, 20L);
+
         if (mainConfig.enhancementEnabled) {
             getServer().getPluginManager().registerEvents(new ItemXpListener(), this);
             getServer().getPluginManager().registerEvents(new AnvilListener(), this);
+            getServer().getPluginManager().registerEvents(new DeificationListener(), this);
+            getServer().getPluginManager().registerEvents(new CastingListener(), this);
+            getServer().getPluginManager().registerEvents(new BowSkillListener(this), this);
             getServer().getPluginManager().registerEvents(new ItemBreakGuardListener(), this);
+            getServer().getPluginManager().registerEvents(new SmithingUpgradeListener(), this);
             // 破壊寸前の自動撤回スイープ（10秒周期。金床GUI/砥石/合成など独自経路外の修理を救済）。
             ItemBreakGuardListener.startBrokenSweep(this);
             getServer().getPluginManager().registerEvents(new FlyingAxeListener(this), this);
@@ -145,9 +175,15 @@ public final class EnhancedMobs extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new PickaxeSkillListener(this), this);
             getServer().getPluginManager().registerEvents(new AxeSkillListener(), this);
             getServer().getPluginManager().registerEvents(new ArmorSkillListener(this), this);
+            getServer().getPluginManager().registerEvents(new AdaptiveListener(), this);
+            getServer().getPluginManager().registerEvents(new LingeringEmberListener(this), this);
+            getServer().getPluginManager().registerEvents(new FleetingDreamListener(this), this);
+            getServer().getPluginManager().registerEvents(new ThunderboltListener(), this);
             getServer().getPluginManager().registerEvents(new MiningSkillListener(), this);
             // 付加スキルの周期効果（暗視: 5秒ごとに10秒付与）
             getServer().getScheduler().runTaskTimer(this, ItemSkills::tickBonusEffects, 100L, 100L);
+            // 会心系スキルの反映（応答性のため 0.5 秒周期）
+            getServer().getScheduler().runTaskTimer(this, ItemSkills::tickCritSkills, 10L, 10L);
         }
 
         // デバッグ用足場。リリース前に削除すること。
@@ -160,6 +196,12 @@ public final class EnhancedMobs extends JavaPlugin {
         if (emobCommand != null) {
             emobCommand.setExecutor(emob);
             emobCommand.setTabCompleter(emob);
+        }
+        GraveCommand grave = new GraveCommand(graveManager);
+        PluginCommand graveCommand = getCommand("grave");
+        if (graveCommand != null) {
+            graveCommand.setExecutor(grave);
+            graveCommand.setTabCompleter(grave);
         }
 
         registerRecipes();
@@ -202,6 +244,10 @@ public final class EnhancedMobs extends JavaPlugin {
         MediatorFieldTrait.restoreAll();
         if (traitDisplay != null) {
             traitDisplay.removeAll();
+        }
+        // 墓: 顕現中をすべて退避（チェスト→保管・ブロック撤去）して再起動を綺麗にする。
+        if (graveManager != null) {
+            graveManager.onDisable();
         }
         getLogger().info("EnhancedMobs disabled.");
     }

@@ -27,10 +27,11 @@ import java.util.Map;
 /**
  * 武器・防具強化エンジン。
  * <ul>
- *   <li>レベル: 1レベルにつき固定ステータス加算。レベルギャップ: 30（精錬&gt;=2 必要）、50（鍛造済み必要）、上限 70。</li>
+ *   <li>レベル: 1レベルにつき固定ステータス加算。レベルギャップ: 30（精錬&gt;=1 必要）、50（鍛造済み必要）、上限 70。</li>
  *   <li>精錬: 1精錬につきアイテム元ステータスの 20% を加算（精錬 5 = +100% = 2倍）。
  *       ネザライトは最大 10 まで可能; 精錬 10 で Lv70 ゲートが解除され上限が 100 になる。</li>
  *   <li>鍛造: メイスでアイテムを鍛造済みマーク（Lv50 ゲートを通過可能にする）。</li>
+ *   <li>神格化: 最大段ビーコンでアイテムを神格化し、レベル上限を {@link #DEIFY_BONUS} 解放（100→120 / 70→90）。</li>
  * </ul>
  * ベースステータスはアイテム本来のデフォルトからモディファイアを再構築することで保持する。
  */
@@ -50,7 +51,17 @@ public final class ItemEnhancer {
     public static final NamespacedKey XP = k("item_xp");
     public static final NamespacedKey REFINE = k("item_refine");
     public static final NamespacedKey FORGED = k("item_forged");
+    public static final NamespacedKey DEIFIED = k("item_deified");
+    public static final NamespacedKey CAST = k("item_cast");
+    public static final NamespacedKey CAST_EXTENDED = k("item_cast_extended");
     public static final NamespacedKey BROKEN = k("item_broken");
+
+    /** 神格化で解放されるレベル上限の増分。 */
+    public static final int DEIFY_BONUS = 20;
+    /** 鋳造系（弓・盾）が Lv50 ゲートを通過するのに要する鋳造回数。 */
+    public static final int CAST_GATE_50 = 8;
+    /** 鋳造系（弓・盾）が Lv70→100 ゲートを通過するのに要する鋳造回数（残響の欠片で 8→16 解放）。 */
+    public static final int CAST_GATE_70 = 16;
 
     /** 破壊寸前状態の解除に必要な耐久割合。 */
     public static final double BROKEN_CLEAR_RATIO = 0.75;
@@ -70,7 +81,7 @@ public final class ItemEnhancer {
     private static final double MINING_PER_LEVEL = 0.9;
 
     public enum Category {
-        WEAPON, ARMOR, TOOL, SHIELD
+        WEAPON, ARMOR, TOOL, SHIELD, BOW
     }
 
     public static Category category(ItemStack item) {
@@ -85,6 +96,9 @@ public final class ItemEnhancer {
         }
         if (n.equals("SHIELD")) {
             return Category.SHIELD;
+        }
+        if (n.equals("BOW")) {
+            return Category.BOW; // 弓は鋳造系レベリング（発射でXP・正鵠を射る抽選）
         }
         // 道具はピッケル・シャベルがフル強化対象（採掘系）。他の耐久品は isRepairOnly（耐久回復のみ）。
         if (n.endsWith("_PICKAXE") || n.endsWith("_SHOVEL")) {
@@ -101,7 +115,7 @@ public final class ItemEnhancer {
 
     /**
      * 修理のみ対応か: 強化カテゴリ外だが、修理素材が定義された耐久品
-     * （シャベル・クワ・弓・クロスボウ・ハサミ・釣竿・盾等）。金床に載せて耐久回復だけ行える。
+     * （クワ・クロスボウ・ハサミ・釣竿等）。金床に載せて耐久回復だけ行える。
      */
     public static boolean isRepairOnly(ItemStack item) {
         return item != null && item.getType() != Material.AIR && item.getAmount() == 1
@@ -123,6 +137,31 @@ public final class ItemEnhancer {
         return item != null && item.getType() != Material.AIR && item.getAmount() == 1 && category(item) != null;
     }
 
+    /** 当プラグインの強化データ（レベル）を実際に保持しているか。 */
+    public static boolean isEnhanced(ItemStack item) {
+        if (item == null) {
+            return false;
+        }
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && meta.getPersistentDataContainer().has(LEVEL, PersistentDataType.INTEGER);
+    }
+
+    /**
+     * 現在のマテリアル基準でステータス・耐久・ロアを PDC から再構築する。
+     * 鍛冶台でのマテリアル変更（ダイヤ→ネザライト）後などに呼び、上限・基礎値を正しく追従させる。
+     */
+    public static void refresh(ItemStack item) {
+        if (!isEnhanceable(item)) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        rebuild(item, meta);
+        item.setItemMeta(meta);
+    }
+
     private static boolean isNetherite(ItemStack item) {
         return item.getType().name().startsWith("NETHERITE");
     }
@@ -136,13 +175,218 @@ public final class ItemEnhancer {
     }
 
     public static int cap(ItemStack item) {
-        // メイス・盾はネザライト同様 Lv100 まで（Lv70 ゲートはメイス精錬5 / 盾精錬25で解除）
-        return isNetherite(item) || item.getType() == Material.MACE || item.getType() == Material.SHIELD
+        // メイス・盾・弓はネザライト同様 Lv100 まで（Lv70 ゲートはメイス精錬5 / 盾精錬25 / 弓精錬5で解除）
+        int base = isNetherite(item) || item.getType() == Material.MACE
+                || item.getType() == Material.SHIELD || item.getType() == Material.BOW
                 ? 100 : 70;
+        return isDeified(item) ? base + DEIFY_BONUS : base; // 神格化で上限を +DEIFY_BONUS 解放
     }
 
+    /** 鋳造系（弓・盾）か。Lv50 ゲートを鍛造ではなく鋳造で通過する。 */
+    public static boolean usesCasting(ItemStack item) {
+        Category c = category(item);
+        return c == Category.BOW || c == Category.SHIELD;
+    }
+
+    /** 現在の鋳造回数。 */
+    public static int castCount(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        return meta == null ? 0 : meta.getPersistentDataContainer().getOrDefault(CAST, PersistentDataType.INTEGER, 0);
+    }
+
+    /** 残響の欠片で 8→16 解放済みか。 */
+    public static boolean isCastExtended(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && meta.getPersistentDataContainer().has(CAST_EXTENDED, PersistentDataType.BYTE);
+    }
+
+    /** 現在の鋳造上限（残響の欠片解放前は {@link #CAST_GATE_50}、解放後は {@link #CAST_GATE_70}）。 */
+    public static int castCap(ItemStack item) {
+        return isCastExtended(item) ? CAST_GATE_70 : CAST_GATE_50;
+    }
+
+    /**
+     * 鋳造 +1（鋳造系のみ。現在の上限 {@link #castCap} まで）。
+     * 8 で Lv50 ゲート、16 で Lv70→100 ゲートが解放される。上限到達済みなら false。
+     */
+    public static boolean cast(ItemStack item) {
+        if (!isEnhanceable(item) || !usesCasting(item)) {
+            return false;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+        var pdc = meta.getPersistentDataContainer();
+        int c = pdc.getOrDefault(CAST, PersistentDataType.INTEGER, 0);
+        int cap = pdc.has(CAST_EXTENDED, PersistentDataType.BYTE) ? CAST_GATE_70 : CAST_GATE_50;
+        if (c >= cap) {
+            return false;
+        }
+        pdc.set(CAST, PersistentDataType.INTEGER, c + 1);
+        rebuild(item, meta);
+        item.setItemMeta(meta);
+        return true;
+    }
+
+    /** 残響の欠片で鋳造上限を 8→16 へ解放する結果。 */
+    public enum CastExtendResult { EXTENDED, NEED_CASTS, ALREADY, NOT_APPLICABLE }
+
+    /**
+     * 残響の欠片で鋳造上限を {@link #CAST_GATE_50}→{@link #CAST_GATE_70} へ解放する。
+     * 鋳造が 8 回に達している鋳造系アイテムにのみ有効。
+     */
+    public static CastExtendResult extendCast(ItemStack item) {
+        if (!isEnhanceable(item) || !usesCasting(item)) {
+            return CastExtendResult.NOT_APPLICABLE;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return CastExtendResult.NOT_APPLICABLE;
+        }
+        var pdc = meta.getPersistentDataContainer();
+        if (pdc.has(CAST_EXTENDED, PersistentDataType.BYTE)) {
+            return CastExtendResult.ALREADY;
+        }
+        if (pdc.getOrDefault(CAST, PersistentDataType.INTEGER, 0) < CAST_GATE_50) {
+            return CastExtendResult.NEED_CASTS;
+        }
+        pdc.set(CAST_EXTENDED, PersistentDataType.BYTE, (byte) 1);
+        rebuild(item, meta);
+        item.setItemMeta(meta);
+        return CastExtendResult.EXTENDED;
+    }
+
+    /** 神格化済みか。 */
+    public static boolean isDeified(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && isDeified(meta);
+    }
+
+    private static boolean isDeified(ItemMeta meta) {
+        return meta.getPersistentDataContainer().has(DEIFIED, PersistentDataType.BYTE);
+    }
+
+    /** 神格化の結果。 */
+    public enum DeifyResult { DEIFIED, ALREADY, NOT_APPLICABLE }
+
+    /**
+     * アイテムを神格化し、レベル上限を {@link #DEIFY_BONUS} 解放する（100→120 / 70→90）。
+     * 既に神格化済みなら {@link DeifyResult#ALREADY}、対象外なら {@link DeifyResult#NOT_APPLICABLE}。
+     */
+    public static DeifyResult deify(ItemStack item) {
+        if (!isEnhanceable(item)) {
+            return DeifyResult.NOT_APPLICABLE;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return DeifyResult.NOT_APPLICABLE;
+        }
+        if (isDeified(meta)) {
+            return DeifyResult.ALREADY;
+        }
+        meta.getPersistentDataContainer().set(DEIFIED, PersistentDataType.BYTE, (byte) 1);
+        rebuild(item, meta);
+        item.setItemMeta(meta);
+        return DeifyResult.DEIFIED;
+    }
+
+    /** 素材別 XP 要求に掛かる基準係数。Lv120 までを終端 EndContent 相当の長丁場にするための土台。 */
+    /** アイテムの現在レベルでの必要XP（ロア表示などの外部用）。 */
     static int requiredXp(ItemStack item) {
-        return Math.max(1, (int) Math.round(baseRequiredXp(item) * xpMultiplier()));
+        int level = 1;
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            level = meta.getPersistentDataContainer().getOrDefault(LEVEL, PersistentDataType.INTEGER, 1);
+        }
+        return requiredXp(item, level);
+    }
+
+    /** 指定レベルでの必要XP。素材ごとの基礎値にレベル倍率カーブを掛ける（旧: 一律 ×4 を廃止）。 */
+    static int requiredXp(ItemStack item, int level) {
+        return Math.max(1, (int) Math.round(baseRequiredXp(item) * levelXpMultiplier(level) * xpMultiplier()));
+    }
+
+    /**
+     * レベルに応じた必要XPの倍率カーブ。素材基礎値に対し、
+     * L1=×1.0 → L30=×1.5 → L70=×3.0 → L100=×9.0 → L120=×18.0 を線形補間で緩やかに上昇させる。
+     * （例: ネザライト基礎80 → 80 / 120 / 240 / 720 / 1440）
+     */
+    private static double levelXpMultiplier(int level) {
+        if (level <= 1) {
+            return 1.0;
+        }
+        if (level <= 30) {
+            return lerp(1, 30, 1.0, 1.5, level);
+        }
+        if (level <= 70) {
+            return lerp(30, 70, 1.5, 3.0, level);
+        }
+        if (level <= 100) {
+            return lerp(70, 100, 3.0, 9.0, level);
+        }
+        if (level <= 120) {
+            return lerp(100, 120, 9.0, 18.0, level);
+        }
+        return 18.0;
+    }
+
+    private static double lerp(int x0, int x1, double y0, double y1, int x) {
+        return y0 + (y1 - y0) * (double) (x - x0) / (x1 - x0);
+    }
+
+    /** L1 から指定レベルへ到達するまでの累計必要XP（その素材のカーブ）。 */
+    static int cumulativeXp(ItemStack item, int level) {
+        int total = 0;
+        for (int l = 1; l < level; l++) {
+            total += requiredXp(item, l);
+        }
+        return total;
+    }
+
+    /** これまで投入された総経験値（到達分の累計 + 現在の途中XP）。素材変更時に保存する量。 */
+    public static int totalInvestedXp(ItemStack item) {
+        ItemMeta meta = item == null ? null : item.getItemMeta();
+        if (meta == null) {
+            return 0;
+        }
+        var pdc = meta.getPersistentDataContainer();
+        int level = pdc.getOrDefault(LEVEL, PersistentDataType.INTEGER, 1);
+        int partial = pdc.getOrDefault(XP, PersistentDataType.INTEGER, 0);
+        return cumulativeXp(item, level) + partial;
+    }
+
+    /**
+     * 総経験値から、このアイテム（現在の素材）のレベルと途中XPを再導出して PDC に設定する。
+     * ダイヤ→ネザライトのように必要XPカーブが重くなる素材では、同じ総経験値でもレベルが下がる
+     * （＝レベルではなく投入経験値を維持する）。レベルは現素材の上限で頭打ち。
+     */
+    public static void setLevelFromTotalXp(ItemStack item, int totalXp) {
+        if (!isEnhanceable(item)) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        int cap = cap(item);
+        int level = 1;
+        int remaining = Math.max(0, totalXp);
+        while (level < cap) {
+            int req = requiredXp(item, level);
+            if (remaining < req) {
+                break;
+            }
+            remaining -= req;
+            level++;
+        }
+        if (level >= cap) {
+            remaining = Math.min(remaining, requiredXp(item, level)); // 上限到達はバー満タン止め
+        }
+        var pdc = meta.getPersistentDataContainer();
+        pdc.set(LEVEL, PersistentDataType.INTEGER, level);
+        pdc.set(XP, PersistentDataType.INTEGER, remaining);
+        item.setItemMeta(meta);
     }
 
     private static int baseRequiredXp(ItemStack item) {
@@ -180,7 +424,7 @@ public final class ItemEnhancer {
         }
 
         xp += amount;
-        int req = requiredXp(item);
+        int req = requiredXp(item, level);
         boolean leveled = false;
         while (xp >= req && canPass(item, level, refine, forged)) {
             xp -= req;
@@ -189,7 +433,9 @@ public final class ItemEnhancer {
             if (level >= cap(item)) {
                 break;
             }
+            req = requiredXp(item, level); // 次レベルの要求値で継続（カーブ上昇に追従）
         }
+        req = requiredXp(item, level); // 最終レベルの要求値（ロアバー用）
         if (!canPass(item, level, refine, forged) && xp > req) {
             xp = req; // ゲートでブロック中はバーを満タンで停止
         }
@@ -207,9 +453,15 @@ public final class ItemEnhancer {
     /** 現在のレベルから次へ進めるかを、精錬・鍛造の進捗に基づいて判定。 */
     public static boolean canPass(ItemStack item, int level, int refine, int forged) {
         if (level >= cap(item)) return false;
-        if (level == GATE_REFINE && refine < 2) return false;
-        if (level == GATE_FORGE && forged < GATE_FORGE) return false;
-        if (level == 70 && refine < maxRefine(item)) return false; // 精錬を極めると突破（ネザライト10 / メイス5。他素材は Lv70 が上限なので到達しない）
+        if (level == GATE_REFINE && refine < 1) return false;
+        if (usesCasting(item)) {
+            // 弓・盾は鋳造で通過：Lv50=鋳造8（グロウストーン）、Lv70→100=鋳造16（残響の欠片で 8→16 解放）。
+            if (level == GATE_FORGE && castCount(item) < CAST_GATE_50) return false;
+            if (level == 70 && castCount(item) < CAST_GATE_70) return false;
+        } else {
+            if (level == GATE_FORGE && forged < GATE_FORGE) return false; // 鍛造（メイス刻印）
+            if (level == 70 && refine < maxRefine(item)) return false;    // 精錬MAX（ネザライト10 / メイス5）
+        }
         return true;
     }
 
@@ -277,6 +529,7 @@ public final class ItemEnhancer {
     /**
      * 即座にレベル上限・精錬上限へ引き上げる（ドラゴンの頭での即時マックス用）。
      * 鍛造マークも付与し、XP は 0、未抽選ならスキルも抽選する。
+     * 神格化ぶん（{@link #DEIFY_BONUS}）は含めず、基礎上限（100 / 70）まで。神格化後の 100→120 は自力で。
      */
     public static boolean maxOut(ItemStack item) {
         if (!isEnhanceable(item)) {
@@ -288,10 +541,15 @@ public final class ItemEnhancer {
         }
         var pdc = meta.getPersistentDataContainer();
         int max = cap(item);
+        if (isDeified(item)) {
+            max -= DEIFY_BONUS; // ドラゴンヘッドは神格化ぶんを与えない（基礎上限止まり）
+        }
         pdc.set(LEVEL, PersistentDataType.INTEGER, max);
         pdc.set(XP, PersistentDataType.INTEGER, 0);
         pdc.set(REFINE, PersistentDataType.INTEGER, maxRefine(item));
         pdc.set(FORGED, PersistentDataType.INTEGER, GATE_FORGE);
+        pdc.set(CAST, PersistentDataType.INTEGER, CAST_GATE_70);
+        pdc.set(CAST_EXTENDED, PersistentDataType.BYTE, (byte) 1);
         ItemSkills.rollIfNeeded(item, pdc, max);
         rebuild(item, meta);
         item.setItemMeta(meta);
@@ -300,6 +558,9 @@ public final class ItemEnhancer {
 
     /** 破壊寸前状態か。 */
     public static boolean isBroken(ItemStack item) {
+        if (item == null) {
+            return false; // 防具スロット未装備でも安全に false
+        }
         ItemMeta meta = item.getItemMeta();
         return meta != null && meta.getPersistentDataContainer().has(BROKEN, PersistentDataType.BYTE);
     }
@@ -412,7 +673,7 @@ public final class ItemEnhancer {
             addBonus(meta, Attribute.ARMOR, M_ARM, level * 0.15 * refMult + coatArmor, group);
             addBonus(meta, Attribute.KNOCKBACK_RESISTANCE, M_KB, level * 0.01 * refMult + coatKb, group);
             addBonus(meta, Attribute.ARMOR_TOUGHNESS, M_TUF, coatTough, group);
-        } else {
+        } else if (cat == Category.ARMOR) {
             // 防具性能上昇スキル: 素の防具性能の 20/40/60/120% を加算（無効時 0）
             double boost = ItemSkills.armorBoostPct(meta, level);
             addBonus(meta, Attribute.ARMOR, M_ARM,
@@ -504,8 +765,17 @@ public final class ItemEnhancer {
             lore.add(Lang.render("emob.item.lore.refine",
                     Component.text(refine), Component.text(maxRefine(item))));
         }
-        if (forged >= GATE_FORGE) {
+        if (usesCasting(item)) {
+            int castCap = meta.getPersistentDataContainer().has(CAST_EXTENDED, PersistentDataType.BYTE)
+                    ? CAST_GATE_70 : CAST_GATE_50;
+            int cast = Math.min(meta.getPersistentDataContainer().getOrDefault(CAST, PersistentDataType.INTEGER, 0),
+                    castCap);
+            lore.add(Lang.render("emob.item.lore.cast", Component.text(cast), Component.text(castCap)));
+        } else if (forged >= GATE_FORGE) {
             lore.add(Lang.render("emob.item.lore.forged"));
+        }
+        if (isDeified(meta)) {
+            lore.add(Lang.render("emob.item.lore.deified"));
         }
         lore.addAll(ItemSkills.loreLines(meta, level));
         if (meta.getPersistentDataContainer().has(BROKEN, PersistentDataType.BYTE)) {

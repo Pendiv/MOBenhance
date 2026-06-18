@@ -1,3 +1,7 @@
+# Schema generation. Do not edit — auto-migrated on startup, keeping your changes
+# (previous file saved as entities.yml.bak).
+config-version: 1
+
 # Per-entity-type trait control.
 #
 #   whitelist: if non-empty, ONLY these trait ids may roll on this entity type.

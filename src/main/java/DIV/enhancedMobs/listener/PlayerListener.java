@@ -5,12 +5,14 @@ import DIV.enhancedMobs.core.PlayerData;
 import DIV.enhancedMobs.trait.gtsolo.FamineTrait;
 import DIV.enhancedMobs.trait.gtsolo.MediatorFieldTrait;
 import DIV.enhancedMobs.trait.gtsolo.SkyScorchingFlameTrait;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -39,6 +41,13 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onFireDamage(EntityDamageEvent event) {
         SkyScorchingFlameTrait.amplifyFireDamage(event);
+    }
+
+    /** 事故救済: 同一MC日に死亡が嵩むほど、そのプレイヤーが受ける危険度（モブレベル）を下げる。 */
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        long day = Bukkit.getWorlds().get(0).getGameTime() / 24000L;
+        PlayerData.of(event.getEntity()).recordDeathRelief(day);
     }
 
     /** 飢餓: 空腹エフェクト中に飢餓持ち（32m圏内）の前で食事しても満腹度回復を巻き戻す。 */

@@ -88,11 +88,22 @@ public final class TraitService {
      * @return 付与（または昇格）したら true
      */
     public boolean addTrait(LivingEntity mob, String id, int rank) {
+        return addTrait(mob, id, rank, false);
+    }
+
+    /**
+     * {@link #addTrait(LivingEntity, String, int)} の強制版。
+     * {@code force=true} のとき disabled-traits / appliesTo / entityConfig のゲートを無視して付与する
+     * （三体生命などが内部モード特性を確実に付与するため。ランク上限は通常どおり尊重）。
+     */
+    public boolean addTrait(LivingEntity mob, String id, int rank, boolean force) {
         Trait trait = registry.byId(id);
-        if (trait == null || rank <= 0
-                || dimensions.isTraitDisabled(id)
+        if (trait == null || rank <= 0) {
+            return false;
+        }
+        if (!force && (dimensions.isTraitDisabled(id)
                 || !trait.appliesTo(mob)
-                || !entityConfig.allows(mob.getType(), id)) {
+                || !entityConfig.allows(mob.getType(), id))) {
             return false;
         }
         Map<Trait, Integer> traits = read(mob);
@@ -126,7 +137,7 @@ public final class TraitService {
     public void onHurtTarget(LivingEntity mob, LivingEntity target, EntityDamageByEntityEvent event) {
         read(mob).forEach((trait, rank) -> {
             if (!event.isCancelled()) {
-                trait.onHurtTarget(mob, rank, target, event);
+                safe(trait, mob, () -> trait.onHurtTarget(mob, rank, target, event));
             }
         });
     }
@@ -134,7 +145,7 @@ public final class TraitService {
     public void onAttacked(LivingEntity mob, EntityDamageEvent event) {
         read(mob).forEach((trait, rank) -> {
             if (!event.isCancelled()) {
-                trait.onAttacked(mob, rank, event);
+                safe(trait, mob, () -> trait.onAttacked(mob, rank, event));
             }
         });
     }
@@ -142,29 +153,42 @@ public final class TraitService {
     public void onAttackedBy(LivingEntity mob, LivingEntity attacker, EntityDamageByEntityEvent event) {
         read(mob).forEach((trait, rank) -> {
             if (!event.isCancelled()) {
-                trait.onAttackedBy(mob, rank, attacker, event);
+                safe(trait, mob, () -> trait.onAttackedBy(mob, rank, attacker, event));
             }
         });
     }
 
     public void tick(LivingEntity mob) {
-        read(mob).forEach((trait, rank) -> trait.tick(mob, rank));
+        read(mob).forEach((trait, rank) -> safe(trait, mob, () -> trait.tick(mob, rank)));
     }
 
     public void onDeath(LivingEntity mob, EntityDeathEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onDeath(mob, rank, event));
+        read(mob).forEach((trait, rank) -> safe(trait, mob, () -> trait.onDeath(mob, rank, event)));
     }
 
     public void onExplosionPrime(LivingEntity mob, ExplosionPrimeEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onExplosionPrime(mob, rank, event));
+        read(mob).forEach((trait, rank) -> safe(trait, mob, () -> trait.onExplosionPrime(mob, rank, event)));
     }
 
     public void onPotionEffect(LivingEntity mob, EntityPotionEffectEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onPotionEffect(mob, rank, event));
+        read(mob).forEach((trait, rank) -> safe(trait, mob, () -> trait.onPotionEffect(mob, rank, event)));
     }
 
     public void onTargeted(LivingEntity mob, EntityTargetLivingEntityEvent event) {
-        read(mob).forEach((trait, rank) -> trait.onTargeted(mob, rank, event));
+        read(mob).forEach((trait, rank) -> safe(trait, mob, () -> trait.onTargeted(mob, rank, event)));
+    }
+
+    /**
+     * 個々の特性ハンドラを例外隔離して実行する。1特性が想定外状態（消滅済みエンティティ等）で
+     * 投げても、同一モブの他特性や tick タスクの残りモブを巻き添えにしない。
+     */
+    private void safe(Trait trait, LivingEntity mob, Runnable action) {
+        try {
+            action.run();
+        } catch (Exception e) {
+            plugin.getLogger().warning("Trait '" + trait.id() + "' threw on "
+                    + mob.getType() + " (" + mob.getUniqueId() + "): " + e);
+        }
     }
 
     /** 頭上表示用の日本語ラベル（例: "頑強2 猛毒 灼熱"）。 */

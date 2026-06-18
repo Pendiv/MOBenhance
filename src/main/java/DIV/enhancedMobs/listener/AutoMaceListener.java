@@ -78,7 +78,7 @@ public final class AutoMaceListener implements Listener {
         AttributeInstance atk = player.getAttribute(Attribute.ATTACK_DAMAGE);
         double damage = atk != null ? atk.getValue() : 1.0;
 
-        player.setCooldown(held.getType(), ItemSkills.AUTO_MACE_COOLDOWN_SEC[stage] * 20);
+        player.setCooldown(held.getType(), (int) Math.round(ItemSkills.AUTO_MACE_COOLDOWN_SEC[stage] * 20));
         ItemStack mace = held.clone();
         player.getInventory().setItemInMainHand(null);
         markRing(target); // ロックオン表示

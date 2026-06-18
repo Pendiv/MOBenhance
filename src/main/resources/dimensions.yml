@@ -1,3 +1,7 @@
+# Schema generation. Do not edit — auto-migrated on startup, keeping your changes
+# (previous file saved as dimensions.yml.bak).
+config-version: 1
+
 # Per-dimension control of the leveling / trait system.
 #
 #   enabled: false  -> mobs in this dimension get NO levels and NO traits at all.
@@ -32,6 +36,14 @@ dimensions:
     enabled: true
     multiply: 1.35   # レベル35%増し
     add: 75          # さらに +75 レベル
+
+# レベル付与が無効なディメンション（enabled: false）でも、ここのモブには必ずレベルを付与する例外枠。
+# ボス系など、どこに湧いても弱くあってほしくないモブ向け。種別はエンティティの短縮名。
+leveling-exceptions:
+  enabled: true            # この例外機能を使うか（false で完全に無効）
+  mobs:                    # 常にレベル付与するモブ（ディメンションの enabled: false を無視）
+    - wither
+    - warden
 
 # Traits listed here never roll anywhere -- a kill-switch for problem traits.
 # Use the trait ids (see trait_names.yml for the full list).

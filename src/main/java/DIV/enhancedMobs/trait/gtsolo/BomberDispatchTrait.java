@@ -4,14 +4,19 @@ import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.EntityState;
 import DIV.enhancedMobs.core.Mobs;
 import DIV.enhancedMobs.trait.Trait;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
-/** 一定間隔で着火済みクリーパーを頭上から最近傍プレイヤーに向けて投擲する。 */
+/** 一定間隔で着火済みクリーパーを頭上から最近傍プレイヤーに向けて投擲する（爆発で地形は破壊しない）。 */
 public final class BomberDispatchTrait extends Trait {
+
+    /** 投擲クリーパーの目印（爆発時に地形破壊を抑止するため {@code MobListener} が参照）。 */
+    public static final NamespacedKey THROWN_KEY = new NamespacedKey(EnhancedMobs.get(), "bomber_thrown");
 
     public BomberDispatchTrait(int cost, int weight, int maxRank, int minLevel) {
         super("bomber_dispatch", "BOMBER", cost, weight, maxRank, minLevel);
@@ -34,6 +39,8 @@ public final class BomberDispatchTrait extends Trait {
             creeper.setIgnited(true);
             // 投擲クリーパーが本特性を引いた場合の連鎖増殖を防止。
             EnhancedMobs.get().traits().stripTrait(creeper, "bomber_dispatch");
+            // 爆発時に地形破壊を消すための目印。
+            creeper.getPersistentDataContainer().set(THROWN_KEY, PersistentDataType.BYTE, (byte) 1);
             Vector dir = player.getLocation().toVector().subtract(mob.getLocation().toVector());
             if (dir.lengthSquared() > 1e-6) {
                 Vector velocity = dir.normalize().multiply(0.8);

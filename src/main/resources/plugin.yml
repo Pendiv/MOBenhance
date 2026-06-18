@@ -12,6 +12,9 @@ commands:
     description: EnhancedMobs unified command (difficulty / gamemode / trait / skill / debug).
     usage: /emob <difficulty|gamemode|trait|skill|dimension|debug> ...
     aliases: [em]
+  grave:
+    description: List your death graves and recover items when nearby.
+    usage: /grave [recover]
 
 permissions:
   enhancedmobs.difficulty.get:
@@ -34,4 +37,7 @@ permissions:
     default: op
   enhancedmobs.dimension:
     description: Load and teleport to custom dimensions.
+    default: op
+  enhancedmobs.grave.admin:
+    description: Open and break other players' graves.
     default: op

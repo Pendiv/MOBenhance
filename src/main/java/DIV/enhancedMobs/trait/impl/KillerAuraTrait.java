@@ -1,5 +1,6 @@
 package DIV.enhancedMobs.trait.impl;
 
+import DIV.attributelib.api.DamageLib;
 import DIV.enhancedMobs.core.TraitCooldown;
 import DIV.enhancedMobs.trait.Trait;
 import org.bukkit.entity.Entity;
@@ -23,7 +24,7 @@ public final class KillerAuraTrait extends Trait {
         double damage = damagePerRank * rank;
         for (Entity entity : mob.getNearbyEntities(range, range, range)) {
             if (entity instanceof Player player && TraitCooldown.ready(player, "killer_aura")) {
-                player.damage(damage, mob);
+                DamageLib.magic(mob, player, damage); // 魔法ダメージ（魔法耐性・与ダメ倍率が乗る）
             }
         }
     }

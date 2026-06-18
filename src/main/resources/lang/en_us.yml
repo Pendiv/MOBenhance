@@ -10,29 +10,47 @@ emob:
       level: "<aqua>Enhance Lv.<argument:0><argument:1>"
       refine: "<gold>Refine +<argument:0>/<argument:1>"
       forged: "<light_purple>Forged"
+      cast: "<aqua>Cast <argument:0>/<argument:1>"
+      deified: "<gradient:#ffd700:#fff7c0>✦ Deified (cap unlocked)</gradient>"
       broken: "<red>About to break (stats 0, repair needed)"
   break:
-    no_space: "<red>Your gear is about to break! Its stats are disabled (needs repair)."
-    stowed: "<yellow>Your gear is about to break, so it was returned to your inventory (please repair it)."
+    no_space: "<red>Your gear is about to break! Its stats are disabled."
+    stowed: "<yellow>Gear about to break — returned to your inventory."
     cleared: "<green>Durability recovered, so the about-to-break state was cleared."
   # Anvil operations
   anvil:
-    repaired_broken: "<green>Durability restored (the about-to-break state clears at 75% or more)."
+    repaired_broken: "<green>Durability restored."
     repaired: "<green>Durability restored."
     repair_full: "<gray>Durability is already full."
     bonus_granted: "<light_purple>Granted the bonus skill [<argument:0>]."
     bonus_already: "<red>It already has that bonus."
     bonus_not_applicable: "<red>This item cannot receive that bonus."
     skill_rerolled: "<gold>Rerolled the skill: <argument:0>"
-    reroll_none: "<red>No skill to reroll (needs Lv10+ gear with a rolled skill)."
-    dragon_maxed: "<light_purple>Maxed the tool's level and refinement."
-    dragon_tool_only: "<red>A Dragon Head can only be used on tools (pickaxe/shovel/axe)."
-    repair_only: "<red>This item only supports durability repair (hold a repair material and right-click)."
+    reroll_none: "<red>No skill to reroll."
+    dragon_maxed: "<light_purple>Maxed level, refine, forge &amp; casting."
+    dragon_fail: "<red>This item is not a leveling item."
+    repair_only: "<red>This item only supports durability repair."
     forged: "<light_purple>Forged."
     forge_already_mace: "<yellow>Already forged (sneak right-click to refine instead)."
     forge_already: "<red>Already forged."
     refined: "<gold>Refined."
     refine_max: "<red>Cannot refine any further."
+  # Deification (max-tier beacon)
+  deify:
+    deified: "<gradient:#ffd700:#fff7c0>✦ Deified</gradient>"
+    already: "<yellow>Already deified."
+    need_max_beacon: "<red>A 4-layer beacon is required."
+  # Casting (fully-charged respawn anchor)
+  cast:
+    need_full: "<red>A fully-charged respawn anchor is required."
+    no_charge: "<red>Out of charge."
+    charge_full: "<yellow>Already fully charged."
+    progress: "<aqua>Cast <argument:0>/<argument:1>."
+    ready_shard: "<gold>8 casts reached. Use an Echo Shard to raise the cap to 16."
+    complete: "<green>Casting complete."
+    extended: "<dark_aqua>Echo Shard raised the casting cap to 16."
+    extend_need_casts: "<red>Cast <argument:0> times first."
+    extend_already: "<yellow>Cap already unlocked."
   # Command shared
   common:
     no_perm: "<red>No permission."
@@ -84,7 +102,7 @@ emob:
       d2: "If it has Unbreaking, +<argument:0>"
     flying:
       name: "Flight"
-      d1: "Right-click to throw the axe (returns on hit/landing)"
+      d1: "Right-click to throw the axe; sneak to recall it"
       d2: "Range <argument:0> blocks / CD <argument:1>s"
     max_health:
       name: "Max Health"
@@ -95,11 +113,11 @@ emob:
       d2: "negates fall damage for 5s"
     valor:
       name: "Valor"
-      d1: "Each hit gains/stacks an attack-up effect"
-      d2: "Max level <argument:0> / duration <argument:1>s"
+      d1: "Each hit raises attack damage, stacking the effect"
+      d2: "Cap <argument:0> / duration <argument:1>s"
     dash:
       name: "Dash"
-      d1: "Right-click to dash forward (CD <argument:0>s)"
+      d1: "Right-click to dash forward; CD <argument:0>s"
       d2: "Slashes enemies in the path for attack-based damage"
     all_in:
       name: "All-In"
@@ -107,7 +125,7 @@ emob:
       d2: "attack damage +<argument:0>"
     just_block:
       name: "Just Block"
-      d1: "<argument:0>% chance to fully block a hit"
+      d1: "<argument:0>% chance to negate a hit"
     takenoko:
       name: "Bamboo Magic"
       d1: "Launches the hit enemy <argument:0> blocks up and"
@@ -124,34 +142,31 @@ emob:
       d1: "Gain +<argument:0>% of base armor stats"
     lion_heart:
       name: "Lion Heart"
-      d1: "Survive a lethal blow below 10% HP at half a heart,"
-      d2: "gain totem effect and Resistance V 5s (CD <argument:0>s)"
+      d1: "Survive a blow that would drop you below 10% HP,"
+      d2: "gain a totem effect and invulnerability (CD <argument:0>s)"
     set_bonus:
       name: "Set Bonus"
-      d1: "If all 4 armor pieces share a material:"
-      d2: "Regen I, max health +<argument:0>, attack +<argument:1>"
+      d1: "If all 4 armor pieces share a material,"
+      d2: "Regen I, and max health & attack increase"
     past_gift:
       name: "Gift from the Past"
-      d1: "On death, send <argument:0>% of armor to the future"
-      d2: "Receive it as an armor boost next respawn"
-      d3: "(dying while holding it loses the gift)"
+      d1: "On death, transmit <argument:0>% of armor to the future"
+      d2: "Receive the armor on respawn"
     hero_hymn:
       name: "Hymn of the Fallen Hero"
-      d1: "On hit, seal the target's healing for <argument:0>s"
-      d2: "and deal +<argument:0>% attack damage with lightning"
-      d3: "[blocks trait revival effects]"
+      d1: "On hit, block the target's healing and"
+      d2: "call a lightning strike based on attack damage"
     asahi_mourning:
       name: "Rising-Sun Requiem"
-      d1: "Attacks become fire-typed (<argument:0>s ignite)"
-      d2: "Burning targets take +<argument:0>% fire damage,"
-      d3: "cannot be healed, and revival is blocked"
+      d1: "Attacks become fire-typed"
+      d2: "While the target burns, it takes more fire damage and cannot be healed"
     spear_throw:
       name: "Throw"
-      d1: "Right-click to throw a virtual spear forward"
-      d2: "Faster = stronger (speed <argument:0> / CD <argument:1>s)"
+      d1: "Right-click to throw a spear forward"
+      d2: "CD <argument:1>s"
     fast_mining:
       name: "Fast Mining"
-      d1: "Mining speed (efficiency) +<argument:0>"
+      d1: "Mining speed +<argument:0>"
     area_break:
       name: "Area Break"
       d1: "Right-click to break <argument:0>x<argument:1>x<argument:2> ahead"
@@ -161,29 +176,71 @@ emob:
       d1: "Grants Fortune Lv<argument:0>"
     megaton_smash:
       name: "Megaton Smash"
-      d1: "A mace smash hit stuns the target for <argument:0>s"
-      d2: "Stunned = unable to act (bosses 25%) / CD <argument:0>s"
+      d1: "A mace hit stuns the target for <argument:0>s"
+      d2: "Stun is weak on bosses. CD <argument:0>s"
     fire_charge:
       name: "Fire Charge"
       d1: "Right-click to launch a fire charge forward"
-      d2: "On impact: <argument:0>% attack as physical damage / CD <argument:1>s"
+      d2: "CD <argument:1>s"
     gun_shield_abolition:
       name: "Anti-Turtling"
-      d1: "A successful guard heals <argument:0> hearts"
-      d2: "Holding block 4s+ forces a <argument:0>s cooldown"
+      d1: "On a successful guard, heal <argument:0> hearts"
+      d2: "In exchange, can't hold block past 4s; forced CD <argument:0>s"
     effective_counter:
       name: "Effective Counter"
       d1: "A successful guard knocks back the attacker and counters"
-      d2: "Mainhand weapon deals <argument:0>% attack as physical / CD <argument:1>s"
+      d2: "CD <argument:1>s"
     abekobe:
       name: "Swap"
-      d1: "Hold a shield in mainhand, right-click to seal the offhand sword/axe"
-      d2: "Its attack and attributes dwell in the shield (<argument:0>s / CD <argument:1>s)"
-      d3: "Right-click the sealed item in mainhand to end early"
+      d1: "Hold a shield in mainhand, right-click to seal the offhand weapon"
+      d2: "Its attack and attributes dwell in the shield; lasts <argument:0>s, CD <argument:1>s"
+      d3: "Right-click the sealed item in mainhand to end it"
     traction:
       name: "Traction"
       d1: "Right-click to hurl the spear; get yanked to where it sticks"
-      d2: "Range <argument:0>m / CD 1.1s (sneak to cancel, keep momentum)"
+      d2: "Range <argument:0>m. CD 1.1s. Sneak to cancel"
+    bullseye:
+      name: "Bullseye"
+      d1: "Draw for 3s+ to make the next shot deal +<argument:0>% damage"
+    adaptive:
+      name: "Adaptive"
+      d1: "Adapt as one enemy keeps hitting you; more adaptation = more damage cut"
+      d2: "Only one target at a time; higher level adapts faster"
+    lingering_ember:
+      name: "Lingering Ember"
+      d1: "Gain <argument:0>% damage cut; incoming hits are split to at most 25% HP/s"
+      d2: "Negates lethal damage once every <argument:0>s"
+    fleeting_dream:
+      name: "Fleeting Dream"
+      d1: "On taking damage, heal <argument:0>% of armor. Each time total heal reaches max HP, a <argument:1>s CD starts"
+    thunderbolt:
+      name: "Thunderbolt"
+      d1: "Just an ordinary thunderbolt"
+      d2: "CD <argument:2>s. Scales with attack and lightning damage bonuses"
+    hollowing:
+      name: "Hollowing"
+      d1: "Each critical hit permanently cuts the target's healing by <argument:0>%"
+      d2: "Each critical hit grants +<argument:0>% crit chance for 7s (stacks)"
+    gambler:
+      name: "Gambler"
+      d1: "Crit chance is capped at <argument:0>%"
+      d2: "Excess crit chance converts to crit damage at 1:3 (up to 100% crit chance)"
+    crit_rate:
+      name: "Crit Chance Up"
+      d1: "Crit chance +<argument:0>%"
+    crit_power:
+      name: "Crit Damage Up"
+      d1: "Crit damage +<argument:0>%"
+    crit_mastery:
+      name: "Crit Mastery"
+      d1: "Crit chance +<argument:0>%, crit damage +<argument:1>%"
+    auto_intercept:
+      name: "Auto Intercept"
+      d1: "A mace hit during a 3+ block fall becomes an AoE on all enemies within 3 blocks (<argument:0>% damage)"
+      d2: "CD <argument:0>s"
+    spell_refactor:
+      name: "Spell Refactor"
+      d1: "Attacks become magic damage (ignores armor) and deal +<argument:0>%. Scales with magic resist, damage mult, and crit"
     # Shared messages for new active skills
     broken_use: "<red>Can't use it while about to break"
     abekobe_active: "<yellow>Swap is already active"
@@ -198,17 +255,16 @@ emob:
       d1: "Grants night vision while equipped"
     auto_mace:
       name: "Auto Mace"
-      d1: "Shift+right-click to auto-attack the aimed enemy"
-      d2: "Rise <argument:0> blocks / CD <argument:1>s"
+      d1: "Shift+right-click and the mace auto-attacks the aimed enemy"
+      d2: "CD <argument:1>s"
     attack_linger:
       name: "Lingering Strike"
       d1: "<argument:0>% chance on hit to store the damage and"
-      d2: "trigger a lingering effect (once per second x3)"
+      d2: "trigger a lingering effect"
     bulk_break:
       name: "Vein Mine"
       d1: "Mines connected same-type blocks like ore at once"
-      d2: "Range <argument:0> / up to <argument:1>"
     netherite_coating:
       name: "Netherite Coating"
-      d1: "Brings the shield up to netherite leggings stats"
+      d1: "Raises the shield to netherite-tier stats"
       d2: "Raises armor, toughness, KB resistance, durability"

@@ -1,5 +1,7 @@
 package DIV.enhancedMobs.trait.gtsolo;
 
+import DIV.attributelib.api.Attributes;
+import DIV.attributelib.api.StandardAttributes;
 import DIV.enhancedMobs.EnhancedMobs;
 import DIV.enhancedMobs.core.MobData;
 import DIV.enhancedMobs.core.Mobs;
@@ -45,10 +47,17 @@ public final class SorrowElegyTrait extends Trait {
     private static final NamespacedKey RANK_KEY = new NamespacedKey(EnhancedMobs.get(), "sorrow_pd_rank");
     /** 所持者を見失った時刻（ワールド fullTime。再起動を跨いでも単調増加）。 */
     private static final NamespacedKey ORPHAN_KEY = new NamespacedKey(EnhancedMobs.get(), "sorrow_pd_orphan");
+    /** 仮死開始時刻（ワールド fullTime）。安全上限による強制解消の基準。 */
+    private static final NamespacedKey SINCE_KEY = new NamespacedKey(EnhancedMobs.get(), "sorrow_pd_since");
 
     private static final String WATCH_KEY = "sorrow_pd";
     /** 所持者を見失ってから死亡確定までの猶予（= チャンクアンロードと消滅の区別がつかないため）。 */
     private static final long ORPHAN_GRACE = 1200L;
+    /**
+     * 仮死の絶対上限（20 分）。所持者が生存し続けていてもこの時間で強制解消する安全装置。
+     * 万一リカバリ機構が取りこぼしても「永久に倒せない個体」が残らないための backstop。
+     */
+    private static final long MAX_PSEUDO_LIFETIME = 24000L;
     /** 孤児検査の周期（原典: 5 秒ごと）。 */
     private static final int ORPHAN_CHECK_INTERVAL = 100;
 
@@ -101,6 +110,12 @@ public final class SorrowElegyTrait extends Trait {
             clear(victim);
             return false;
         }
+        // 安全上限を超えていたら（リカバリ取りこぼし対策）強制解消し、このダメージは通す。
+        Long since = pdc.get(SINCE_KEY, PersistentDataType.LONG);
+        if (since != null && victim.getWorld().getFullTime() - since >= MAX_PSEUDO_LIFETIME) {
+            resolve(victim);
+            return false;
+        }
         ensureWatcher(victim); // 再起動・チャンク再ロード後の孤児監視を復帰させる。
         event.setCancelled(true);
         return true;
@@ -121,6 +136,11 @@ public final class SorrowElegyTrait extends Trait {
         if (MobData.of(victim).isProcessed() && elegyRank(victim) > 0) {
             return; // 挽歌持ち自身は仮死しない（死 = 解消トリガー）。
         }
+        // 仮死→（ランク2以上で）全快復活も「死の回避」。被害者が回復封印中（倍率0）なら仮死させず死なせる。
+        // これで「阻害で殺したはずの個体を近くの挽歌持ちが蘇生する」抜け穴も塞ぐ。
+        if (Attributes.get(victim, StandardAttributes.HEAL_MULTIPLIER) <= 0) {
+            return;
+        }
         LivingEntity holder = findHolder(victim);
         if (holder == null) {
             return;
@@ -132,6 +152,7 @@ public final class SorrowElegyTrait extends Trait {
         PersistentDataContainer pdc = victim.getPersistentDataContainer();
         pdc.set(HOLDER_KEY, PersistentDataType.STRING, holder.getUniqueId().toString());
         pdc.set(RANK_KEY, PersistentDataType.INTEGER, rank);
+        pdc.set(SINCE_KEY, PersistentDataType.LONG, victim.getWorld().getFullTime());
         pdc.remove(ORPHAN_KEY);
         if (rank >= 3) {
             applyHpDouble(victim); // 仮死を経た者は仮死後も残る永続HP2倍。
@@ -206,6 +227,22 @@ public final class SorrowElegyTrait extends Trait {
      * 孤児検査ウォッチャー（5 秒周期）。所持者が消滅・死亡したまま {@link #ORPHAN_GRACE} 経過したら
      * 仮死を解消する。対象がアンロードされたら自然消滅し、再ロード後の被弾時に再登録される。
      */
+    /**
+     * 仮死中の個体の孤児監視ウォッチャーを復帰させる（再起動・チャンク再ロードで FastTick が消えるため、
+     * {@code EntitiesLoadEvent} から全エンティティに対して呼ぶ）。仮死中でなければ何もしない。
+     * 旧バージョンで開始時刻が無い個体には現在時刻を補完し、安全上限を効かせる。
+     */
+    public static void rehydrateWatcher(LivingEntity victim) {
+        PersistentDataContainer pdc = victim.getPersistentDataContainer();
+        if (!pdc.has(HOLDER_KEY, PersistentDataType.STRING)) {
+            return;
+        }
+        if (!pdc.has(SINCE_KEY, PersistentDataType.LONG)) {
+            pdc.set(SINCE_KEY, PersistentDataType.LONG, victim.getWorld().getFullTime());
+        }
+        ensureWatcher(victim);
+    }
+
     private static void ensureWatcher(LivingEntity victim) {
         if (FastTick.isRegistered(victim, WATCH_KEY)) {
             return;
@@ -225,6 +262,11 @@ public final class SorrowElegyTrait extends Trait {
                 return false; // 解消済み。
             }
             long now = victim.getWorld().getFullTime();
+            Long birth = pdc.get(SINCE_KEY, PersistentDataType.LONG);
+            if (birth != null && now - birth >= MAX_PSEUDO_LIFETIME) {
+                resolve(victim); // 安全上限超過: 所持者の生死に関わらず強制解消。
+                return false;
+            }
             if (Bukkit.getEntity(UUID.fromString(raw)) instanceof LivingEntity holder
                     && holder.isValid() && !holder.isDead()) {
                 pdc.remove(ORPHAN_KEY);
@@ -260,6 +302,7 @@ public final class SorrowElegyTrait extends Trait {
         pdc.remove(HOLDER_KEY);
         pdc.remove(RANK_KEY);
         pdc.remove(ORPHAN_KEY);
+        pdc.remove(SINCE_KEY);
     }
 
     /** 永続の最大体力2倍（原典: MULTIPLY_TOTAL +1.0。冪等）。 */
