@@ -33,8 +33,10 @@ public final class TraitLang {
     }
 
     private void load(EnhancedMobs plugin, String resource, Map<String, String> into) {
-        plugin.saveResource(resource, false);
         File file = new File(plugin.getDataFolder(), resource);
+        if (!file.exists()) {
+            plugin.saveResource(resource, false);
+        }
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
         for (String key : yaml.getKeys(false)) {
             into.put(key, yaml.getString(key));

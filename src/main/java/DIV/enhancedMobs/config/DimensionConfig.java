@@ -35,8 +35,10 @@ public final class DimensionConfig {
     private final Set<String> levelingExceptionMobs = new HashSet<>(List.of("wither", "warden"));
 
     public DimensionConfig(EnhancedMobs plugin) {
-        plugin.saveResource("dimensions.yml", false);
         File file = new File(plugin.getDataFolder(), "dimensions.yml");
+        if (!file.exists()) {
+            plugin.saveResource("dimensions.yml", false);
+        }
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
 
         ConfigurationSection defaults = yaml.getConfigurationSection("default");

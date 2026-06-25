@@ -24,8 +24,10 @@ public final class LocationConfig {
     private final Map<String, Depth> depthByDimension = new HashMap<>();
 
     public LocationConfig(EnhancedMobs plugin) {
-        plugin.saveResource("location.yml", false);
         File file = new File(plugin.getDataFolder(), "location.yml");
+        if (!file.exists()) {
+            plugin.saveResource("location.yml", false);
+        }
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
 
         ConfigurationSection biomes = yaml.getConfigurationSection("biomes");

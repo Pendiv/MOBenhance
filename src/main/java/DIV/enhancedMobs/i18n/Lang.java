@@ -55,7 +55,9 @@ public final class Lang {
     }
 
     private static void load(EnhancedMobs plugin, String resourcePath, Locale locale) {
-        plugin.saveResource(resourcePath, false); // データフォルダへ展開（既存は上書きしない=管理者編集を尊重）
+        if (!new File(plugin.getDataFolder(), resourcePath).exists()) {
+            plugin.saveResource(resourcePath, false); // データフォルダへ展開（既存は上書きしない=管理者編集を尊重）
+        }
         // 同梱既定（jar 内）を土台に、ディスク版（管理者編集）で上書きする。
         // こうすると新しく追加したキーは常に同梱既定から解決でき、既存キーの編集も尊重される
         // （saveResource(false) は既存を上書きしないため、追加キーがディスクに無い問題への対処）。
@@ -102,10 +104,10 @@ public final class Lang {
      * メッセージ向け）。引数は MiniMessage 側で {@code <argument:0>} 等として参照される。
      */
     public static Component of(String key, ComponentLike... args) {
-        if (args.length == 0) {
-            return Component.translatable(key);
-        }
-        return Component.translatable().key(key).arguments(args).build();
+        // 静的ファクトリのみ使う。ビルダー連鎖 .build() は Adventure のマイナー版間で戻り値型
+        // (BuildableComponent ↔ TranslatableComponent) が変わり、サーバの Paper 版がビルド対象と
+        // 食い違うと NoSuchMethodError になるため（外部 26.2 サーバで実害が出た）。
+        return Component.translatable(key, args);
     }
 
     /** サーバ表示ロケールで確定レンダリングした Component（lore / 名前など）。 */
